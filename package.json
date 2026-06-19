@@ -1,0 +1,16 @@
+{
+  "name": "mia-commit-chart",
+  "version": "1.1.0",
+  "private": false,
+  "description": "Standalone HTML commit activity chart generator for a local Git repository.",
+  "scripts": {
+    "check": "node --check generate-commit-chart.js",
+    "chart": "node generate-commit-chart.js --repo . --branch main --out mia-commit-chart.html --title \"mia-platform commit activity\"",
+    "smoke": "node --check generate-commit-chart.js && node generate-commit-chart.js --repo . --branch main --out /tmp/deus-commit-chart-smoke.html --title \"Smoke chart\""
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "type": "commonjs",
+  "license": "MIT"
+}

@@ -1,0 +1,73 @@
+name: Smoke
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    name: Generator smoke test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Syntax check
+        run: node --check generate-commit-chart.js
+
+      - name: Create fixture git repository
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/deus-commit-chart-fixture
+          cd /tmp/deus-commit-chart-fixture
+          git init -b main
+          git config user.name "Smoke Test"
+          git config user.email "smoke@example.local"
+
+          echo "one" > fixture.txt
+          git add fixture.txt
+          GIT_AUTHOR_DATE="2026-01-01T10:00:00Z" \
+          GIT_COMMITTER_DATE="2026-01-01T10:00:00Z" \
+          git commit -m "fixture: first commit"
+
+          echo "two" >> fixture.txt
+          git add fixture.txt
+          GIT_AUTHOR_DATE="2026-01-03T10:00:00Z" \
+          GIT_COMMITTER_DATE="2026-01-03T10:00:00Z" \
+          git commit -m "fixture: second commit"
+
+          echo "three" >> fixture.txt
+          git add fixture.txt
+          GIT_AUTHOR_DATE="2026-01-03T11:00:00Z" \
+          GIT_COMMITTER_DATE="2026-01-03T11:00:00Z" \
+          git commit -m "fixture: third commit"
+
+      - name: Generate chart HTML
+        run: |
+          node generate-commit-chart.js \
+            --repo /tmp/deus-commit-chart-fixture \
+            --branch main \
+            --out /tmp/deus-commit-chart-smoke.html \
+            --title "Smoke chart"
+
+      - name: Verify generated HTML
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -s /tmp/deus-commit-chart-smoke.html
+          grep -q "Smoke chart" /tmp/deus-commit-chart-smoke.html
+          grep -q "chart-data" /tmp/deus-commit-chart-smoke.html
+          grep -q "Total commits" /tmp/deus-commit-chart-smoke.html
