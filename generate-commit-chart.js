@@ -4,6 +4,11 @@
 const fs = require('fs');
 const path = require('path');
 const { spawnSync } = require('child_process');
+const {
+  LAYOUT_PRESETS,
+  renderModernSvg,
+  renderModernHtml
+} = require('./modern-renderer');
 
 const RANGE_OPTIONS = [30, 90, 365];
 const SVG_THEMES = {
@@ -44,6 +49,9 @@ function parseArgs(argv) {
     format: '',
     days: 90,
     theme: 'github-compact',
+    layout: 'comfortable',
+    width: 0,
+    height: 0,
     hideBorder: false
   };
 
@@ -62,6 +70,9 @@ function parseArgs(argv) {
     else if (arg === '--format') { out.format = requiredValue(arg, next); i++; }
     else if (arg === '--days') { out.days = Number(requiredValue(arg, next)); i++; }
     else if (arg === '--theme') { out.theme = requiredValue(arg, next); i++; }
+    else if (arg === '--layout') { out.layout = requiredValue(arg, next); i++; }
+    else if (arg === '--width') { out.width = Number(requiredValue(arg, next)); i++; }
+    else if (arg === '--height') { out.height = Number(requiredValue(arg, next)); i++; }
     else if (arg === '--hide-border') { out.hideBorder = true; }
     else if (arg === '--help' || arg === '-h') usage(0);
     else throw new Error(`Unknown argument: ${arg}`);
@@ -82,6 +93,15 @@ function parseArgs(argv) {
   }
   if (!SVG_THEMES[out.theme]) {
     throw new Error(`--theme must be one of: ${Object.keys(SVG_THEMES).join(', ')}`);
+  }
+  if (!LAYOUT_PRESETS[out.layout]) {
+    throw new Error(`--layout must be one of: ${Object.keys(LAYOUT_PRESETS).join(', ')}`);
+  }
+  if (out.width && (!Number.isFinite(out.width) || out.width < 640 || out.width > 2400)) {
+    throw new Error('--width must be between 640 and 2400');
+  }
+  if (out.height && (!Number.isFinite(out.height) || out.height < 240 || out.height > 1200)) {
+    throw new Error('--height must be between 240 and 1200');
   }
   if (out.source === 'github' && !out.username) {
     throw new Error('--username is required when --source github is used');
@@ -109,6 +129,9 @@ Options:
   --format        html or svg; inferred from --out extension when omitted
   --days          Default/display range: 30, 90, or 365 (default: 90)
   --theme         SVG theme: github-compact or github-light
+  --layout        Chart spacing preset: compact, comfortable, or spacious
+  --width         Optional SVG/interactive chart width (640-2400)
+  --height        Optional SVG/interactive chart height (240-1200)
   --hide-border   Hide the outer border in SVG output
   --title         Chart title
   --description   Optional short subtitle
@@ -173,6 +196,9 @@ async function readGithubDailyCounts(username) {
     query CommitChart($login: String!, $from: DateTime!, $to: DateTime!) {
       user(login: $login) {
         contributionsCollection(from: $from, to: $to) {
+          totalCommitContributions
+          restrictedContributionsCount
+          hasAnyRestrictedContributions
           contributionCalendar {
             totalContributions
             weeks {
@@ -214,7 +240,8 @@ async function readGithubDailyCounts(username) {
     throw new Error(`GitHub GraphQL error: ${payload.errors.map((item) => item.message).join('; ')}`);
   }
 
-  const calendar = payload.data?.user?.contributionsCollection?.contributionCalendar;
+  const collection = payload.data?.user?.contributionsCollection;
+  const calendar = collection?.contributionCalendar;
   if (!calendar) throw new Error(`GitHub user not found or contribution data unavailable: ${username}`);
 
   const counts = new Map();
@@ -233,7 +260,10 @@ async function readGithubDailyCounts(username) {
     sourceDetails: {
       type: 'github',
       username,
-      totalContributions: Number(calendar.totalContributions) || 0
+      totalContributions: Number(calendar.totalContributions) || 0,
+      totalCommitContributions: Number(collection.totalCommitContributions) || 0,
+      restrictedContributionsCount: Number(collection.restrictedContributionsCount) || 0,
+      hasAnyRestrictedContributions: Boolean(collection.hasAnyRestrictedContributions)
     }
   };
 }
@@ -309,6 +339,9 @@ function createMeta(args, sourceData, series) {
     branch: sourceData.sourceDetails.branch || null,
     author: sourceData.sourceDetails.author || null,
     username: sourceData.sourceDetails.username || null,
+    totalCommitContributions: sourceData.sourceDetails.totalCommitContributions ?? null,
+    restrictedContributionsCount: sourceData.sourceDetails.restrictedContributionsCount ?? null,
+    hasAnyRestrictedContributions: sourceData.sourceDetails.hasAnyRestrictedContributions ?? null,
     generatedAt: new Date().toISOString(),
     totalCommits: series.at(-1)?.cumulative || 0,
     activeDays,
@@ -1020,9 +1053,16 @@ async function main() {
 
   const series = buildSeries(sourceData.counts, sourceData.startDate, sourceData.endDate);
   const meta = createMeta(args, sourceData, series);
+  const renderOptions = {
+    theme: args.theme,
+    layout: args.layout,
+    width: args.width || undefined,
+    height: args.height || undefined,
+    hideBorder: args.hideBorder
+  };
   const output = args.format === 'svg'
-    ? renderSvg(args.title, args.description, meta, series, args.days, args.theme, args.hideBorder)
-    : renderHtml(args.title, args.description, meta, series);
+    ? renderModernSvg(args.title, args.description, meta, series, args.days, renderOptions)
+    : renderModernHtml(args.title, args.description, meta, series, renderOptions);
 
   const outputPath = path.resolve(args.out);
   fs.mkdirSync(path.dirname(outputPath), { recursive: true });
@@ -1044,6 +1084,7 @@ if (require.main === module) {
 module.exports = {
   buildSeries,
   selectRange,
-  renderSvg,
+  renderSvg: renderModernSvg,
+  renderHtml: renderModernHtml,
   svgDate
 };

@@ -4,8 +4,8 @@ Activity chart generator for local Git repositories and GitHub contribution cale
 
 It can produce:
 
-- an interactive, self-contained HTML report with **30d / 90d / 365d** switching;
-- a static, script-free SVG suitable for GitHub profile READMEs;
+- an interactive, self-contained HTML report with **30d / 90d / 365d** switching that rebuilds the chart as SVG in-browser;
+- a smooth, static, script-free SVG suitable for GitHub profile READMEs;
 - data from a local `git log` or from GitHub's GraphQL contribution calendar.
 
 No charting library or runtime web service is required for the generated output.
@@ -29,7 +29,9 @@ Open `commit-chart.html` in a browser. The report contains a built-in range swit
 - `90d` — quarter-scale trend;
 - `365d` — long-range activity.
 
-`--days` selects the initially active range. The other ranges remain available in the generated HTML.
+`--days` selects the initially active range. The other ranges remain available in the generated HTML. Clicking a range does not call GitHub again: the page slices the embedded trailing-365-day dataset and rebuilds the chart as a new SVG in the browser.
+
+The chart spacing is configurable with `--layout compact|comfortable|spacious`; `--width` and `--height` can override the preset dimensions when a custom aspect ratio is needed.
 
 ## README-safe SVG
 
@@ -44,6 +46,7 @@ node generate-commit-chart.js \
   --format svg \
   --days 90 \
   --theme github-compact \
+  --layout spacious \
   --out activity-90d.svg \
   --title "Contribution activity"
 ```
@@ -67,7 +70,15 @@ Available SVG themes:
 - `github-compact`;
 - `github-light`.
 
-Use `--hide-border` for a borderless SVG.
+Use `--hide-border` for a borderless SVG. Daily activity is rendered as a restrained smooth curve with a fading area fill; the blue dashed `7d trend` is the 7-day moving average. Curve control points are clamped to adjacent data values so smoothing does not create artificial overshoot between daily points.
+
+Layout presets:
+
+- `compact` — 900×300;
+- `comfortable` — 1000×350 (default);
+- `spacious` — 1120×410, used by the published profile assets.
+
+Custom dimensions are also supported, for example `--width 1280 --height 440`.
 
 ## GitHub account contribution source
 
@@ -91,7 +102,7 @@ The token is read from one of these environment variables, in order:
 
 Tokens are deliberately not accepted as CLI arguments so they do not appear in the process command line.
 
-The GitHub source requests the trailing 365-day contribution calendar once during generation. The generated HTML or SVG does not contact GitHub afterward.
+The GitHub source requests the trailing 365-day contribution calendar once during generation. The generated HTML or SVG does not contact GitHub afterward. The published `activity-assets` branch is refreshed every six hours (and on relevant pushes/manual dispatch), so the README chart is normally at most about six hours behind GitHub's contribution calendar.
 
 ## Automated publishing
 
@@ -183,23 +194,28 @@ user
                 └── contributionCount
 ```
 
-This is contribution-calendar activity, not a raw sum of commits from one repository.
+This is contribution-calendar activity, not a raw sum of commits from one repository. GitHub's `contributionCount` can include qualifying commits and other profile contributions such as pull requests, issues, reviews, discussions, repository creation, and similar contribution-calendar events.
+
+Private/internal repository activity has an additional visibility rule. GitHub's GraphQL documentation states that private and internal contributions are included only when the token has the optional `read:user` scope. GitHub also only exposes anonymized restricted contribution counts when the account has enabled **Private contributions** in profile contribution settings. The default Actions `github.token` is repository-scoped and should therefore be treated as a public contribution view; use a user-authorized `DEUS_COMMIT_CHART_TOKEN` with the required scope if private/internal counts should be included. Repository names and private details are never written to the chart—only daily counts are used.
+
+The GraphQL query also records `restrictedContributionsCount` and `hasAnyRestrictedContributions` in the embedded metadata, so the interactive report can tell whether GitHub actually returned anonymized private/internal counts.
 
 ## Output metrics
 
 The HTML report includes:
 
-- daily activity;
-- cumulative activity inside the selected range;
-- 7-day moving average;
+- a smooth daily activity SVG with a fading area fill;
+- a dashed `7d trend` (the 7-day moving average);
+- instant 30d / 90d / 365d in-browser SVG rebuilding;
 - active-day count;
 - peak day;
+- data freshness and private-count visibility metadata;
 - exact calendar range.
 
-The SVG includes:
+The static SVG includes:
 
-- daily activity line and area;
-- 7-day moving average;
+- a smooth daily activity line and area;
+- a dashed 7-day trend;
 - activity total;
 - active-day count;
 - source and date-range metadata.
@@ -215,6 +231,9 @@ The SVG includes:
 --format        html | svg; inferred from --out extension when omitted
 --days          30 | 90 | 365; default: 90
 --theme         github-compact | github-light
+--layout        compact | comfortable | spacious
+--width         optional custom chart width, 640-2400
+--height        optional custom chart height, 240-1200
 --hide-border   hide the outer SVG border
 --title         chart title
 --description   optional subtitle / accessible SVG description

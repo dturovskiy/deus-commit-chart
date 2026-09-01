@@ -52,15 +52,17 @@ test('renderSvg produces static README-safe SVG without scripts', () => {
     { source: 'local', repo: 'fixture', branch: 'main' },
     series,
     30,
-    'github-compact',
-    false
+    { theme: 'github-compact', layout: 'comfortable', hideBorder: false }
   );
 
   assert.match(svg, /^<svg /);
   assert.match(svg, /<title id="chart-title">Activity<\/title>/);
   assert.match(svg, /fixture · main/);
   assert.doesNotMatch(svg, /<script/i);
-  assert.match(svg, /viewBox="0 0 900 280"/);
+  assert.match(svg, /viewBox="0 0 1000 350"/);
+  assert.match(svg, / C /);
+  assert.match(svg, /stroke-dasharray="5 7"/);
+  assert.match(svg, />7d trend<\/text>/);
 });
 
 test('svgDate formats UTC dates deterministically', () => {

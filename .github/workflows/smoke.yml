@@ -22,7 +22,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22'
           cache: npm
 
       - name: Install
@@ -80,6 +80,8 @@ jobs:
           grep -q 'data-range="30"' /tmp/deus-commit-chart-smoke.html
           grep -q 'data-range="90"' /tmp/deus-commit-chart-smoke.html
           grep -q 'data-range="365"' /tmp/deus-commit-chart-smoke.html
+          grep -q '<svg id="chart"' /tmp/deus-commit-chart-smoke.html
+          grep -q 'Range switches rebuild the SVG in-browser' /tmp/deus-commit-chart-smoke.html
           grep -q "chart-data" /tmp/deus-commit-chart-smoke.html
 
       - name: Generate README-safe SVGs
@@ -92,6 +94,7 @@ jobs:
               --branch main \
               --format svg \
               --days "$days" \
+              --layout spacious \
               --out "/tmp/deus-commit-chart-${days}d.svg" \
               --title "Smoke chart"
           done
@@ -104,7 +107,9 @@ jobs:
             file="/tmp/deus-commit-chart-${days}d.svg"
             test -s "$file"
             grep -q '^<svg ' "$file"
-            grep -q 'viewBox="0 0 900 280"' "$file"
+            grep -q 'viewBox="0 0 1120 410"' "$file"
+            grep -q 'stroke-dasharray="5 7"' "$file"
+            grep -q '>7d trend</text>' "$file"
             if grep -qi '<script' "$file"; then
               echo "SVG must not contain scripts: $file" >&2
               exit 1

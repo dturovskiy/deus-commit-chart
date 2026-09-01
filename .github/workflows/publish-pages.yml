@@ -5,6 +5,7 @@ on:
     branches: [main]
     paths:
       - 'generate-commit-chart.js'
+      - 'modern-renderer.js'
       - 'package.json'
       - 'package-lock.json'
       - '.github/workflows/publish-pages.yml'
@@ -44,6 +45,7 @@ jobs:
             --source github \
             --username "${{ github.repository_owner }}" \
             --days 90 \
+            --layout spacious \
             --out dist/index.html \
             --title "GitHub contribution activity"
 
@@ -59,6 +61,7 @@ jobs:
               --format svg \
               --days "$days" \
               --theme github-compact \
+              --layout spacious \
               --hide-border \
               --out "dist/activity-${days}d.svg" \
               --title "GitHub contribution activity"
