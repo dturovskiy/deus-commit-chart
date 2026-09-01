@@ -93,9 +93,11 @@ Tokens are deliberately not accepted as CLI arguments so they do not appear in t
 
 The GitHub source requests the trailing 365-day contribution calendar once during generation. The generated HTML or SVG does not contact GitHub afterward.
 
-## GitHub Pages publishing
+## Automated publishing
 
-The repository includes `.github/workflows/publish-pages.yml`. On `main`, it can publish:
+The repository includes `.github/workflows/publish-pages.yml`. Despite the historical filename, the workflow now publishes generated artifacts to the dedicated `activity-assets` branch, so README rendering does not depend on GitHub Pages being enabled.
+
+The branch contains:
 
 ```text
 /index.html
@@ -104,28 +106,27 @@ The repository includes `.github/workflows/publish-pages.yml`. On `main`, it can
 /activity-365d.svg
 ```
 
-The HTML page is interactive and switches between 30d, 90d, and 365d in the browser. The SVG files are static and intended for README embedding.
-
-For `dturovskiy/deus-commit-chart`, the resulting targets are intended to be:
+The SVG files are static and intended for README embedding. For `dturovskiy/deus-commit-chart`, stable raw targets are:
 
 ```text
-https://dturovskiy.github.io/deus-commit-chart/
-https://dturovskiy.github.io/deus-commit-chart/activity-30d.svg
-https://dturovskiy.github.io/deus-commit-chart/activity-90d.svg
-https://dturovskiy.github.io/deus-commit-chart/activity-365d.svg
+https://raw.githubusercontent.com/dturovskiy/deus-commit-chart/activity-assets/activity-30d.svg
+https://raw.githubusercontent.com/dturovskiy/deus-commit-chart/activity-assets/activity-90d.svg
+https://raw.githubusercontent.com/dturovskiy/deus-commit-chart/activity-assets/activity-365d.svg
 ```
 
-GitHub Pages must be configured to use **GitHub Actions** as the deployment source. The workflow rebuilds on relevant `main` changes, every six hours, and on manual dispatch.
+The workflow rebuilds on relevant `main` changes, every six hours, and on manual dispatch. It force-refreshes only the generated `activity-assets` branch; `main` stays free of generated chart commits.
 
-A profile README can embed one static range and make the image open the interactive report:
+A profile README can embed the default 90-day range directly from the generated branch:
 
 ```html
 <p align="center">
-  <a href="https://dturovskiy.github.io/deus-commit-chart/">
-    <img src="https://dturovskiy.github.io/deus-commit-chart/activity-90d.svg" alt="GitHub contribution activity" />
+  <a href="https://github.com/dturovskiy/deus-commit-chart">
+    <img src="https://raw.githubusercontent.com/dturovskiy/deus-commit-chart/activity-assets/activity-90d.svg" alt="GitHub contribution activity" />
   </a>
 </p>
 ```
+
+The generated `index.html` still contains the interactive 30d / 90d / 365d switcher and can be opened locally from a workflow artifact/checkout. If GitHub Pages is enabled later for the `activity-assets` branch, the same HTML can be served as an interactive public page without changing the generator.
 
 By default the publishing workflow authenticates with `github.token`. An optional repository secret named `DEUS_COMMIT_CHART_TOKEN` can override it when broader GitHub contribution visibility is required.
 

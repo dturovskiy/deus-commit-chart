@@ -13,17 +13,15 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
-  pages: write
-  id-token: write
+  contents: write
 
 concurrency:
-  group: github-pages
+  group: activity-assets
   cancel-in-progress: true
 
 jobs:
-  build:
-    name: Build static activity site
+  publish:
+    name: Build and publish activity assets
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -32,7 +30,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22'
           cache: npm
 
       - name: Install
@@ -65,25 +63,21 @@ jobs:
               --out "dist/activity-${days}d.svg" \
               --title "GitHub contribution activity"
           done
+          touch dist/.nojekyll
 
-      - name: Configure Pages
-        uses: actions/configure-pages@v5
-        with:
-          enablement: true
+      - name: Publish generated branch
+        env:
+          TARGET_BRANCH: activity-assets
+        run: |
+          set -euo pipefail
+          temp_dir="$(mktemp -d)"
+          cp -a dist/. "$temp_dir/"
 
-      - name: Upload Pages artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: dist
-
-  deploy:
-    name: Deploy GitHub Pages
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    runs-on: ubuntu-latest
-    needs: build
-    steps:
-      - name: Deploy
-        id: deployment
-        uses: actions/deploy-pages@v4
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git switch --orphan "$TARGET_BRANCH"
+          find . -mindepth 1 -maxdepth 1 ! -name .git -exec rm -rf {} +
+          cp -a "$temp_dir"/. .
+          git add -A
+          git commit -m "chore: refresh generated activity charts"
+          git push --force origin "$TARGET_BRANCH"
