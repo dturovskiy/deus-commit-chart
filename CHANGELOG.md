@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+- Add a product-oriented README hero with live 30-day demo, release/CI/license badges, and a minimal `@v1` quick start.
+- Add contributor, security, issue-template, and pull-request guidance for public OSS use.
+- Add repository metadata and discovery keywords to `package.json`.
+
 ## 1.4.0
 
 - Add a reusable composite GitHub Action via `action.yml`.

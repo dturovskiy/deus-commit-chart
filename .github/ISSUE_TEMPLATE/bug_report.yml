@@ -1,0 +1,51 @@
+name: Bug report
+description: Report a reproducible problem with generation, rendering, or the GitHub Action.
+title: "[Bug]: "
+labels:
+  - bug
+body:
+  - type: markdown
+    attributes:
+      value: Thanks for reporting a bug. Please avoid including tokens or private repository details.
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      description: Release/tag or commit SHA, for example v1.4.0 or v1.
+      placeholder: v1.4.0
+    validations:
+      required: true
+  - type: dropdown
+    id: source
+    attributes:
+      label: Data source
+      options:
+        - GitHub contribution calendar
+        - Local Git repository
+        - Not source-specific
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Reproduction
+      description: Minimal workflow/command and steps that reproduce the issue. Remove secrets before posting.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: Node version, operating system, GitHub-hosted/self-hosted runner, browser if relevant.

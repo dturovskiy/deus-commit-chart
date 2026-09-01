@@ -1,14 +1,55 @@
-# Deus Commit Chart
+<h1 align="center">Deus Commit Chart</h1>
 
-Activity chart generator for local Git repositories and GitHub contribution calendars.
+<p align="center">
+  <strong>Static GitHub contribution charts without a third-party runtime service.</strong>
+</p>
 
-It can produce:
+<p align="center">
+  Generate smooth 30d / 90d / 365d profile charts as README-safe SVGs, plus an interactive HTML report powered by GitHub Actions or local Git data.
+</p>
 
-- an interactive, self-contained HTML report with **30d / 90d / 365d** switching that rebuilds the chart as SVG in-browser;
-- a smooth, static, script-free SVG suitable for GitHub profile READMEs;
-- data from a local `git log` or from GitHub's GraphQL contribution calendar.
+<p align="center">
+  <a href="https://github.com/dturovskiy/deus-commit-chart/releases/latest"><img alt="GitHub release" src="https://img.shields.io/github/v/release/dturovskiy/deus-commit-chart?display_name=tag"></a>
+  <a href="https://github.com/dturovskiy/deus-commit-chart/actions/workflows/smoke.yml"><img alt="Smoke CI" src="https://github.com/dturovskiy/deus-commit-chart/actions/workflows/smoke.yml/badge.svg"></a>
+  <a href="https://github.com/dturovskiy/deus-commit-chart/blob/main/LICENSE"><img alt="License" src="https://img.shields.io/github/license/dturovskiy/deus-commit-chart"></a>
+  <img alt="GitHub Action" src="https://img.shields.io/badge/GitHub%20Action-v1-2088FF?logo=githubactions&logoColor=white">
+</p>
 
-No charting library or runtime web service is required for the generated output.
+<p align="center">
+  <a href="https://github.com/dturovskiy/deus-commit-chart">
+    <img src="https://raw.githubusercontent.com/dturovskiy/deus-commit-chart/activity-assets/activity-30d.svg" alt="Deus Commit Chart 30-day GitHub contribution activity demo" />
+  </a>
+</p>
+
+<p align="center">
+  <strong>Static SVG · no live chart backend · 30/90/365d · GitHub Actions · local Git</strong>
+</p>
+
+## Why Deus Commit Chart
+
+- **Reliable profile embeds:** README rendering uses pre-generated static SVG instead of a live third-party chart endpoint.
+- **Account-wide GitHub activity:** use GitHub's contribution calendar, with restricted/private visibility diagnostics when GitHub returns them.
+- **Local repository mode:** generate charts directly from `git log` without network access.
+- **Interactive report:** switch between 30d, 90d, and 365d instantly in the generated self-contained HTML page.
+- **No charting dependency:** generated output is self-contained and the renderer has no external chart-library dependency.
+
+## Quick start
+
+Use the versioned GitHub Action in any workflow:
+
+```yaml
+- name: Generate contribution charts
+  uses: dturovskiy/deus-commit-chart@v1
+  with:
+    username: ${{ github.repository_owner }}
+    token: ${{ github.token }}
+    default-days: '30'
+    ranges: '30,90,365'
+    layout: spacious
+    output-dir: activity-dist
+```
+
+The Action generates `index.html` plus static `activity-30d.svg`, `activity-90d.svg`, and `activity-365d.svg`. Publishing is intentionally left to the caller so installing the Action never force-pushes a branch by itself.
 
 ## Add it to your GitHub profile
 
@@ -339,7 +380,9 @@ npm test
 npm run check
 ```
 
-The smoke workflow validates both the interactive HTML range controls and static SVG output for 30d, 90d, and 365d.
+The smoke workflow validates the reusable Action, interactive HTML range controls, and static SVG output for 30d, 90d, and 365d.
+
+Contributions are welcome. See [`CONTRIBUTING.md`](CONTRIBUTING.md) for development and pull-request guidance. Please use the issue templates for bugs and feature requests, and follow [`SECURITY.md`](SECURITY.md) for sensitive reports.
 
 ## Privacy
 

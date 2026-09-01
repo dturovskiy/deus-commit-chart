@@ -2,7 +2,24 @@
   "name": "deus-commit-chart",
   "version": "1.4.0",
   "private": false,
-  "description": "Local and GitHub contribution activity chart generator with interactive HTML and README-safe SVG output.",
+  "description": "Static GitHub contribution charts and local Git activity reports with README-safe SVG and interactive HTML output.",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dturovskiy/deus-commit-chart.git"
+  },
+  "homepage": "https://github.com/dturovskiy/deus-commit-chart#readme",
+  "bugs": {
+    "url": "https://github.com/dturovskiy/deus-commit-chart/issues"
+  },
+  "keywords": [
+    "github-actions",
+    "github-profile",
+    "github-profile-readme",
+    "contribution-graph",
+    "svg",
+    "git-activity",
+    "developer-tools"
+  ],
   "scripts": {
     "check": "node --check generate-commit-chart.js && node --test test/*.test.js",
     "test": "node --test test/*.test.js",

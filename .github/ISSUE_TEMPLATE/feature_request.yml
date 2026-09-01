@@ -1,0 +1,39 @@
+name: Feature request
+description: Suggest a focused improvement to Deus Commit Chart.
+title: "[Feature]: "
+labels:
+  - enhancement
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem or use case
+      description: What are you trying to accomplish, and what is missing today?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed behavior
+      description: Describe the smallest useful change that would solve the problem.
+    validations:
+      required: true
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - Static SVG renderer
+        - Interactive HTML report
+        - GitHub Action
+        - GitHub contribution source
+        - Local Git source
+        - Documentation / onboarding
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: Optional. Mention workarounds or competing approaches you considered.
