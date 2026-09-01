@@ -1,0 +1,190 @@
+name: Deus Commit Chart
+description: Generate interactive HTML and README-safe SVG contribution charts from GitHub or a local Git repository.
+author: dturovskiy
+branding:
+  icon: activity
+  color: green
+
+inputs:
+  source:
+    description: 'Data source: github or local.'
+    required: false
+    default: github
+  username:
+    description: GitHub login for the github source. Defaults to the current repository owner.
+    required: false
+    default: ''
+  token:
+    description: GitHub token used by the github source. Pass github.token or a PAT via secrets.
+    required: false
+    default: ''
+  repo:
+    description: Local Git repository path for the local source. Relative paths resolve from GITHUB_WORKSPACE.
+    required: false
+    default: '.'
+  branch:
+    description: Local Git branch/ref for the local source.
+    required: false
+    default: main
+  author:
+    description: Optional local Git author filter.
+    required: false
+    default: ''
+  default-days:
+    description: 'Initial HTML range: 30, 90, or 365.'
+    required: false
+    default: '30'
+  ranges:
+    description: Comma-separated static SVG ranges to generate from 30, 90, and 365.
+    required: false
+    default: '30,90,365'
+  theme:
+    description: 'SVG theme: github-compact or github-light.'
+    required: false
+    default: github-compact
+  layout:
+    description: 'Layout preset: compact, comfortable, or spacious.'
+    required: false
+    default: spacious
+  width:
+    description: Optional custom SVG width.
+    required: false
+    default: ''
+  height:
+    description: Optional custom SVG height.
+    required: false
+    default: ''
+  hide-border:
+    description: Hide the outer SVG border.
+    required: false
+    default: 'true'
+  output-dir:
+    description: Output directory relative to GITHUB_WORKSPACE.
+    required: false
+    default: deus-commit-chart-dist
+  title:
+    description: Chart title.
+    required: false
+    default: GitHub contribution activity
+
+outputs:
+  output-dir:
+    description: Absolute path to the generated output directory.
+    value: ${{ steps.generate.outputs.output-dir }}
+  index-html:
+    description: Absolute path to the generated interactive HTML report.
+    value: ${{ steps.generate.outputs.index-html }}
+
+runs:
+  using: composite
+  steps:
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '22'
+
+    - name: Install Deus Commit Chart
+      shell: bash
+      run: npm ci --ignore-scripts --prefix "$GITHUB_ACTION_PATH"
+
+    - name: Generate activity charts
+      id: generate
+      shell: bash
+      env:
+        INPUT_SOURCE: ${{ inputs.source }}
+        INPUT_USERNAME: ${{ inputs.username }}
+        INPUT_TOKEN: ${{ inputs.token }}
+        INPUT_REPO: ${{ inputs.repo }}
+        INPUT_BRANCH: ${{ inputs.branch }}
+        INPUT_AUTHOR: ${{ inputs.author }}
+        INPUT_DEFAULT_DAYS: ${{ inputs.default-days }}
+        INPUT_RANGES: ${{ inputs.ranges }}
+        INPUT_THEME: ${{ inputs.theme }}
+        INPUT_LAYOUT: ${{ inputs.layout }}
+        INPUT_WIDTH: ${{ inputs.width }}
+        INPUT_HEIGHT: ${{ inputs.height }}
+        INPUT_HIDE_BORDER: ${{ inputs.hide-border }}
+        INPUT_OUTPUT_DIR: ${{ inputs.output-dir }}
+        INPUT_TITLE: ${{ inputs.title }}
+      run: |
+        set -euo pipefail
+
+        case "$INPUT_SOURCE" in
+          github|local) ;;
+          *) echo "source must be github or local" >&2; exit 2 ;;
+        esac
+
+        case "$INPUT_DEFAULT_DAYS" in
+          30|90|365) ;;
+          *) echo "default-days must be 30, 90, or 365" >&2; exit 2 ;;
+        esac
+
+        if [[ -z "$INPUT_OUTPUT_DIR" || "$INPUT_OUTPUT_DIR" = /* || "$INPUT_OUTPUT_DIR" == *".."* ]]; then
+          echo "output-dir must be a non-empty path relative to GITHUB_WORKSPACE without '..'" >&2
+          exit 2
+        fi
+
+        output_dir="$GITHUB_WORKSPACE/$INPUT_OUTPUT_DIR"
+        mkdir -p "$output_dir"
+
+        common=(
+          node "$GITHUB_ACTION_PATH/generate-commit-chart.js"
+          --source "$INPUT_SOURCE"
+          --layout "$INPUT_LAYOUT"
+          --title "$INPUT_TITLE"
+        )
+
+        if [[ -n "$INPUT_WIDTH" ]]; then common+=(--width "$INPUT_WIDTH"); fi
+        if [[ -n "$INPUT_HEIGHT" ]]; then common+=(--height "$INPUT_HEIGHT"); fi
+
+        if [[ "$INPUT_SOURCE" == "github" ]]; then
+          username="$INPUT_USERNAME"
+          if [[ -z "$username" ]]; then username="$GITHUB_REPOSITORY_OWNER"; fi
+          if [[ -z "$username" ]]; then
+            echo "username is required when repository owner is unavailable" >&2
+            exit 2
+          fi
+          if [[ -z "$INPUT_TOKEN" ]]; then
+            echo "token is required for source=github; pass the caller workflow token or a PAT secret" >&2
+            exit 2
+          fi
+          common+=(--username "$username")
+          export DEUS_COMMIT_CHART_GITHUB_TOKEN="$INPUT_TOKEN"
+        else
+          repo_path="$INPUT_REPO"
+          if [[ "$repo_path" != /* ]]; then repo_path="$GITHUB_WORKSPACE/$repo_path"; fi
+          common+=(--repo "$repo_path" --branch "$INPUT_BRANCH")
+          if [[ -n "$INPUT_AUTHOR" ]]; then common+=(--author "$INPUT_AUTHOR"); fi
+        fi
+
+        "${common[@]}" \
+          --days "$INPUT_DEFAULT_DAYS" \
+          --out "$output_dir/index.html"
+
+        normalized_ranges="${INPUT_RANGES// /}"
+        IFS=',' read -r -a ranges <<< "$normalized_ranges"
+        if [[ ${#ranges[@]} -eq 0 ]]; then
+          echo "ranges must contain at least one of 30,90,365" >&2
+          exit 2
+        fi
+
+        for days in "${ranges[@]}"; do
+          case "$days" in
+            30|90|365) ;;
+            *) echo "unsupported range '$days'; allowed: 30,90,365" >&2; exit 2 ;;
+          esac
+
+          svg_args=(
+            "${common[@]}"
+            --format svg
+            --days "$days"
+            --theme "$INPUT_THEME"
+            --out "$output_dir/activity-${days}d.svg"
+          )
+          if [[ "$INPUT_HIDE_BORDER" == "true" ]]; then svg_args+=(--hide-border); fi
+          "${svg_args[@]}"
+        done
+
+        touch "$output_dir/.nojekyll"
+        echo "output-dir=$output_dir" >> "$GITHUB_OUTPUT"
+        echo "index-html=$output_dir/index.html" >> "$GITHUB_OUTPUT"

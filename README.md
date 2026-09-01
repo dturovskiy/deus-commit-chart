@@ -10,6 +10,78 @@ It can produce:
 
 No charting library or runtime web service is required for the generated output.
 
+## Add it to your GitHub profile
+
+The fastest setup is to call Deus Commit Chart as a GitHub Action from your profile repository. Create `.github/workflows/activity-chart.yml` in `USERNAME/USERNAME`:
+
+```yaml
+name: Update activity chart
+
+on:
+  schedule:
+    - cron: '17 */6 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  chart:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout profile repository
+        uses: actions/checkout@v4
+
+      - name: Generate charts
+        uses: dturovskiy/deus-commit-chart@v1
+        with:
+          username: ${{ github.repository_owner }}
+          token: ${{ secrets.DEUS_COMMIT_CHART_TOKEN || github.token }}
+          default-days: '30'
+          ranges: '30,90,365'
+          layout: spacious
+          output-dir: activity-dist
+
+      - name: Publish generated branch
+        env:
+          TARGET_BRANCH: activity-assets
+        run: |
+          set -euo pipefail
+          temp_dir="$(mktemp -d)"
+          cp -a activity-dist/. "$temp_dir/"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git switch --orphan "$TARGET_BRANCH"
+          find . -mindepth 1 -maxdepth 1 ! -name .git -exec rm -rf {} +
+          cp -a "$temp_dir"/. .
+          git add -A
+          git commit -m "chore: refresh activity charts"
+          git push --force origin "$TARGET_BRANCH"
+```
+
+Run the workflow once from **Actions → Update activity chart → Run workflow**. It creates `activity-assets` with `activity-30d.svg`, `activity-90d.svg`, `activity-365d.svg`, and the interactive `index.html`.
+
+Then embed the 30-day chart in the profile README:
+
+```html
+<p align="center">
+  <img
+    src="https://raw.githubusercontent.com/USERNAME/USERNAME/activity-assets/activity-30d.svg"
+    alt="GitHub contribution activity for the last 30 days"
+  />
+</p>
+
+<p align="center">
+  <a href="https://raw.githubusercontent.com/USERNAME/USERNAME/activity-assets/activity-30d.svg">30d</a> ·
+  <a href="https://raw.githubusercontent.com/USERNAME/USERNAME/activity-assets/activity-90d.svg">90d</a> ·
+  <a href="https://raw.githubusercontent.com/USERNAME/USERNAME/activity-assets/activity-365d.svg">365d</a>
+</p>
+```
+
+For public contribution activity, the workflow token is usually sufficient. To request broader private/internal visibility, add a repository secret named `DEUS_COMMIT_CHART_TOKEN` containing a GitHub token with access appropriate to the contributions you want GitHub to return. The generated chart contains aggregate daily counts only and never writes private repository names or commit details.
+
+The action only generates files; publishing them is intentionally explicit in the caller workflow. Its main inputs are `username`, `token`, `default-days`, `ranges`, `theme`, `layout`, `width`, `height`, `hide-border`, and `output-dir`. It also supports `source: local` for workflows that want to chart a checked-out Git repository instead of a GitHub account.
+
 ## Interactive HTML
 
 Generate a local report from a Git repository:
@@ -127,12 +199,12 @@ https://raw.githubusercontent.com/dturovskiy/deus-commit-chart/activity-assets/a
 
 The workflow rebuilds on relevant `main` changes, every six hours, and on manual dispatch. It force-refreshes only the generated `activity-assets` branch; `main` stays free of generated chart commits.
 
-A profile README can embed the default 90-day range directly from the generated branch:
+A profile README can embed the default 30-day range directly from the generated branch:
 
 ```html
 <p align="center">
   <a href="https://github.com/dturovskiy/deus-commit-chart">
-    <img src="https://raw.githubusercontent.com/dturovskiy/deus-commit-chart/activity-assets/activity-90d.svg" alt="GitHub contribution activity" />
+    <img src="https://raw.githubusercontent.com/dturovskiy/deus-commit-chart/activity-assets/activity-30d.svg" alt="GitHub contribution activity for the last 30 days" />
   </a>
 </p>
 ```

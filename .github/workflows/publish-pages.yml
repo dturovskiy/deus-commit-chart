@@ -44,7 +44,7 @@ jobs:
           node generate-commit-chart.js \
             --source github \
             --username "${{ github.repository_owner }}" \
-            --days 90 \
+            --days 30 \
             --layout spacious \
             --out dist/index.html \
             --title "GitHub contribution activity"
