@@ -1,6 +1,6 @@
 {
   "name": "deus-commit-chart",
-  "version": "1.4.0",
+  "version": "1.4.1",
   "private": false,
   "description": "Static GitHub contribution charts and local Git activity reports with README-safe SVG and interactive HTML output.",
   "repository": {

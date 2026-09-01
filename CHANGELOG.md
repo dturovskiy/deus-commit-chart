@@ -1,10 +1,12 @@
 # Changelog
 
-## Unreleased
+## 1.4.1
 
 - Add a product-oriented README hero with live 30-day demo, release/CI/license badges, and a minimal `@v1` quick start.
 - Add contributor, security, issue-template, and pull-request guidance for public OSS use.
 - Add repository metadata and discovery keywords to `package.json`.
+- Add a dedicated privacy notice describing the no-backend/no-telemetry architecture and GitHub token handling.
+- Add a separate end-user license agreement for Marketplace distribution while preserving the existing MIT source-code license.
 
 ## 1.4.0
 

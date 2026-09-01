@@ -384,8 +384,10 @@ The smoke workflow validates the reusable Action, interactive HTML range control
 
 Contributions are welcome. See [`CONTRIBUTING.md`](CONTRIBUTING.md) for development and pull-request guidance. Please use the issue templates for bugs and feature requests, and follow [`SECURITY.md`](SECURITY.md) for sensitive reports.
 
-## Privacy
+## Privacy and terms
 
 With the default `--source local`, the tool reads only local Git metadata and makes no network requests.
 
 With `--source github`, the tool contacts only the GitHub GraphQL API during generation using the token supplied through the environment. Generated HTML and SVG artifacts are self-contained and make no subsequent API calls.
+
+Deus Commit Chart currently operates no maintainer-controlled backend, telemetry service, analytics endpoint, or user database. See [`PRIVACY.md`](PRIVACY.md) for the complete data-handling notice and [`EULA.md`](EULA.md) for the end-user terms used for Marketplace distribution. The source code remains licensed under the [`MIT License`](LICENSE).
