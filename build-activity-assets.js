@@ -83,7 +83,7 @@ function createAssetBundle(sourceData, opts = {}) {
     const name = 'activity-' + days + 'd.svg';
     const svg = renderModernSvg(options.title, '', meta, data, days, renderOptions);
     if (!svg.startsWith('<svg ') || /<script\b|<foreignObject\b|NaN|Infinity|href\s*=\s*["']https?:/i.test(svg) ||
-        !svg.includes(days + ' days · ' + total + ' contributions') ||
+        !svg.includes(days + ' days · ' + total + ' ' + (meta.source === 'local' ? 'commits' : 'contributions')) ||
         !svg.includes('Snapshot ' + meta.snapshotId.slice(0, 10))) {
       throw new Error('SVG validation failed for ' + name);
     }

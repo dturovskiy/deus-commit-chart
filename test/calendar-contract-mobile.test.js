@@ -120,3 +120,14 @@ test('local Git author timestamps are assigned to UTC day, not author timezone d
     assert.equal(actual.endDate,'2026-03-29');
   }finally{fs.rmSync(dir,{recursive:true,force:true})}
 });
+
+test('GitHub contributions and local Git commits use distinct display labels',()=>{
+  const {source}=snapshot();
+  const gh=createAssetBundle(source).assets;
+  assert.match(gh['activity-30d.svg'],/30 days · [0-9]+ contributions/);
+  const localSource={...source,sourceDetails:{type:'local',repo:'chart-fixture',branch:'main',author:null}};
+  const local=createAssetBundle(localSource).assets;
+  assert.match(local['activity-30d.svg'],/30 days · [0-9]+ commits/);
+  assert.match(local['index.html'],/id="stat-total-label">Contributions/);
+  assert.match(local['index.html'],/meta.source==='local'\?'Commits':'Contributions'/);
+});

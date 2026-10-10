@@ -63,7 +63,7 @@ function verifyDirectory(dir) {
     const svg = fs.readFileSync(path.join(root, 'activity-' + days + 'd.svg'), 'utf8');
     if (total !== range.total || data[0]?.date !== range.startDate ||
       data.at(-1)?.date !== range.endDate ||
-      !svg.startsWith('<svg ') || !svg.includes(days + ' days · ' + total + ' contributions') ||
+      !svg.startsWith('<svg ') || !svg.includes(days + ' days · ' + total + ' ' + (payload.meta.source === 'local' ? 'commits' : 'contributions')) ||
       !svg.includes('Snapshot ' + manifest.snapshotId.slice(0, 10)) ||
       /<script\b|<foreignObject\b|NaN|Infinity|href\s*=\s*["']https?:/i.test(svg)) {
       throw new Error('SVG numerical/integrity failure: ' + days + 'd');

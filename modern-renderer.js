@@ -246,7 +246,8 @@ function renderModernSvg(title, description, meta, allData, days, options = {}) 
     ? `@${meta.username || ''}`
     : `${meta.repo || 'repository'} · ${meta.branch || 'ref'}`;
   const rangeLabel = first && last ? `${formatDate(first.date, true)} → ${formatDate(last.date, true)}` : `${days}d`;
-  const descriptionText = description || `${total} contributions across ${activeDays} active days in the last ${days} days.`;
+  const activityUnit = meta.source === 'local' ? 'commits' : 'contributions';
+  const descriptionText = description || `${total} ${activityUnit} across ${activeDays} active days in the last ${days} days.`;
   const border = options.hideBorder ? 'none' : theme.border;
   const grid = [];
   const gridLines = 3;
@@ -262,7 +263,7 @@ function renderModernSvg(title, description, meta, allData, days, options = {}) 
     ? `<rect data-series="daily" x="${bar.x}" y="${bar.y}" width="${bar.width}" height="${bar.height}" rx="${bar.radius}" fill="${index === bars.length - 1 && meta.currentDayPartial ? theme.glow : theme.daily}" opacity="${index === bars.length - 1 ? 1 : 0.82}"/>`
     : '').filter(Boolean).join('\n    ');
   const stamp = meta.generatedAt ? new Date(meta.generatedAt).toISOString().slice(0, 16).replace('T', ' ') + ' UTC' : 'unknown';
-  const statLine = `${days} days · ${total} contributions · ${activeDays} active days${peak ? ` · peak ${peak.commits}` : ''} · Updated ${stamp}${meta.currentDayPartial ? ' · Today partial' : ''} · Snapshot ${(meta.snapshotId || 'legacy').slice(0, 10)}`;
+  const statLine = `${days} days · ${total} ${activityUnit} · ${activeDays} active days${peak ? ` · peak ${peak.commits}` : ''} · Updated ${stamp}${meta.currentDayPartial ? ' · Today partial' : ''} · Snapshot ${(meta.snapshotId || 'legacy').slice(0, 10)}`;
 
   return `<svg xmlns="http://www.w3.org/2000/svg" width="${layout.width}" height="${layout.height}" viewBox="0 0 ${layout.width} ${layout.height}" role="img" aria-labelledby="chart-title chart-desc">
   <title id="chart-title">${escapeXml(title)}</title>
@@ -366,7 +367,7 @@ function renderModernHtml(title, description, meta, allData, options = {}) {
         </div>
       </header>
       <div class="stats">
-        <div class="stat"><span>Contributions</span><strong id="stat-total">—</strong></div>
+        <div class="stat"><span id="stat-total-label">Contributions</span><strong id="stat-total">—</strong></div>
         <div class="stat"><span>Active days</span><strong id="stat-active">—</strong></div>
         <div class="stat"><span>Peak day</span><strong id="stat-peak">—</strong></div>
         <div class="stat"><span>Data freshness</span><strong id="stat-fresh">—</strong></div>
@@ -388,6 +389,7 @@ function renderModernHtml(title, description, meta, allData, options = {}) {
     const payload = JSON.parse(document.getElementById('chart-data').textContent);
     const allData = payload.data || [];
     const meta = payload.meta || {};
+    const activityUnit = meta.source === 'local' ? 'commits' : 'contributions';
     const theme = payload.theme;
     const layout = payload.layout;
     const chart = document.getElementById('chart');
@@ -457,9 +459,10 @@ function renderModernHtml(title, description, meta, allData, options = {}) {
         '<g font-family="-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif">'+
         '<text x="'+g.pad.left+'" y="34" fill="'+theme.text+'" font-size="'+layout.titleSize+'" font-weight="700">'+esc(payload.title)+'</text>'+
         '<text x="'+g.pad.left+'" y="58" fill="'+theme.muted+'" font-size="'+layout.metaSize+'">'+esc((meta.source==='github'?'@'+(meta.username||''):((meta.repo||'repository')+' · '+(meta.branch||'ref'))))+' · '+esc(first&&last?(fmtDate(first.date,true)+' → '+fmtDate(last.date,true)):(selectedDays+'d'))+'</text>'+
-        '<text x="'+g.pad.left+'" y="78" fill="'+theme.muted+'" font-size="'+layout.metaSize+'">'+selectedDays+' days · '+fmtNum(total)+' contributions · '+active+' active days'+(peak?' · peak '+peak.commits:'')+'</text>'+
+        '<text x="'+g.pad.left+'" y="78" fill="'+theme.muted+'" font-size="'+layout.metaSize+'">'+selectedDays+' days · '+fmtNum(total)+' '+activityUnit+' · '+active+' active days'+(peak?' · peak '+peak.commits:'')+'</text>'+
         '<g transform="translate('+(g.width-g.pad.right-182)+',30)" font-size="'+layout.metaSize+'" fill="'+theme.muted+'"><rect x="3" y="-5" width="17" height="8" rx="2" fill="'+theme.daily+'"/><text x="33" y="4">Daily</text><line x1="92" y1="0" x2="117" y2="0" stroke="'+theme.trend+'" stroke-width="2" stroke-linecap="round" opacity=".92"/><text x="125" y="4">7d trend</text></g>'+
         grid.join('')+'<g data-chart-series="daily-bars">'+bars+'</g>'+(g.trendPath?'<path data-series="trend" d="'+g.trendPath+'" fill="none" stroke="'+theme.trend+'" stroke-width="'+Math.max(2,layout.trendStroke)+'" stroke-linejoin="round" stroke-linecap="round" opacity=".94"/>':'')+labels.join('')+'</g>';
+      document.getElementById('stat-total-label').textContent=meta.source==='local'?'Commits':'Contributions';
       document.getElementById('stat-total').textContent=fmtNum(total);
       document.getElementById('stat-active').textContent=active+' / '+visible.length;
       document.getElementById('stat-peak').textContent=peak?(peak.commits+' · '+fmtDate(peak.date,false)):'—';
