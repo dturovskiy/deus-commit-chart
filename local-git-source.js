@@ -36,7 +36,7 @@ function readLocalGitDailyCounts(repo, branch, author = '', asOf = new Date(), o
     const stamp = raw.trim();
     if (!stamp) continue;
     // Git log output format %aI is strict ISO 8601 with a numeric timezone offset.
-    if (!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}[+-]\d{2}:\d{2}$/.test(stamp)) {
+    if (!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:?\d{2})$/.test(stamp)) {
       throw new Error('Invalid Git author timestamp returned by git log');
     }
     const instant = new Date(stamp);

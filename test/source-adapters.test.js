@@ -81,6 +81,13 @@ test('local adapter rejects unsafe ref, invalid git text and hard process failur
     /No commits found/);
 });
 
+test('local adapter accepts ISO author dates with UTC Z and numeric offsets', () => {
+  const seen=[];
+  const data=readLocalGitDailyCounts('/tmp/chart','main','',now,
+    localFixture('2026-10-10T12:00:00Z\n2026-10-10T13:00:00+0000\n2026-10-10T14:00:00+00:00\n',seen));
+  assert.equal(data.counts.get('2026-10-10'),3);
+});
+
 test('source router rejects invalid settings and clocks without running a subprocess',async()=>{
   await assert.rejects(()=>loadContributionSource({source:'none'},{asOf:now}),/Source must be/);
   await assert.rejects(()=>loadContributionSource({source:'local'},{asOf:'invalid-date'}),/Invalid source asOf/);
