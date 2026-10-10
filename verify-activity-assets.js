@@ -6,6 +6,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const { createHash } = require('node:crypto');
 const { selectRange } = require('./generate-commit-chart');
+const { validateContributionSeries } = require('./chart-contract');
 
 function verifyDirectory(dir) {
   const root = path.resolve(dir);
@@ -50,6 +51,7 @@ function verifyDirectory(dir) {
   if (!['github', 'local'].includes(payload.meta.source)) {
     throw new Error('Unexpected chart source');
   }
+  validateContributionSeries(payload.data, payload.meta);
   if (payload.meta.snapshotId !== manifest.snapshotId ||
       payload.meta.generatedAt !== manifest.generatedAt ||
       payload.data[0]?.date !== manifest.rangeStart ||

@@ -92,8 +92,9 @@ test('embedded browser script executes and rebuilds chart for 30/90/365 without 
       return buttons;
     }
   };
+  el('chart-scroll').scrollWidth = 1120;
   const context = { document: fakeDocument, location: { hash: '#30d' }, history,
-    Date, Intl, Number, Math, String, JSON, Array };
+    window: { innerWidth: 390 }, Date, Intl, Number, Math, String, JSON, Array };
   vm.runInNewContext(inlineScript[1], context, { timeout: 1500 });
   assert.match(el('chart').innerHTML, /30 days · 22 contributions/);
   assert.match(el('chart').innerHTML, /<g data-chart-series="daily-bars">/);
@@ -106,6 +107,7 @@ test('embedded browser script executes and rebuilds chart for 30/90/365 without 
   assert.match(el('tooltip').innerHTML, /Oct 10, 2026/);
   assert.match(el('tooltip').innerHTML, /<b>22<\/b>/);
   assert.equal(el('stat-total').textContent, '22');
+  assert.equal(el('chart-scroll').scrollLeft, 1120, 'mobile starts on newest bars');
   assert.equal(el('stat-active').textContent, '1 / 30');
   assert.equal(buttons[0].attributes['aria-pressed'], 'true');
   buttons[1].listeners.click();

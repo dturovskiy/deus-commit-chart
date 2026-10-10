@@ -13,6 +13,7 @@ on:
       - 'package.json'
       - 'package-lock.json'
       - 'test/**'
+      - 'chart-contract.js'
       - 'ci/validate-svg.py'
       - '.github/workflows/publish-pages.yml'
   schedule:

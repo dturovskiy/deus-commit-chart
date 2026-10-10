@@ -144,7 +144,9 @@ GitHub source authentication:
 }
 
 function readLocalGitDailyCounts(repo, branch, author, asOf = new Date()) {
-  const args = ['-C', repo, 'log', '--date=short', '--format=%ad'];
+  // Parse commit author instants and bucket in UTC, independent of the
+  // author's embedded timezone or the runner's local TZ setting.
+  const args = ['-C', repo, 'log', '--format=%aI'];
   if (author) args.push(`--author=${author}`);
   args.push(branch);
 
@@ -158,8 +160,13 @@ function readLocalGitDailyCounts(repo, branch, author, asOf = new Date()) {
 
   const counts = new Map();
   for (const value of result.stdout.split(/\r?\n/)) {
-    const date = value.trim();
-    if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) continue;
+    const stamp = value.trim();
+    if (!stamp) continue;
+    const instant = new Date(stamp);
+    if (!Number.isFinite(instant.getTime())) {
+      throw new Error('Invalid Git author timestamp returned by git log');
+    }
+    const date = instant.toISOString().slice(0, 10);
     counts.set(date, (counts.get(date) || 0) + 1);
   }
 

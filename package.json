@@ -21,7 +21,7 @@
     "developer-tools"
   ],
   "scripts": {
-    "check": "node --check generate-commit-chart.js && node --check contribution-snapshot.js && node --check build-activity-assets.js && node --check verify-activity-assets.js && node --check modern-renderer.js && node --test test/*.test.js",
+    "check": "node --check generate-commit-chart.js && node --check contribution-snapshot.js && node --check chart-contract.js && node --check build-activity-assets.js && node --check verify-activity-assets.js && node --check modern-renderer.js && node --test test/*.test.js",
     "test": "node --test test/*.test.js",
     "chart": "node generate-commit-chart.js --repo . --branch main --out commit-chart.html --title \"Commit activity\"",
     "smoke": "node generate-commit-chart.js --repo . --branch main --out /tmp/deus-commit-chart-smoke.html --title \"Smoke chart\" && node generate-commit-chart.js --repo . --branch main --format svg --days 90 --out /tmp/deus-commit-chart-smoke.svg --title \"Smoke chart\""

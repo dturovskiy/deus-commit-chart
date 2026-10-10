@@ -31,6 +31,9 @@ jobs:
       - name: Validate syntax and run numerical regression suite
         run: npm run check
 
+      - name: Test read-only GitHub cache probe without network
+        run: python3 -m unittest discover -s test -p 'test_*.py' -v
+
       - name: Create fixture git repository
         shell: bash
         run: |

@@ -1,0 +1,38 @@
+name: Audit GitHub README chart cache
+
+on:
+  workflow_dispatch:
+  schedule:
+    # Sample after every two-hour activity-assets refresh without mutation.
+    - cron: '57 */2 * * *'
+
+concurrency:
+  group: chart-cache-audit
+  cancel-in-progress: false
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - name: Read the published production manifest
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch --no-tags origin refs/heads/activity-assets:refs/remotes/origin/activity-assets
+          git show origin/activity-assets:manifest.json > /tmp/published-chart-manifest.json
+      - name: Compare rendered profile image proxy with published snapshot
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 ci/probe-readme-cache.py /tmp/published-chart-manifest.json cache-audit.json
+          cat cache-audit.json >> "$GITHUB_STEP_SUMMARY"
+      - name: Retain measured evidence (non-blocking, no cache busting)
+        uses: actions/upload-artifact@v4
+        with:
+          name: readme-cache-audit-${{ github.run_id }}
+          path: cache-audit.json
+          retention-days: 30
+          if-no-files-found: error

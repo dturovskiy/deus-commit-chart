@@ -20,6 +20,12 @@
 4. If local Node.js is available, download the published `dist` workflow artifact and run `node verify-activity-assets.js dist`. On Linux CI also run `python3 ci/validate-svg.py dist`. These verify checksums and SVG XML policy.
 5. Inspect the public README URL. GitHub's image proxy may cache an older SVG even when `activity-assets` is updated. Do not claim a guaranteed cache TTL without measurement.
 
+## Calendar source and README cache probe
+
+All chart windows are anchored to the build's **UTC day**. GitHub's contribution-day labels are preserved verbatim. Local Git commit instants are normalized to UTC; author-local day grouping is intentionally no longer used. The chart contract is independently checked on build and release (365 contiguous dates, cumulative totals, 7-day mean, snapshot identity). See [CALENDAR_AND_CACHE_POLICY.md](CALENDAR_AND_CACHE_POLICY.md).
+
+An independent read-only [README cache audit workflow](../.github/workflows/audit-readme-cache.yml) records direct raw versus GitHub profile-image proxy snapshot identity where GitHub allows it. `matched` is one observation, not a bound on cache lifetime. Probe failure does not interrupt the publisher or health monitor. Image-proxy observations live in 30-day GitHub Actions artifacts.
+
 ## Freshness and recovery monitoring
 
 - `.github/workflows/monitor-freshness.yml` checks the real `activity-assets` branch on a two-hour offset schedule. The configured threshold is **8 hours** from `manifest.generatedAt` (allowing several missed publish windows).
