@@ -58,8 +58,12 @@ function assertCalendar(weeks, startDate, endDate) {
       const date = new Date(ms).toISOString().slice(0, 10);
       if (!counts.has(date)) missing.push(date);
     }
+    const receivedDays = Array.from(counts.keys()).sort();
     throw new Error('Incomplete GitHub calendar: missing ' + missing.slice(0, 8).join(', ') +
-      (missing.length > 8 ? ' ...' : ''));
+      (missing.length > 8 ? ' ...' : '') + '; received ' + counts.size +
+      ' days in requested window (' + (receivedDays[0] || 'none') + ' .. ' +
+      (receivedDays.at(-1) || 'none') + '), expected ' + length +
+      ' (' + startDate + ' .. ' + endDate + ')');
   }
   return new Map([...counts].sort(([a], [b]) => a.localeCompare(b)));
 }
