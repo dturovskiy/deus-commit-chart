@@ -38,7 +38,10 @@ function apiResponse(days) {
 const fetchFixture = (days, tally) => async (_url, opts) => {
   tally.calls++;
   assert.equal(opts.method, 'POST');
-  assert.equal(JSON.parse(opts.body).variables.login, 'dturovskiy');
+  const variables = JSON.parse(opts.body).variables;
+  assert.equal(variables.login, 'dturovskiy');
+  assert.equal(variables.from, '2025-10-10T00:00:00.000Z');
+  assert.equal(variables.to, '2026-10-12T00:00:00.000Z');
   return apiResponse(days);
 };
 

@@ -97,7 +97,11 @@ async function fetchGithubDailyCounts(username, options = {}) {
         headers: { Authorization: 'Bearer ' + token, 'Content-Type': 'application/json',
           'User-Agent': 'deus-commit-chart' },
         body: JSON.stringify({ query: GRAPHQL_QUERY,
-          variables: { login: username, from: window.from, to: window.to } })
+          // GitHub contribution calendar uses account-local calendar-day boundaries;
+          // request one extra day on each side, then validate and trim exact UTC dates.
+          variables: { login: username,
+            from: new Date(parseIsoDay(window.startDate) - DAY_MS).toISOString(),
+            to: new Date(parseIsoDay(window.endDate) + 2 * DAY_MS).toISOString() } })
       });
       shouldRetry = response.status === 429 || response.status >= 500;
       if (!response.ok) throw new Error('GitHub GraphQL HTTP ' + response.status);
