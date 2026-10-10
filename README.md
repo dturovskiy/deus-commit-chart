@@ -388,6 +388,7 @@ The architecture audit and remediation work are tracked inside this repository:
 - [Remediation Checklist](docs/REMEDIATION_CHECKLIST.md) — actionable verification tasks, release gates, and evidence log.
 - [Production Operations and Rollback](docs/OPERATIONS.md) — validation, incident response, release evidence and forward-only rollback.
 - [Calendar, Responsive Chart and README Cache Policy](docs/CALENDAR_AND_CACHE_POLICY.md) — UTC source semantics, independently verified series invariants, mobile scrolling and read-only cache measurements.
+- [Source Adapters and Rendering Contracts](docs/SOURCE_AND_RENDER_ARCHITECTURE.md) — local Git/GraphQL boundaries, error taxonomy, shared SVG/HTML mathematics and compatibility.
 
 Initial data-integrity and publishing fixes shipped on 2026-10-10; additional remediation items remain open until supported by test or release evidence.
 

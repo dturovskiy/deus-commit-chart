@@ -6,6 +6,7 @@ const path = require('path');
 const {
   LAYOUT_PRESETS,
   THEMES,
+  selectRange: rendererSelectRange,
   renderModernSvg,
   renderModernHtml
 } = require('./modern-renderer');
@@ -174,20 +175,8 @@ function buildSeries(counts, startDate, endDate) {
   return series;
 }
 
-function selectRange(data, days) {
-  if (!data.length) return [];
-  const end = isoToUtcDate(data.at(-1).date);
-  const start = addDays(end, -(days - 1));
-  const startIso = utcDateToIso(start);
-  let cumulative = 0;
-
-  return data
-    .filter((point) => point.date >= startIso)
-    .map((point) => {
-      cumulative += point.commits;
-      return { ...point, cumulative };
-    });
-}
+// Range selection is shared with both modern SVG and embedded HTML renderers.
+const selectRange = rendererSelectRange;
 
 function createMeta(args, sourceData, series) {
   const activeDays = series.filter((point) => point.commits > 0).length;

@@ -492,6 +492,8 @@ module.exports = {
   LAYOUT_PRESETS,
   THEMES,
   resolveLayout,
+  selectRange,
+  buildTicks,
   smoothPath,
   dailyBarRects,
   chartGeometry,

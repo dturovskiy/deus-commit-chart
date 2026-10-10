@@ -94,6 +94,26 @@ function mergeCalendarWeeks(primary, boundary) {
   return [{ contributionDays: Array.from(merged, ([date, contributionCount]) => ({ date, contributionCount })) }];
 }
 
+const HTTP_CODES = Object.freeze({
+  401: 'authentication',
+  403: 'authorization',
+  429: 'rate_limited'
+});
+
+function githubHttpCategory(status) {
+  return HTTP_CODES[status] || (status >= 500 ? 'server_error' : 'http_client_error');
+}
+
+class GitHubSourceError extends Error {
+  constructor(category, message, status = null, attempts = 1) {
+    super(message);
+    this.name = 'GitHubSourceError';
+    this.code = category;
+    this.status = status;
+    this.attempts = attempts;
+  }
+}
+
 async function fetchGithubDailyCounts(username, options = {}) {
   if (!/^[A-Za-z0-9-]{1,39}$/.test(username || '')) throw new Error('Invalid GitHub username');
   const token = options.token ?? (process.env.DEUS_COMMIT_CHART_GITHUB_TOKEN ||
@@ -112,7 +132,7 @@ async function fetchGithubDailyCounts(username, options = {}) {
   for (let attempt = 0; attempt < attempts; attempt++) {
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), timeoutMs);
-    let shouldRetry = true;
+    let status = null;
     try {
       const response = await fetchImpl('https://api.github.com/graphql', {
         method: 'POST',
@@ -130,17 +150,23 @@ async function fetchGithubDailyCounts(username, options = {}) {
             edgeFrom: new Date(parseIsoDay(window.startDate) - 14 * DAY_MS).toISOString(),
             edgeTo: new Date(parseIsoDay(window.startDate) + 14 * DAY_MS).toISOString() } })
       });
-      shouldRetry = response.status === 429 || response.status >= 500;
+      status = response.status;
       if (!response.ok) throw new Error('GitHub GraphQL HTTP ' + response.status);
       payload = await response.json();
       if (payload?.errors?.length) throw new Error('GitHub GraphQL returned errors');
       break;
     } catch (error) {
-      // Authentication, malformed responses, and GraphQL errors are not transient.
-      if (error instanceof SyntaxError || /GraphQL returned errors/.test(error.message)) shouldRetry = false;
-      if (!shouldRetry || attempt === attempts - 1) {
-        throw new Error('Failed to retrieve GitHub contributions: ' +
-          (controller.signal.aborted ? 'request timed out' : error.message));
+      const category = controller.signal.aborted ? 'timeout'
+        : status !== null && status >= 400 ? githubHttpCategory(status)
+        : error instanceof SyntaxError ? 'malformed_json'
+        : /GraphQL returned errors/.test(error.message) ? 'graphql_error'
+        : 'network_error';
+      const retryable = ['timeout', 'rate_limited', 'server_error', 'network_error'].includes(category);
+      if (!retryable || attempt === attempts - 1) {
+        throw new GitHubSourceError(category,
+          'Failed to retrieve GitHub contributions: ' +
+          (controller.signal.aborted ? 'request timed out' : error.message),
+          status, attempt + 1);
       }
       await sleep(Math.min(2000, 250 * (2 ** attempt)));
     } finally {
@@ -173,4 +199,4 @@ function snapshotIdentity(sourceData, series) {
   return createHash('sha256').update(encoded).digest('hex');
 }
 
-module.exports = { parseIsoDay, utcWindow, assertCalendar, mergeCalendarWeeks, fetchGithubDailyCounts, snapshotIdentity };
+module.exports = { parseIsoDay, utcWindow, assertCalendar, mergeCalendarWeeks, fetchGithubDailyCounts, snapshotIdentity, GitHubSourceError, githubHttpCategory };
