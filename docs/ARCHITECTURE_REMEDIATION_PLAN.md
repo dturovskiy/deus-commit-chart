@@ -235,6 +235,14 @@ The implementation was reviewed and merged via [PR #3](https://github.com/dturov
 
 [PR #6](https://github.com/dturovskiy/deus-commit-chart/pull/6) corrected the initial cache-probe classification after discovering that the rendered GitHub profile references **raw.githubusercontent.com** rather than a distinct camo URL. [Smoke 38089180747](https://github.com/dturovskiy/deus-commit-chart/actions/runs/38089180747) and [production publish 38089214515](https://github.com/dturovskiy/deus-commit-chart/actions/runs/38089214515) passed. [Read-only audit 38089253244](https://github.com/dturovskiy/deus-commit-chart/actions/runs/38089253244) independently confirmed the published snapshot in the raw URL and HTML image source 36.77s after generation, reporting **`profile_raw_matched`** and `independentImageProxyObserved=false`. Response advertised `Cache-Control: max-age=300`. Two successful point-in-time raw observations do **not** establish an image/browser cache SLA or a maximum update delay. Physical device review and longitudinal cache measurements remain open.
 
+## Source and renderer architecture refactor (2026-10-11)
+
+The CLI and batch publisher now use the same frozen-clock source router, with separate GitHub GraphQL and offline local Git adapters. The local Git adapter bounds `git log` to 20 seconds/16 MiB; it rejects unsafe revision switches and malformed author timestamps. The contribution calendar's public payload schema is unchanged.
+
+Renderer `selectRange`, `chartGeometry`, `dailyBarRects`, `smoothPath`, date helpers and `buildTicks` are single-sourced in `modern-renderer.js` and embedded from that implementation into the interactive HTML. Tests execute the actual browser inline code and compare bars, trends and tick labels against the static SVG across 30/90/365 ranges.
+
+GitHub API errors now carry stable categories and bounded attempt/status metadata; permanent schema/auth failures fail immediately while timeout, transport, 429 and 5xx use bounded retries. [Smoke 38094293267](https://github.com/dturovskiy/deus-commit-chart/actions/runs/38094293267) passed 49 Node and 4 Python tests, composite Action and rollback. [Real GraphQL build 38094296015](https://github.com/dturovskiy/deus-commit-chart/actions/runs/38094296015) passed on the review branch; publishing there was skipped. See [SOURCE_AND_RENDER_ARCHITECTURE.md](SOURCE_AND_RENDER_ARCHITECTURE.md) for the module boundary, source contract, and error taxonomy.
+
 ## 10. Evidence and source paths
 
 - `generate-commit-chart.js:146-269,291-351,1048-1090` — adapters, series, CLI.

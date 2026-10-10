@@ -20,7 +20,7 @@
 ## Gate 1 — Validated contribution snapshot
 
 - [ ] **DC-G1-01** Introduce one versioned `ContributionSnapshot` schema with `schemaVersion`, `snapshotId`, `asOf`, source, calendar range and quality metadata.
-- [ ] **DC-G1-02** Separate GitHub GraphQL and local Git source adapters; preserve local offline operation.
+- [x] **DC-G1-02** Separate GitHub GraphQL and local Git source adapters; preserve local offline operation. (2026-10-11: `source-adapters.js` + `local-git-source.js`; smoke 38094293267, live GraphQL 38094296015.)
 - [x] **DC-G1-03** Fetch GitHub data **once** per publish job; freeze the validated snapshot and render all four artifacts from it.
 - [x] **DC-G1-04** Inject a fixed clock/`asOf` into date calculation; eliminate independently computed current dates within a build.
 - [x] **DC-G1-05** Validate exact expected calendar coverage, monotonic dates, uniqueness, valid ISO dates and nonnegative integer counts; fail on missing/invalid GraphQL data.
@@ -35,7 +35,7 @@
 
 ## Gate 2 — Publication, integrity and failure handling
 
-- [ ] **DC-G2-01** Add bounded GraphQL timeout; classify 401/403, 429, 5xx, network errors and malformed JSON distinctly.
+- [x] **DC-G2-01** Add bounded GraphQL timeout; classify 401/403, 429, 5xx, network errors and malformed JSON distinctly. (`GitHubSourceError` with stable code/status/attempts, `test/github-errors.test.js`, smoke 38094293267.)
 - [x] **DC-G2-02** Implement bounded retry/backoff for transient errors only; do not retry permanent authorization/schema failures.
 - [x] **DC-G2-03** Generate build manifest with snapshot ID, `generatedAt`, source SHA, run ID, source details, content hashes and totals for each range.
 - [x] **DC-G2-04** Cross-check published HTML/SVG totals and date ranges against the frozen snapshot before allowing publication.
@@ -53,7 +53,7 @@
 ## Gate 3 — Renderer and chart readability
 
 - [ ] **DC-G3-01** Extract shared pure functions for range selection, daily totals, trailing 7-day average, geometry and tick generation.
-- [ ] **DC-G3-02** Make static SVG and interactive HTML consume the same normalized snapshot and rendering mathematics.
+- [x] **DC-G3-02** Make static SVG and interactive HTML consume the same normalized snapshot and rendering mathematics. (Inline browser embeds canonical renderer range/geometry/ticks functions; 30/90/365 exact bar/path/tick parity passed in smoke 38094293267.)
 - [x] **DC-G3-03** Remove or quarantine legacy `renderHtml`/`renderSvg` only after proving old CLI and Action behavior remains supported.
 - [x] **DC-G3-04** Decide chart style: discrete daily bars/points + smooth 7d trend (recommended), or explicitly tested daily interpolation. (Chosen daily bars + 7d line; verified on smoke and real GraphQL branch build 2026-10-10.)
 - [x] **DC-G3-05** Verify flat sections, spikes, zero days and adjacent extrema without artificial overshoot/false intermediate values.
@@ -157,6 +157,15 @@
 - [PR #6](https://github.com/dturovskiy/deus-commit-chart/pull/6) merged as `3c6f08037993e5734a8faf8b9e3c05b2062b5b3a`. [Smoke 38089180747](https://github.com/dturovskiy/deus-commit-chart/actions/runs/38089180747) passed, including **4 offline cache classification tests**. [Publish 38089214515](https://github.com/dturovskiy/deus-commit-chart/actions/runs/38089214515) succeeded.
 - [Real audit 38089253244](https://github.com/dturovskiy/deus-commit-chart/actions/runs/38089253244) returned **`profile_raw_matched`**, `independentImageProxyObserved=false`, and `snapshotAgeAtProbeSeconds=36.77`. Published manifest snapshot `c149a3bfb6693f78e7f442f8d902bb2fdc683a2f4ad3eeb4a9396c519b77e70c`, `generatedAt=2026-10-10T21:51:30.309Z`, 30/90/365 totals **227/788/3073**. Raw/profile image matched; profile link host raw.githubusercontent.com, not camo; raw SVG `Cache-Control: max-age=300`.
 - **Do not close** DC-G2-12 / DC-G5-04 based only on these two successful raw-embed observations: no stale-to-fresh transition, cache invalidation upper bound, independent camo proxy observation, or manual device/browser image-cache inspection has been demonstrated.
+
+## Source adapter and shared geometry refactor (2026-10-11)
+
+- [Smoke run 38094293267](https://github.com/dturovskiy/deus-commit-chart/actions/runs/38094293267): **SUCCESS**, 49/49 Node tests (both `npm run check` and `npm test`), 4/4 Python cache tests, composite Action, local offline CLI, negative publish and forward-only rollback rehearsal.
+- [Live GraphQL candidate 38094296015](https://github.com/dturovskiy/deus-commit-chart/actions/runs/38094296015): **SUCCESS**; publication SKIPPED on test branch.
+- New `source-adapters.js` routes CLI + publisher through one frozen clock. `local-git-source.js` is offline and enforces 20s/16MiB git subprocess bounds and option-like ref rejection. Compatibility exports remain available.
+- Browser HTML now embeds the canonical renderer's `selectRange`, `chartGeometry`, `smoothPath`, `dailyBarRects`, `buildTicks` and date helpers. The browser execution test compares exact bars, blue trend path and tick text against static SVG for 30/90/365 days.
+- GitHub HTTP/auth/rate-limit/server/GraphQL/JSON/network/timeout errors have stable classifications with bounded retry behavior; actual malformed live API conditions are not deliberately injected into production.
+- Architectural contract documented in [SOURCE_AND_RENDER_ARCHITECTURE.md](SOURCE_AND_RENDER_ARCHITECTURE.md). **DC-G3-01 remains partially open:** independent metric helpers and end-to-end tick policy need further explicit extraction/tests. No visual redesign or browser mobile changes.
 
 ## Evidence log (fill as work progresses)
 
