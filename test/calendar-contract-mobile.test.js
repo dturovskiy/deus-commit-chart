@@ -46,6 +46,7 @@ test('UTC date boundaries cover leap day, DST crossover and year boundary',()=>{
   assert.equal(utcWindow('2024-03-01T01:00:00Z',2).startDate,'2024-02-29');
   assert.equal(utcWindow('2026-01-01T00:05:00Z',2).startDate,'2025-12-31');
   assert.equal(utcWindow('2026-03-29T00:05:00Z',3).startDate,'2026-03-27');
+  assert.equal(utcWindow('2026-03-29T00:00:00Z').endDate,'2026-03-29');
   assert.equal(utcWindow('2026-10-25T00:05:00Z',3).startDate,'2026-10-23');
   assert.throws(()=>parseIsoDay('2026-02-29'),/Invalid ISO/);
   assert.throws(()=>parseIsoDay('2026-03-32'),/Invalid ISO/);
@@ -114,9 +115,14 @@ test('local Git author timestamps are assigned to UTC day, not author timezone d
     const env={GIT_AUTHOR_DATE:'2026-03-29T00:30:00 +0300',
       GIT_COMMITTER_DATE:'2026-03-29T00:30:00 +0300'};
     run(['commit','-q','-m','offset-crosses-midnight'],env);
+    fs.writeFileSync(path.join(dir,'fixture'),'future');
+    run(['add','fixture']);
+    run(['commit','-q','-m','future-dated'],{GIT_AUTHOR_DATE:'2026-03-30T10:00:00 +0300',
+      GIT_COMMITTER_DATE:'2026-03-30T10:00:00 +0300'});
     const actual=readLocalGitDailyCounts(dir,'main','',new Date('2026-03-29T12:00:00Z'));
     assert.equal(actual.counts.get('2026-03-28'),1);
     assert.equal(actual.counts.has('2026-03-29'),false);
+    assert.equal(actual.counts.has('2026-03-30'),false,'future-dated commit is excluded');
     assert.equal(actual.endDate,'2026-03-29');
   }finally{fs.rmSync(dir,{recursive:true,force:true})}
 });
