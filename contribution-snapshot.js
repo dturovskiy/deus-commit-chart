@@ -4,11 +4,15 @@
 const { createHash } = require('node:crypto');
 const DAY_MS = 86400000;
 const GRAPHQL_QUERY = [
-  'query CommitChart($login: String!, $from: DateTime!, $to: DateTime!) {',
+  'query CommitChart($login: String!, $from: DateTime!, $to: DateTime!, $edgeFrom: DateTime!, $edgeTo: DateTime!) {',
   '  user(login: $login) { contributionsCollection(from: $from, to: $to) {',
   '    totalCommitContributions restrictedContributionsCount hasAnyRestrictedContributions',
   '    contributionCalendar { totalContributions weeks { contributionDays { date contributionCount } } }',
-  '  } }',
+  '  }',
+  '  edge: contributionsCollection(from: $edgeFrom, to: $edgeTo) {',
+  '    contributionCalendar { weeks { contributionDays { date contributionCount } } }',
+  '  }',
+  '  }',
   '}'
 ].join('\n');
 
@@ -68,6 +72,29 @@ function assertCalendar(weeks, startDate, endDate) {
   return new Map([...counts].sort(([a], [b]) => a.localeCompare(b)));
 }
 
+function mergeCalendarWeeks(primary, boundary) {
+  if (!Array.isArray(primary) || !Array.isArray(boundary)) {
+    throw new Error('Missing GitHub calendar segment');
+  }
+  const merged = new Map();
+  for (const weeks of [primary, boundary]) {
+    for (const week of weeks) {
+      if (!Array.isArray(week?.contributionDays)) throw new Error('Malformed GitHub calendar segment');
+      for (const day of week.contributionDays) {
+        parseIsoDay(day?.date);
+        if (!Number.isSafeInteger(day.contributionCount) || day.contributionCount < 0) {
+          throw new Error('Invalid GitHub segment contribution count: ' + day.date);
+        }
+        if (merged.has(day.date) && merged.get(day.date) !== day.contributionCount) {
+          throw new Error('Inconsistent overlapping GitHub calendar day: ' + day.date);
+        }
+        merged.set(day.date, day.contributionCount);
+      }
+    }
+  }
+  return [{ contributionDays: Array.from(merged, ([date, contributionCount]) => ({ date, contributionCount })) }];
+}
+
 function nonNegativeAggregate(value, key) {
   if (!Number.isSafeInteger(value) || value < 0) {
     throw new Error('Invalid GitHub aggregate: ' + key);
@@ -105,7 +132,11 @@ async function fetchGithubDailyCounts(username, options = {}) {
           // request one extra day on each side, then validate and trim exact UTC dates.
           variables: { login: username,
             from: new Date(parseIsoDay(window.startDate) - DAY_MS).toISOString(),
-            to: new Date(parseIsoDay(window.endDate) + 2 * DAY_MS).toISOString() } })
+            to: new Date(parseIsoDay(window.endDate) + 2 * DAY_MS).toISOString(),
+            // An independent short collection captures the first partial calendar week
+            // that GitHub can omit from a year-long contributionCalendar.
+            edgeFrom: new Date(parseIsoDay(window.startDate) - 14 * DAY_MS).toISOString(),
+            edgeTo: new Date(parseIsoDay(window.startDate) + 14 * DAY_MS).toISOString() } })
       });
       shouldRetry = response.status === 429 || response.status >= 500;
       if (!response.ok) throw new Error('GitHub GraphQL HTTP ' + response.status);
@@ -127,7 +158,10 @@ async function fetchGithubDailyCounts(username, options = {}) {
   const collection = payload?.data?.user?.contributionsCollection;
   const calendar = collection?.contributionCalendar;
   if (!calendar) throw new Error('GitHub contribution calendar unavailable');
-  const counts = assertCalendar(calendar.weeks, window.startDate, window.endDate);
+  const edgeCalendar = payload?.data?.user?.edge?.contributionCalendar;
+  if (!edgeCalendar) throw new Error('Missing GitHub boundary calendar');
+  const counts = assertCalendar(
+    mergeCalendarWeeks(calendar.weeks, edgeCalendar.weeks), window.startDate, window.endDate);
   // Metadata is aggregated; NEVER include token or private repository identifiers.
   return {
     counts, startDate: window.startDate, endDate: window.endDate, asOf: asOf.toISOString(),
@@ -151,4 +185,4 @@ function snapshotIdentity(sourceData, series) {
   return createHash('sha256').update(encoded).digest('hex');
 }
 
-module.exports = { parseIsoDay, utcWindow, assertCalendar, fetchGithubDailyCounts, snapshotIdentity };
+module.exports = { parseIsoDay, utcWindow, assertCalendar, mergeCalendarWeeks, fetchGithubDailyCounts, snapshotIdentity };

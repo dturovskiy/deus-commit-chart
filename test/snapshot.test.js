@@ -5,7 +5,7 @@ const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
 
-const { utcWindow, assertCalendar, fetchGithubDailyCounts, snapshotIdentity } =
+const { utcWindow, assertCalendar, mergeCalendarWeeks, fetchGithubDailyCounts, snapshotIdentity } =
   require('../contribution-snapshot');
 const { buildSeries, selectRange } = require('../generate-commit-chart');
 const { createAssetBundle, writeBundle, cliArgs } = require('../build-activity-assets');
@@ -23,14 +23,16 @@ function calendarCounts(today = 3) {
   }
   return { days, window };
 }
-function apiResponse(days) {
+function apiResponse(days, mainDays = days) {
   return { ok: true, status: 200, json: async () => ({
-    data: { user: { contributionsCollection: {
+    data: { user: { edge: { contributionCalendar: {
+      weeks: [{ contributionDays: days.slice(0, 20) }]
+    } }, contributionsCollection: {
       totalCommitContributions: 25, restrictedContributionsCount: 0,
       hasAnyRestrictedContributions: false,
       contributionCalendar: {
         totalContributions: days.reduce((sum, d) => sum + d.contributionCount, 0),
-        weeks: [{ contributionDays: days }]
+        weeks: [{ contributionDays: mainDays }]
       }
     } } }
   }) };
@@ -42,6 +44,8 @@ const fetchFixture = (days, tally) => async (_url, opts) => {
   assert.equal(variables.login, 'dturovskiy');
   assert.equal(variables.from, '2025-10-10T00:00:00.000Z');
   assert.equal(variables.to, '2026-10-12T00:00:00.000Z');
+  assert.equal(variables.edgeFrom, '2025-09-27T00:00:00.000Z');
+  assert.equal(variables.edgeTo, '2025-10-25T00:00:00.000Z');
   return apiResponse(days);
 };
 
