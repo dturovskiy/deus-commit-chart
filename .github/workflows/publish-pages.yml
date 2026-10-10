@@ -61,6 +61,9 @@ jobs:
           if-no-files-found: error
 
   publish:
+    # Allow workflow_dispatch on a review branch to exercise real GitHub GraphQL
+    # and verify the generated artifacts without modifying production assets.
+    if: github.ref == 'refs/heads/main'
     needs: build
     runs-on: ubuntu-latest
     permissions:
