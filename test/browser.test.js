@@ -101,6 +101,17 @@ test('embedded browser script executes and rebuilds chart for 30/90/365 without 
   assert.match(el('chart').innerHTML, /<rect data-series="daily"/);
   assert.match(el('chart').innerHTML, /<path data-series="trend" d="M /);
   assert.equal((el('chart').innerHTML.match(/<rect data-series="daily"/g) || []).length, 1);
+  const assertGeometryParity = (days) => {
+    const live = el('chart').innerHTML;
+    const staticSvg = assets['activity-' + days + 'd.svg'];
+    const bars = (text) => [...text.matchAll(/<rect data-series="daily"[^>]+\/>/g)].map(m => m[0]);
+    const trend = (text) => text.match(/<path data-series="trend" d="([^"]+)"/)?.[1];
+    const xs = (text) => [...text.matchAll(/text-anchor="(?:start|middle|end)" opacity="\.86">([^<]+)<\/text>/g)].map(m => m[1]);
+    assert.deepEqual(bars(live), bars(staticSvg), days + 'd HTML/SVG bars must match exactly');
+    assert.equal(trend(live), trend(staticSvg), days + 'd trend paths must match exactly');
+    assert.deepEqual(xs(live), xs(staticSvg), days + 'd ticks must match exactly');
+  };
+  assertGeometryParity(30);
   assert.doesNotMatch(el('chart').innerHTML, /<path data-series="daily"/);
   // Pointer positions now use day-bin centers rather than line-plot endpoints.
   el('chart').listeners.pointermove({ clientX: 1059, clientY: 180 });
@@ -113,9 +124,11 @@ test('embedded browser script executes and rebuilds chart for 30/90/365 without 
   buttons[1].listeners.click();
   assert.match(el('chart').innerHTML, /90 days · 22 contributions/);
   assert.equal((el('chart').innerHTML.match(/<rect data-series="daily"/g) || []).length, 1);
+  assertGeometryParity(90);
   assert.equal(buttons[1].attributes['aria-pressed'], 'true');
   buttons[2].listeners.click();
   assert.match(el('chart').innerHTML, /365 days · 22 contributions/);
   assert.equal((el('chart').innerHTML.match(/<rect data-series="daily"/g) || []).length, 1);
+  assertGeometryParity(365);
   assert.equal(manifest.ranges[365].total, 22);
 });

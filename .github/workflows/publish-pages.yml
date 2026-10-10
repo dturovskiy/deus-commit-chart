@@ -6,6 +6,8 @@ on:
     paths:
       - 'generate-commit-chart.js'
       - 'contribution-snapshot.js'
+      - 'local-git-source.js'
+      - 'source-adapters.js'
       - 'build-activity-assets.js'
       - 'verify-activity-assets.js'
       - 'modern-renderer.js'

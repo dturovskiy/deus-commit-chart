@@ -3,38 +3,15 @@
 
 const fs = require('fs');
 const path = require('path');
-const { spawnSync } = require('child_process');
 const {
   LAYOUT_PRESETS,
+  THEMES,
   renderModernSvg,
   renderModernHtml
 } = require('./modern-renderer');
 
 const RANGE_OPTIONS = [30, 90, 365];
-const SVG_THEMES = {
-  'github-compact': {
-    background: '#0d1117',
-    panel: '#0d1117',
-    border: '#30363d',
-    grid: '#21262d',
-    text: '#c9d1d9',
-    muted: '#8b949e',
-    line: '#39d353',
-    area: 'rgba(57, 211, 83, 0.16)',
-    average: '#58a6ff'
-  },
-  'github-light': {
-    background: '#ffffff',
-    panel: '#ffffff',
-    border: '#d0d7de',
-    grid: '#d8dee4',
-    text: '#24292f',
-    muted: '#57606a',
-    line: '#1a7f37',
-    area: 'rgba(26, 127, 55, 0.12)',
-    average: '#0969da'
-  }
-};
+// Themes and layout presets are owned by the renderer (one source of truth).
 
 function parseArgs(argv) {
   const out = {
@@ -91,8 +68,8 @@ function parseArgs(argv) {
   if (!RANGE_OPTIONS.includes(out.days)) {
     throw new Error(`--days must be one of: ${RANGE_OPTIONS.join(', ')}`);
   }
-  if (!SVG_THEMES[out.theme]) {
-    throw new Error(`--theme must be one of: ${Object.keys(SVG_THEMES).join(', ')}`);
+  if (!THEMES[out.theme]) {
+    throw new Error(`--theme must be one of: ${Object.keys(THEMES).join(', ')}`);
   }
   if (!LAYOUT_PRESETS[out.layout]) {
     throw new Error(`--layout must be one of: ${Object.keys(LAYOUT_PRESETS).join(', ')}`);
@@ -143,57 +120,10 @@ GitHub source authentication:
   process.exit(code);
 }
 
-function readLocalGitDailyCounts(repo, branch, author, asOf = new Date()) {
-  // Parse commit author instants and bucket in UTC, independent of the
-  // author's embedded timezone or the runner's local TZ setting.
-  const args = ['-C', repo, 'log', '--format=%aI'];
-  if (author) args.push(`--author=${author}`);
-  args.push(branch);
-
-  const result = spawnSync('git', args, {
-    encoding: 'utf8',
-    maxBuffer: 1024 * 1024 * 80
-  });
-
-  if (result.error) throw result.error;
-  if (result.status !== 0) throw new Error((result.stderr || 'git log failed').trim());
-
-  const counts = new Map();
-  for (const value of result.stdout.split(/\r?\n/)) {
-    const stamp = value.trim();
-    if (!stamp) continue;
-    const instant = new Date(stamp);
-    if (!Number.isFinite(instant.getTime())) {
-      throw new Error('Invalid Git author timestamp returned by git log');
-    }
-    const date = instant.toISOString().slice(0, 10);
-    counts.set(date, (counts.get(date) || 0) + 1);
-  }
-
-  if (!counts.size) throw new Error('No commits found for the selected ref/author.');
-
-  const dates = Array.from(counts.keys()).sort();
-  const todayDate = startOfUtcDay(asOf);
-  const today = utcDateToIso(todayDate);
-  const trailingYearStart = utcDateToIso(addDays(todayDate, -364));
-  // Future-dated commits must not extend the displayed calendar.
-  for (const date of dates) if (date > today) counts.delete(date);
-  return {
-    counts,
-    startDate: trailingYearStart,
-    endDate: today,
-    asOf: new Date(asOf).toISOString(),
-    sourceDetails: {
-      type: 'local',
-      repo: path.basename(path.resolve(repo)),
-      branch,
-      author: author || null
-    }
-  };
-}
-
+// Both source adapters share a frozen asOf and normalized data envelope.
+const { readLocalGitDailyCounts, loadContributionSource } = require('./source-adapters');
 async function readGithubDailyCounts(username, asOf = new Date()) {
-  return require('./contribution-snapshot').fetchGithubDailyCounts(username, { asOf });
+  return loadContributionSource({ source: 'github', username }, { asOf });
 }
 
 function isoToUtcDate(iso) {
@@ -293,9 +223,7 @@ function svgDate(iso, includeYear) {
 async function main() {
   const args = parseArgs(process.argv);
   const asOf = new Date();
-  const sourceData = args.source === 'github'
-    ? await readGithubDailyCounts(args.username, asOf)
-    : readLocalGitDailyCounts(path.resolve(args.repo), args.branch, args.author, asOf);
+  const sourceData = await loadContributionSource(args, { asOf });
 
   const series = buildSeries(sourceData.counts, sourceData.startDate, sourceData.endDate);
   const meta = createMeta(args, sourceData, series);

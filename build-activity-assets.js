@@ -5,7 +5,8 @@
 const fs = require('node:fs');
 const path = require('node:path');
 const { createHash } = require('node:crypto');
-const { readGithubDailyCounts, readLocalGitDailyCounts, buildSeries, selectRange, createMeta } = require('./generate-commit-chart');
+const { buildSeries, selectRange, createMeta } = require('./generate-commit-chart');
+const { loadContributionSource } = require('./source-adapters');
 const { renderModernHtml, renderModernSvg } = require('./modern-renderer');
 const { validateContributionSeries } = require('./chart-contract');
 
@@ -126,9 +127,7 @@ function writeBundle(outDir, assets) {
 async function main() {
   const opts = cliArgs(process.argv);
   const asOf = new Date();
-  const sourceData = opts.source === 'github'
-    ? await readGithubDailyCounts(opts.username, asOf)
-    : readLocalGitDailyCounts(path.resolve(opts.repo), opts.branch, opts.author, asOf);
+  const sourceData = await loadContributionSource(opts, { asOf });
   const { assets, manifest } = createAssetBundle(sourceData, opts);
   writeBundle(opts.outDir, assets);
   console.log('Validated ' + Object.keys(manifest.assets).join(', ') +

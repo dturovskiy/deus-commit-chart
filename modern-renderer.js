@@ -399,41 +399,24 @@ function renderModernHtml(title, description, meta, allData, options = {}) {
     let visible = [];
     let geometry = null;
 
-    const isoMs = (iso) => {
-      const m = /^(\\d{4})-(\\d{2})-(\\d{2})$/.exec(iso || '');
-      return m ? Date.UTC(Number(m[1]), Number(m[2]) - 1, Number(m[3])) : NaN;
-    };
-    const fmtDate = (iso, year = false) => {
-      const ms = isoMs(iso); if (!Number.isFinite(ms)) return iso;
-      const d = new Date(ms);
-      const month = new Intl.DateTimeFormat(undefined,{month:'short',timeZone:'UTC'}).format(d);
-      const day = String(d.getUTCDate()).padStart(2,'0');
-      return year ? month + ' ' + day + ', ' + d.getUTCFullYear() : month + ' ' + day;
-    };
+    // The browser uses exactly the same pure functions as the static SVG.
+    // No geometry/range/tick implementations are maintained independently.
+    const isoToUtcMs = ${isoToUtcMs.toString()};
+    const isoMs = isoToUtcMs;
+    const formatDate = ${formatDate.toString()};
+    const fmtDate = formatDate;
     const fmtNum = (n) => new Intl.NumberFormat(undefined,{maximumFractionDigits:0}).format(n || 0);
-    const select = (days) => {
-      if (!allData.length) return [];
-      const end = isoMs(allData[allData.length - 1].date);
-      const start = end - (days - 1) * 86400000;
-      let cumulative = 0;
-      return allData.filter(p => isoMs(p.date) >= start).map(p => ({...p,cumulative:(cumulative += Number(p.commits)||0)}));
-    };
-    const clamp = (v,min,max) => Math.max(min,Math.min(max,v));
-    const smooth = ${smoothPath.toString()};
-    const barRects = ${dailyBarRects.toString()};
+    const selectRange = ${selectRange.toString()};
+    const select = (days) => selectRange(allData, days);
+    const smoothPath = ${smoothPath.toString()};
+    const dailyBarRects = ${dailyBarRects.toString()};
+    const chartGeometry = ${chartGeometry.toString()};
+    const buildTicks = ${buildTicks.toString()};
     const esc = (s) => String(s).replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&apos;'}[ch]));
 
     function buildGeometry() {
-      const pad=layout.pad, width=layout.width, height=layout.height;
-      const plotW=width-pad.left-pad.right, plotH=height-pad.top-pad.bottom;
-      const rawMax=Math.max(...visible.map(p=>Math.max(Number(p.commits)||0,Number(p.ma7)||0)),1);
-      const maxValue=Math.max(1,rawMax*1.14);
-      const x=(i)=>pad.left+((i+0.5)/Math.max(1,visible.length))*plotW;
-      const y=(v)=>pad.top+(1-(Number(v)||0)/maxValue)*plotH;
-      const baseline=pad.top+plotH;
-      const daily=visible.map((p,i)=>({x:x(i),y:y(p.commits)}));
-      const trend=visible.map((p,i)=>({x:x(i),y:y(p.ma7)}));
-      return {pad,width,height,plotW,plotH,maxValue,x,y,baseline,daily,trend,bars:barRects(daily,baseline,plotW),trendPath:smooth(trend,.24)};
+      const g = chartGeometry(allData, selectedDays, layout);
+      return { ...g, pad: layout.pad, width: layout.width, height: layout.height };
     }
 
     function render() {
@@ -447,12 +430,8 @@ function renderModernHtml(title, description, meta, allData, options = {}) {
         grid.push('<line x1="'+g.pad.left+'" y1="'+yy.toFixed(2)+'" x2="'+(g.width-g.pad.right)+'" y2="'+yy.toFixed(2)+'" stroke="'+theme.grid+'" stroke-width="1" opacity="'+(i===3?'.9':'.52')+'"/>');
         grid.push('<text x="'+(g.pad.left-14)+'" y="'+(yy+4).toFixed(2)+'" fill="'+theme.muted+'" font-size="'+layout.labelSize+'" text-anchor="end" opacity=".82">'+value+'</text>');
       }
-      const ticks=Math.min(selectedDays>=365?7:6,visible.length), labels=[];
-      for(let i=0;i<ticks;i++){
-        const idx=Math.round(i*(visible.length-1)/Math.max(1,ticks-1));
-        const anchor=i===0?'start':(i===ticks-1?'end':'middle');
-        labels.push('<text x="'+g.x(idx).toFixed(2)+'" y="'+(layout.height-Math.max(18,Math.round(layout.pad.bottom*.34)))+'" fill="'+theme.muted+'" font-size="'+layout.labelSize+'" text-anchor="'+anchor+'" opacity=".86">'+esc(fmtDate(visible[idx].date,selectedDays>=365))+'</text>');
-      }
+      const labels = buildTicks(visible, g.x, selectedDays, layout).map(tick =>
+        '<text x="'+tick.x.toFixed(2)+'" y="'+tick.y+'" fill="'+theme.muted+'" font-size="'+layout.labelSize+'" text-anchor="'+tick.anchor+'" opacity=".86">'+esc(tick.text)+'</text>');
       const bars=g.bars.map((bar,i)=>bar.height>0?'<rect data-series="daily" x="'+bar.x+'" y="'+bar.y+'" width="'+bar.width+'" height="'+bar.height+'" rx="'+bar.radius+'" fill="'+(i===g.bars.length-1&&meta.currentDayPartial?theme.glow:theme.daily)+'" opacity="'+(i===g.bars.length-1?'1':'.82')+'"/>':'').join('');
       chart.innerHTML = '<defs><linearGradient id="bg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="'+theme.panel+'" stop-opacity=".72"/><stop offset="1" stop-color="'+theme.background+'"/></linearGradient></defs>'+
         '<rect x=".5" y=".5" width="'+(g.width-1)+'" height="'+(g.height-1)+'" rx="'+layout.radius+'" fill="url(#bg)" stroke="'+theme.border+'"/>'+
