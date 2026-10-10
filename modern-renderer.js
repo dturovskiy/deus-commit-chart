@@ -149,33 +149,38 @@ function resolveLayout(options = {}) {
 }
 
 function smoothPath(points, tension = 0.22) {
+  // Monotone cubic Hermite interpolation (PCHIP-like), preserving flat intervals
+  // and never overshooting neighboring samples; tension remains for compatibility.
   if (!Array.isArray(points) || !points.length) return '';
-  if (points.length === 1) return `M ${points[0].x.toFixed(2)} ${points[0].y.toFixed(2)}`;
-  if (points.length === 2) {
-    return `M ${points[0].x.toFixed(2)} ${points[0].y.toFixed(2)} L ${points[1].x.toFixed(2)} ${points[1].y.toFixed(2)}`;
-  }
-
-  let path = `M ${points[0].x.toFixed(2)} ${points[0].y.toFixed(2)}`;
+  const fmt = (v) => v.toFixed(2);
+  if (points.length === 1) return 'M ' + fmt(points[0].x) + ' ' + fmt(points[0].y);
+  const widths = [];
+  const slopes = [];
   for (let i = 0; i < points.length - 1; i++) {
-    const p0 = points[i - 1] || points[i];
-    const p1 = points[i];
-    const p2 = points[i + 1];
-    const p3 = points[i + 2] || p2;
-    const segmentMinY = Math.min(p1.y, p2.y);
-    const segmentMaxY = Math.max(p1.y, p2.y);
-
-    const c1 = {
-      x: p1.x + (p2.x - p0.x) * tension,
-      y: clamp(p1.y + (p2.y - p0.y) * tension, segmentMinY, segmentMaxY)
-    };
-    const c2 = {
-      x: p2.x - (p3.x - p1.x) * tension,
-      y: clamp(p2.y - (p3.y - p1.y) * tension, segmentMinY, segmentMaxY)
-    };
-
-    path += ` C ${c1.x.toFixed(2)} ${c1.y.toFixed(2)}, ${c2.x.toFixed(2)} ${c2.y.toFixed(2)}, ${p2.x.toFixed(2)} ${p2.y.toFixed(2)}`;
+    const width = points[i + 1].x - points[i].x;
+    if (!(width > 0)) throw new Error('Chart points must have increasing x coordinates');
+    widths.push(width);
+    slopes.push((points[i + 1].y - points[i].y) / width);
   }
-  return path;
+  const tangents = Array(points.length).fill(0);
+  tangents[0] = slopes[0];
+  tangents[points.length - 1] = slopes[slopes.length - 1];
+  for (let i = 1; i < points.length - 1; i++) {
+    const a = slopes[i - 1], b = slopes[i];
+    if (a * b <= 0) continue;
+    const w1 = 2 * widths[i] + widths[i - 1];
+    const w2 = widths[i] + 2 * widths[i - 1];
+    tangents[i] = (w1 + w2) / (w1 / a + w2 / b);
+  }
+  let result = 'M ' + fmt(points[0].x) + ' ' + fmt(points[0].y);
+  for (let i = 0; i < widths.length; i++) {
+    const p = points[i], q = points[i + 1], h = widths[i];
+    const c1x = p.x + h / 3, c2x = q.x - h / 3;
+    const c1y = p.y + tangents[i] * h / 3, c2y = q.y - tangents[i + 1] * h / 3;
+    result += ' C ' + fmt(c1x) + ' ' + fmt(c1y) + ', ' +
+      fmt(c2x) + ' ' + fmt(c2y) + ', ' + fmt(q.x) + ' ' + fmt(q.y);
+  }
+  return result;
 }
 
 function chartGeometry(allData, days, layout) {
@@ -242,7 +247,8 @@ function renderModernSvg(title, description, meta, allData, days, options = {}) 
   const labels = buildTicks(data, x, days, layout)
     .map((tick) => `<text x="${tick.x.toFixed(2)}" y="${tick.y}" fill="${theme.muted}" font-size="${layout.labelSize}" text-anchor="${tick.anchor}" opacity="0.86">${escapeXml(tick.text)}</text>`);
   const lastPoint = dailyPoints.at(-1);
-  const statLine = `${days} days · ${total} contributions · ${activeDays} active days${peak ? ` · peak ${peak.commits}` : ''}`;
+  const stamp = meta.generatedAt ? new Date(meta.generatedAt).toISOString().slice(0, 16).replace('T', ' ') + ' UTC' : 'unknown';
+  const statLine = `${days} days · ${total} contributions · ${activeDays} active days${peak ? ` · peak ${peak.commits}` : ''} · Updated ${stamp} · Snapshot ${(meta.snapshotId || 'legacy').slice(0, 10)}`;
 
   return `<svg xmlns="http://www.w3.org/2000/svg" width="${layout.width}" height="${layout.height}" viewBox="0 0 ${layout.width} ${layout.height}" role="img" aria-labelledby="chart-title chart-desc">
   <title id="chart-title">${escapeXml(title)}</title>
@@ -403,20 +409,7 @@ function renderModernHtml(title, description, meta, allData, options = {}) {
       return allData.filter(p => isoMs(p.date) >= start).map(p => ({...p,cumulative:(cumulative += Number(p.commits)||0)}));
     };
     const clamp = (v,min,max) => Math.max(min,Math.min(max,v));
-    const smooth = (pts,tension) => {
-      if (!pts.length) return '';
-      if (pts.length === 1) return 'M ' + pts[0].x.toFixed(2) + ' ' + pts[0].y.toFixed(2);
-      if (pts.length === 2) return 'M ' + pts[0].x.toFixed(2) + ' ' + pts[0].y.toFixed(2) + ' L ' + pts[1].x.toFixed(2) + ' ' + pts[1].y.toFixed(2);
-      let d = 'M ' + pts[0].x.toFixed(2) + ' ' + pts[0].y.toFixed(2);
-      for (let i=0;i<pts.length-1;i++) {
-        const p0=pts[i-1]||pts[i], p1=pts[i], p2=pts[i+1], p3=pts[i+2]||p2;
-        const minY=Math.min(p1.y,p2.y), maxY=Math.max(p1.y,p2.y);
-        const c1x=p1.x+(p2.x-p0.x)*tension, c1y=clamp(p1.y+(p2.y-p0.y)*tension,minY,maxY);
-        const c2x=p2.x-(p3.x-p1.x)*tension, c2y=clamp(p2.y-(p3.y-p1.y)*tension,minY,maxY);
-        d += ' C ' + c1x.toFixed(2)+' '+c1y.toFixed(2)+', '+c2x.toFixed(2)+' '+c2y.toFixed(2)+', '+p2.x.toFixed(2)+' '+p2.y.toFixed(2);
-      }
-      return d;
-    };
+    const smooth = ${smoothPath.toString()};
     const esc = (s) => String(s).replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&apos;'}[ch]));
 
     function buildGeometry() {

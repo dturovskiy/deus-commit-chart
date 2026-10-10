@@ -5,82 +5,97 @@ on:
     branches: [main]
     paths:
       - 'generate-commit-chart.js'
+      - 'contribution-snapshot.js'
+      - 'build-activity-assets.js'
+      - 'verify-activity-assets.js'
       - 'modern-renderer.js'
+      - 'action.yml'
       - 'package.json'
       - 'package-lock.json'
+      - 'test/**'
       - '.github/workflows/publish-pages.yml'
   schedule:
-    - cron: '17 */6 * * *'
+    - cron: '17 */2 * * *'
   workflow_dispatch:
-
-permissions:
-  contents: write
 
 concurrency:
   group: activity-assets
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
-  publish:
-    name: Build and publish activity assets
+  build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: '22'
           cache: npm
-
       - name: Install
         run: npm ci
-
-      - name: Build interactive report
+      - name: Verify code and regressions
+        run: npm run check
+      - name: Fetch GitHub calendar once and render every range
         env:
           DEUS_COMMIT_CHART_GITHUB_TOKEN: ${{ secrets.DEUS_COMMIT_CHART_TOKEN || github.token }}
         run: |
-          node generate-commit-chart.js \
+          node build-activity-assets.js \
             --source github \
             --username "${{ github.repository_owner }}" \
-            --days 30 \
+            --out-dir dist \
+            --default-days 30 \
             --layout spacious \
-            --out dist/index.html \
+            --hide-border \
             --title "GitHub contribution activity"
+      - name: Verify all generated artifacts
+        run: node verify-activity-assets.js dist
+      - name: Retain immutable verified build evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: contribution-chart-verified-${{ github.run_id }}
+          path: dist/
+          include-hidden-files: true
+          retention-days: 90
+          if-no-files-found: error
 
-      - name: Build README-safe SVG ranges
-        env:
-          DEUS_COMMIT_CHART_GITHUB_TOKEN: ${{ secrets.DEUS_COMMIT_CHART_TOKEN || github.token }}
-        run: |
-          set -euo pipefail
-          for days in 30 90 365; do
-            node generate-commit-chart.js \
-              --source github \
-              --username "${{ github.repository_owner }}" \
-              --format svg \
-              --days "$days" \
-              --theme github-compact \
-              --layout spacious \
-              --hide-border \
-              --out "dist/activity-${days}d.svg" \
-              --title "GitHub contribution activity"
-          done
-          touch dist/.nojekyll
-
-      - name: Publish generated branch
+  publish:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Download verified build
+        uses: actions/download-artifact@v4
+        with:
+          name: contribution-chart-verified-${{ github.run_id }}
+          path: dist/
+      - name: Reverify exact downloaded artifacts
+        run: node verify-activity-assets.js dist
+      - name: Publish with fast-forward history (no force push)
         env:
           TARGET_BRANCH: activity-assets
         run: |
           set -euo pipefail
           temp_dir="$(mktemp -d)"
           cp -a dist/. "$temp_dir/"
-
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git switch --orphan "$TARGET_BRANCH"
+          git fetch origin "$TARGET_BRANCH"
+          git switch -C "$TARGET_BRANCH" FETCH_HEAD
+          git rm -r --ignore-unmatch . >/dev/null
           find . -mindepth 1 -maxdepth 1 ! -name .git -exec rm -rf {} +
           cp -a "$temp_dir"/. .
           git add -A
-          git commit -m "chore: refresh generated activity charts"
-          git push --force origin "$TARGET_BRANCH"
+          if git diff --cached --quiet; then
+            echo "No change in verified activity assets."
+            exit 0
+          fi
+          git commit -m "chore: refresh verified activity charts"
+          # Conflicting concurrent changes reject the push; previous verified assets remain.
+          git push origin "HEAD:refs/heads/$TARGET_BRANCH"

@@ -28,11 +28,8 @@ jobs:
       - name: Install
         run: npm ci
 
-      - name: Unit tests
-        run: npm test
-
-      - name: Syntax check
-        run: node --check generate-commit-chart.js
+      - name: Validate syntax and run numerical regression suite
+        run: npm run check
 
       - name: Create fixture git repository
         shell: bash
@@ -43,24 +40,23 @@ jobs:
           git init -b main
           git config user.name "Smoke Test"
           git config user.email "smoke@example.local"
-
+          yesterday="$(date -u -d 'yesterday' +%F)"
+          today="$(date -u +%F)"
           echo "one" > fixture.txt
           git add fixture.txt
-          GIT_AUTHOR_DATE="2026-01-01T10:00:00Z" \
-          GIT_COMMITTER_DATE="2026-01-01T10:00:00Z" \
-          git commit -m "fixture: first commit"
-
+          GIT_AUTHOR_DATE="${yesterday}T10:00:00Z" \
+          GIT_COMMITTER_DATE="${yesterday}T10:00:00Z" \
+          git commit -m "fixture: yesterday"
           echo "two" >> fixture.txt
           git add fixture.txt
-          GIT_AUTHOR_DATE="2026-01-03T10:00:00Z" \
-          GIT_COMMITTER_DATE="2026-01-03T10:00:00Z" \
-          git commit -m "fixture: second commit"
-
+          GIT_AUTHOR_DATE="${today}T10:00:00Z" \
+          GIT_COMMITTER_DATE="${today}T10:00:00Z" \
+          git commit -m "fixture: today one"
           echo "three" >> fixture.txt
           git add fixture.txt
-          GIT_AUTHOR_DATE="2026-01-03T11:00:00Z" \
-          GIT_COMMITTER_DATE="2026-01-03T11:00:00Z" \
-          git commit -m "fixture: third commit"
+          GIT_AUTHOR_DATE="${today}T11:00:00Z" \
+          GIT_COMMITTER_DATE="${today}T11:00:00Z" \
+          git commit -m "fixture: today two"
 
       - name: Smoke composite GitHub Action
         uses: ./
@@ -79,6 +75,8 @@ jobs:
         run: |
           set -euo pipefail
           test -s .tmp/action-smoke/index.html
+          node verify-activity-assets.js .tmp/action-smoke
+          grep -q '30 days · 3 contributions' .tmp/action-smoke/activity-30d.svg
           for days in 30 90 365; do
             test -s ".tmp/action-smoke/activity-${days}d.svg"
             grep -q '^<svg ' ".tmp/action-smoke/activity-${days}d.svg"

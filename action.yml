@@ -125,66 +125,42 @@ runs:
         fi
 
         output_dir="$GITHUB_WORKSPACE/$INPUT_OUTPUT_DIR"
-        mkdir -p "$output_dir"
-
-        common=(
-          node "$GITHUB_ACTION_PATH/generate-commit-chart.js"
+        mkdir -p "$(dirname "$output_dir")"
+        args=(
+          node "$GITHUB_ACTION_PATH/build-activity-assets.js"
           --source "$INPUT_SOURCE"
-          --layout "$INPUT_LAYOUT"
+          --out-dir "$output_dir"
           --title "$INPUT_TITLE"
+          --default-days "$INPUT_DEFAULT_DAYS"
+          --ranges "$INPUT_RANGES"
+          --layout "$INPUT_LAYOUT"
+          --theme "$INPUT_THEME"
         )
-
-        if [[ -n "$INPUT_WIDTH" ]]; then common+=(--width "$INPUT_WIDTH"); fi
-        if [[ -n "$INPUT_HEIGHT" ]]; then common+=(--height "$INPUT_HEIGHT"); fi
+        if [[ -n "$INPUT_WIDTH" ]]; then args+=(--width "$INPUT_WIDTH"); fi
+        if [[ -n "$INPUT_HEIGHT" ]]; then args+=(--height "$INPUT_HEIGHT"); fi
+        if [[ "$INPUT_HIDE_BORDER" == "true" ]]; then
+          args+=(--hide-border)
+        else
+          args+=(--show-border)
+        fi
 
         if [[ "$INPUT_SOURCE" == "github" ]]; then
           username="$INPUT_USERNAME"
           if [[ -z "$username" ]]; then username="$GITHUB_REPOSITORY_OWNER"; fi
-          if [[ -z "$username" ]]; then
-            echo "username is required when repository owner is unavailable" >&2
+          if [[ -z "$username" || -z "$INPUT_TOKEN" ]]; then
+            echo "GitHub source requires username and token" >&2
             exit 2
           fi
-          if [[ -z "$INPUT_TOKEN" ]]; then
-            echo "token is required for source=github; pass the caller workflow token or a PAT secret" >&2
-            exit 2
-          fi
-          common+=(--username "$username")
+          args+=(--username "$username")
           export DEUS_COMMIT_CHART_GITHUB_TOKEN="$INPUT_TOKEN"
         else
           repo_path="$INPUT_REPO"
           if [[ "$repo_path" != /* ]]; then repo_path="$GITHUB_WORKSPACE/$repo_path"; fi
-          common+=(--repo "$repo_path" --branch "$INPUT_BRANCH")
-          if [[ -n "$INPUT_AUTHOR" ]]; then common+=(--author "$INPUT_AUTHOR"); fi
+          args+=(--repo "$repo_path" --branch "$INPUT_BRANCH")
+          if [[ -n "$INPUT_AUTHOR" ]]; then args+=(--author "$INPUT_AUTHOR"); fi
         fi
 
-        "${common[@]}" \
-          --days "$INPUT_DEFAULT_DAYS" \
-          --out "$output_dir/index.html"
-
-        normalized_ranges="${INPUT_RANGES// /}"
-        IFS=',' read -r -a ranges <<< "$normalized_ranges"
-        if [[ ${#ranges[@]} -eq 0 ]]; then
-          echo "ranges must contain at least one of 30,90,365" >&2
-          exit 2
-        fi
-
-        for days in "${ranges[@]}"; do
-          case "$days" in
-            30|90|365) ;;
-            *) echo "unsupported range '$days'; allowed: 30,90,365" >&2; exit 2 ;;
-          esac
-
-          svg_args=(
-            "${common[@]}"
-            --format svg
-            --days "$days"
-            --theme "$INPUT_THEME"
-            --out "$output_dir/activity-${days}d.svg"
-          )
-          if [[ "$INPUT_HIDE_BORDER" == "true" ]]; then svg_args+=(--hide-border); fi
-          "${svg_args[@]}"
-        done
-
-        touch "$output_dir/.nojekyll"
+        "${args[@]}"
+        node "$GITHUB_ACTION_PATH/verify-activity-assets.js" "$output_dir"
         echo "output-dir=$output_dir" >> "$GITHUB_OUTPUT"
         echo "index-html=$output_dir/index.html" >> "$GITHUB_OUTPUT"

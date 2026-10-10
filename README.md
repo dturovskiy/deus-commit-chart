@@ -60,7 +60,7 @@ name: Update activity chart
 
 on:
   schedule:
-    - cron: '17 */6 * * *'
+    - cron: '17 */2 * * *'
   workflow_dispatch:
 
 permissions:
@@ -92,12 +92,18 @@ jobs:
           cp -a activity-dist/. "$temp_dir/"
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git switch --orphan "$TARGET_BRANCH"
+          if git ls-remote --exit-code --heads origin "$TARGET_BRANCH" >/dev/null; then
+            git fetch origin "$TARGET_BRANCH"
+            git switch -C "$TARGET_BRANCH" FETCH_HEAD
+            git rm -r --ignore-unmatch . >/dev/null
+          else
+            git switch --orphan "$TARGET_BRANCH"
+          fi
           find . -mindepth 1 -maxdepth 1 ! -name .git -exec rm -rf {} +
           cp -a "$temp_dir"/. .
           git add -A
-          git commit -m "chore: refresh activity charts"
-          git push --force origin "$TARGET_BRANCH"
+          git commit -m "chore: refresh verified activity charts"
+          git push origin "HEAD:refs/heads/$TARGET_BRANCH"
 ```
 
 Run the workflow once from **Actions → Update activity chart → Run workflow**. It creates `activity-assets` with `activity-30d.svg`, `activity-90d.svg`, `activity-365d.svg`, and the interactive `index.html`.
@@ -215,7 +221,7 @@ The token is read from one of these environment variables, in order:
 
 Tokens are deliberately not accepted as CLI arguments so they do not appear in the process command line.
 
-The GitHub source requests the trailing 365-day contribution calendar once during generation. The generated HTML or SVG does not contact GitHub afterward. The published `activity-assets` branch is refreshed every six hours (and on relevant pushes/manual dispatch), so the README chart is normally at most about six hours behind GitHub's contribution calendar.
+The GitHub source requests the trailing 365-day contribution calendar once per batch generation. Generated HTML and SVGs do not contact GitHub afterward. The publisher is scheduled every two hours (and on relevant pushes/manual dispatch); GitHub Actions scheduling and GitHub's image proxy cache can introduce additional, unbounded delays. The SVG labels its UTC build timestamp and snapshot ID.
 
 ## Automated publishing
 
@@ -238,7 +244,7 @@ https://raw.githubusercontent.com/dturovskiy/deus-commit-chart/activity-assets/a
 https://raw.githubusercontent.com/dturovskiy/deus-commit-chart/activity-assets/activity-365d.svg
 ```
 
-The workflow rebuilds on relevant `main` changes, every six hours, and on manual dispatch. It force-refreshes only the generated `activity-assets` branch; `main` stays free of generated chart commits.
+The workflow rebuilds on relevant `main` changes, every two hours, and on manual dispatch. It validates one immutable snapshot before publication and fast-forwards the dedicated `activity-assets` branch (no force push), retaining rollback history; `main` stays free of generated chart commits.
 
 A profile README can embed the default 30-day range directly from the generated branch:
 
@@ -371,6 +377,15 @@ TITLE="Commit activity"
 ```
 
 The helper derives the Windows Downloads directory dynamically through WSL and does not hardcode a Windows or Linux username.
+
+## Architecture remediation
+
+The architecture audit and remediation work are tracked inside this repository:
+
+- [Architecture Remediation Plan](docs/ARCHITECTURE_REMEDIATION_PLAN.md) — findings, evidence, target design, implementation gates, and acceptance criteria.
+- [Remediation Checklist](docs/REMEDIATION_CHECKLIST.md) — actionable verification tasks, release gates, and evidence log.
+
+These are working documents: tasks remain open until supported by test or release evidence. No implementation or deployment is implied by their presence.
 
 ## Development
 
