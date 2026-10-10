@@ -55,7 +55,7 @@
 - [ ] **DC-G3-01** Extract shared pure functions for range selection, daily totals, trailing 7-day average, geometry and tick generation.
 - [ ] **DC-G3-02** Make static SVG and interactive HTML consume the same normalized snapshot and rendering mathematics.
 - [x] **DC-G3-03** Remove or quarantine legacy `renderHtml`/`renderSvg` only after proving old CLI and Action behavior remains supported.
-- [ ] **DC-G3-04** Decide chart style: discrete daily bars/points + smooth 7d trend (recommended), or explicitly tested daily interpolation.
+- [x] **DC-G3-04** Decide chart style: discrete daily bars/points + smooth 7d trend (recommended), or explicitly tested daily interpolation. (Chosen daily bars + 7d line; verified on smoke and real GraphQL branch build 2026-10-10.)
 - [x] **DC-G3-05** Verify flat sections, spikes, zero days and adjacent extrema without artificial overshoot/false intermediate values.
 - [ ] **DC-G3-06** Label `Daily` vs `7d trend`, note incomplete current day, display data freshness in the static SVG.
 - [x] **DC-G3-07** Preserve script-free README SVG, self-contained HTML and instant 30/90/365 range switching.
@@ -103,6 +103,13 @@
 - [ ] README SVG remains valid without JS; HTML is self-contained; local Git mode is offline.
 - [ ] Security/privacy boundary and source-visibility assumptions are documented.
 - [ ] All completion checkmarks have actual evidence links or attached test logs.
+
+## Combo chart review evidence (2026-10-10)
+
+- [Branch smoke](https://github.com/dturovskiy/deus-commit-chart/actions/runs/38085045804): SUCCESS for Node regression tests, local composite Action and XML validation.
+- [Real GraphQL build](https://github.com/dturovskiy/deus-commit-chart/actions/runs/38085049865): SUCCESS for live source, 365-day snapshot, checksums and verified asset retention; publish job SKIPPED on feature branch.
+- Verified artifact `97f23f36273600aca81d714ae2c1c224d0dece6ba94d7dce4fe590c167d0884f`: 30d **30 bars**, 90d **89 bars** (one zero day), 365d **293 bars** (remaining days are zero); **one 7-day trend path in each**, no legacy daily curve or filled area. Totals at that moment: 210/771/3056.
+- Shared `dailyBarRects()` and `smoothPath()` are used by both static SVG and browser HTML. Bar hit-testing uses day-bin centers. Responsive visual inspection remains open; no visual QA checkbox is inferred from passing unit tests alone.
 
 ## Evidence log (fill as work progresses)
 

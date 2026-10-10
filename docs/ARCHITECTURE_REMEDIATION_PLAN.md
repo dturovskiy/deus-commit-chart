@@ -194,6 +194,12 @@ All gates in [REMEDIATION_CHECKLIST.md](REMEDIATION_CHECKLIST.md) are complete w
 - **Production verified:** [PR #1](https://github.com/dturovskiy/deus-commit-chart/pull/1) merged as `7a76e17`. [Publish 38083440184](https://github.com/dturovskiy/deus-commit-chart/actions/runs/38083440184) and [Smoke 38083440198](https://github.com/dturovskiy/deus-commit-chart/actions/runs/38083440198) both SUCCESS. `activity-assets` now at `766cafd` with parent `b530710` (forward history; not force-pushed). Independent DEUS MCP `git show` confirmed a published HTML and all 30/90/365 SVGs agree with manifest snapshot `abdaa5a4c4ee4194f8fea7ca90e875d871801d0722328e21272773ce9e29afa0` (2026-10-10T20:21:46.111Z); totals 206/767/3052, 2026-10-10=24 at snapshot time.
 - **Still open:** freshness alerts and cache observability, public privacy metadata policy, rollback rehearsal and direct README image-cache inspection. Operator details: [OPERATIONS.md](OPERATIONS.md).
 
+## Chart design decision (2026-10-10)
+
+For readability in GitHub README and the interactive report, replace the green cubic daily curve and filled area with **discrete green daily bars**, while retaining the **blue 7-day moving-average trend line**. Bars occupy day-centered bins and use adaptive widths (30/90/365) with no fabricated intermediate values. Zero-activity days have no positive-height bar; the current incomplete day remains visually highlighted. The trend is an overlay, not a substitute for daily data. Keep the same contribution snapshot and numerical source contracts.
+
+This was verified on feature-branch smoke + live API builds. No image-generated preview is considered release evidence. Code and SVG/HTML output are the source of truth.
+
 ## 10. Evidence and source paths
 
 - `generate-commit-chart.js:146-269,291-351,1048-1090` — adapters, series, CLI.
