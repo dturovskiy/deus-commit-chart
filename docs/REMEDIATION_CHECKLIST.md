@@ -39,7 +39,7 @@
 - [x] **DC-G2-02** Implement bounded retry/backoff for transient errors only; do not retry permanent authorization/schema failures.
 - [x] **DC-G2-03** Generate build manifest with snapshot ID, `generatedAt`, source SHA, run ID, source details, content hashes and totals for each range.
 - [x] **DC-G2-04** Cross-check published HTML/SVG totals and date ranges against the frozen snapshot before allowing publication.
-- [ ] **DC-G2-05** Validate SVG XML, absence of scripts/remote resources, finite path coordinates and output file completeness.
+- [x] **DC-G2-05** Validate SVG XML, absence of scripts/remote resources, finite path coordinates and output file completeness.
 - [x] **DC-G2-06** Gate publication on validation; a failed fetch/render/validation must preserve previously published good artifacts.
 - [x] **DC-G2-07** Decide and implement guarded remote-ref publication; do not retain unconditional force-push without recovery protections.
 - [ ] **DC-G2-08** Retain immutable build artifacts and previous manifest sufficient to restore an earlier verified release.
@@ -115,7 +115,9 @@
 | 2026-10-10 API edge | DC-03/04 | [Failed run 38082697496](https://github.com/dturovskiy/deus-commit-chart/actions/runs/38082697496) | Actual GitHub full-year calendar returned 364 dates (2025-10-12..2026-10-10), omitting the boundary Saturday 2025-10-11; fixed by adding a separate short boundary collection alias within the same GraphQL POST. No missing date coerced to zero. |
 | 2026-10-10 release guard | Gate 2 | `.github/workflows/publish-pages.yml` and [build 38082860981](https://github.com/dturovskiy/deus-commit-chart/actions/runs/38082860981) | Read-only build, manifest, artifact retention, separate write-scoped publish, guarded to main. No production mutation in branch validation. |
 | 2026-10-10 host | Gate 0 | DEUS MCP `task_recipe_availability` | Host lacks package manager; GitHub Actions Node 22 is the reproducible test runner triggered via DEUS MCP. |
-| — | Remaining open gates | This file | XML-based SVG validation, caching measurements, freshness alerting, public metadata decision, rollback rehearsal and production release remain open. |
+| 2026-10-10 CI XML | DC-G2-05 | [Smoke 38083228821](https://github.com/dturovskiy/deus-commit-chart/actions/runs/38083228821), [GraphQL build 38083244351](https://github.com/dturovskiy/deus-commit-chart/actions/runs/38083244351) | Both passed standalone standard-library XML parsing, executable/external resource exclusions, checksum verifier and all ranges. |
+| 2026-10-10 PR | Deployment review | [Draft PR #1](https://github.com/dturovskiy/deus-commit-chart/pull/1) | Created using DEUS MCP GitHub CLI, mergeable; PR smoke check SUCCESS. Branch production publish guard was SKIPPED during test run. |
+| — | Remaining open gates | This file | Cache measurements, freshness alerting, public metadata decision, rollback rehearsal and production post-deploy checks remain open. |
 | — | — | — | — |
 
 ## Working conventions

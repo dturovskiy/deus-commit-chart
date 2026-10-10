@@ -190,7 +190,8 @@ All gates in [REMEDIATION_CHECKLIST.md](REMEDIATION_CHECKLIST.md) are complete w
 - Captured snapshot: `b2b7861480c2199d7b737b9ec982385d056e4b51ae479759243063be5132a5d3`, `generatedAt=2026-10-10T20:13:15.317Z`, 365 days `2025-10-11..2026-10-10`. Values at that instant: **22** on Oct 10, **204** in 30 days, **765** in 90 days and **3050** in 365 days; source token includes restricted/private aggregate data as before.
 - [Smoke CI 38083046571](https://github.com/dturovskiy/deus-commit-chart/actions/runs/38083046571) passed on the updated code including browser VM execution and a partial-week GraphQL fixture.
 - DEUS MCP project runtime reports `package_manager_binary_missing`; Node validation was performed on a GitHub Actions Node 22 runner dispatched and examined **only through DEUS MCP**.
-- **Still open:** XML-level validation independent of template assumptions, freshness alerts and cache observability, public privacy metadata policy, rollback rehearsal, production deployment and post-deploy README inspection.
+- **Additional verified CI:** [Smoke 38083228821](https://github.com/dturovskiy/deus-commit-chart/actions/runs/38083228821) and [real GraphQL build 38083244351](https://github.com/dturovskiy/deus-commit-chart/actions/runs/38083244351) both succeeded on commit `b9af864`, including standalone Python-standard-library XML validation for all three SVGs. [Draft PR #1](https://github.com/dturovskiy/deus-commit-chart/pull/1) is mergeable; PR smoke check succeeded.
+- **Still open:** freshness alerts and cache observability, public privacy metadata policy, rollback rehearsal, production deployment and post-deploy README inspection.
 
 ## 10. Evidence and source paths
 
