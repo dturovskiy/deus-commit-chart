@@ -25,21 +25,28 @@ def check_svg(path: pathlib.Path) -> None:
     if not root.attrib.get("viewBox") or root.find(f"{{{SVG_NS}}}title") is None:
         raise ValueError(f"{path}: missing accessible title or viewBox")
 
-    valid_paths = 0
+    trend_paths = 0
+    daily_bars = 0
+    daily_groups = 0
     for node in root.iter():
         local_name = node.tag.rsplit("}", 1)[-1]
         if local_name.lower() in {"script", "foreignobject", "iframe", "image"}:
             raise ValueError(f"{path}: forbidden embedded element {local_name}")
-        if local_name == "path":
-            valid_paths += int(bool(node.get("d")))
+        if local_name == "path" and node.get("data-series") == "trend":
+            trend_paths += int(bool(node.get("d")))
+        if local_name == "rect" and node.get("data-series") == "daily":
+            daily_bars += 1
+        if local_name == "g" and node.get("data-chart-series") == "daily-bars":
+            daily_groups += 1
         for key, value in node.attrib.items():
             name = key.rsplit("}", 1)[-1].lower()
             if name in {"href", "src"} and (
                 value.startswith(("http:", "https:", "//", "data:", "javascript:"))
             ):
                 raise ValueError(f"{path}: remote or executable resource reference")
-    if valid_paths < 2:
-        raise ValueError(f"{path}: expected daily and trend paths")
+    # Zero-activity calendars are valid and may contain no positive-height bars.
+    if trend_paths != 1 or daily_groups != 1:
+        raise ValueError(f"{path}: expected one daily-bar group and one trend path")
 
 
 def main() -> int:

@@ -129,7 +129,8 @@ jobs:
             test -s "$file"
             grep -q '^<svg ' "$file"
             grep -q 'viewBox="0 0 1120 410"' "$file"
-            grep -q 'stroke-dasharray="5 7"' "$file"
+            grep -q 'data-chart-series="daily-bars"' "$file"
+            grep -q 'data-series="trend"' "$file"
             grep -q '>7d trend</text>' "$file"
             if grep -qi '<script' "$file"; then
               echo "SVG must not contain scripts: $file" >&2

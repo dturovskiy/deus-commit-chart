@@ -183,6 +183,21 @@ function smoothPath(points, tension = 0.22) {
   return result;
 }
 
+function dailyBarRects(points, baseline, plotW) {
+  // A discrete day owns one horizontal bin. Keep every bar inside the plot
+  // and cap the width so 30d is substantial while 365d stays individually legible.
+  const slot = plotW / Math.max(1, points.length);
+  const width = Math.max(0.6, Math.min(24, slot * 0.72));
+  const radius = Math.min(1.8, width / 3);
+  return points.map((point) => ({
+    x: Number((point.x - width / 2).toFixed(2)),
+    y: Number(point.y.toFixed(2)),
+    width: Number(width.toFixed(2)),
+    height: Number(Math.max(0, baseline - point.y).toFixed(2)),
+    radius: Number(radius.toFixed(2))
+  }));
+}
+
 function chartGeometry(allData, days, layout) {
   const data = selectRange(allData, days);
   const { width, height, pad } = layout;
@@ -190,17 +205,14 @@ function chartGeometry(allData, days, layout) {
   const plotH = height - pad.top - pad.bottom;
   const rawMax = Math.max(...data.map((point) => Math.max(Number(point.commits) || 0, Number(point.ma7) || 0)), 1);
   const maxValue = Math.max(1, rawMax * 1.14);
-  const x = (index) => pad.left + (index / Math.max(1, data.length - 1)) * plotW;
+  const x = (index) => pad.left + ((index + 0.5) / Math.max(1, data.length)) * plotW;
   const y = (value) => pad.top + (1 - (Number(value) || 0) / maxValue) * plotH;
   const baseline = pad.top + plotH;
   const dailyPoints = data.map((point, index) => ({ x: x(index), y: y(point.commits) }));
   const trendPoints = data.map((point, index) => ({ x: x(index), y: y(point.ma7) }));
-  const dailyPath = smoothPath(dailyPoints, 0.18);
+  const bars = dailyBarRects(dailyPoints, baseline, plotW);
   const trendPath = smoothPath(trendPoints, 0.24);
-  const areaPath = dailyPoints.length
-    ? `${dailyPath} L ${dailyPoints.at(-1).x.toFixed(2)} ${baseline.toFixed(2)} L ${dailyPoints[0].x.toFixed(2)} ${baseline.toFixed(2)} Z`
-    : '';
-  return { data, plotW, plotH, maxValue, x, y, baseline, dailyPoints, trendPoints, dailyPath, trendPath, areaPath };
+  return { data, plotW, plotH, maxValue, x, y, baseline, dailyPoints, trendPoints, bars, trendPath };
 }
 
 function buildTicks(data, x, days, layout) {
@@ -224,7 +236,7 @@ function renderModernSvg(title, description, meta, allData, days, options = {}) 
   const theme = THEMES[themeName];
   const layout = resolveLayout(options);
   const geometry = chartGeometry(allData, days, layout);
-  const { data, maxValue, x, dailyPath, trendPath, areaPath, dailyPoints } = geometry;
+  const { data, maxValue, x, trendPath, bars } = geometry;
   const total = data.reduce((sum, point) => sum + (Number(point.commits) || 0), 0);
   const activeDays = data.filter((point) => Number(point.commits) > 0).length;
   const first = data[0];
@@ -246,7 +258,9 @@ function renderModernSvg(title, description, meta, allData, days, options = {}) 
   }
   const labels = buildTicks(data, x, days, layout)
     .map((tick) => `<text x="${tick.x.toFixed(2)}" y="${tick.y}" fill="${theme.muted}" font-size="${layout.labelSize}" text-anchor="${tick.anchor}" opacity="0.86">${escapeXml(tick.text)}</text>`);
-  const lastPoint = dailyPoints.at(-1);
+  const barMarkup = bars.map((bar, index) => bar.height > 0
+    ? `<rect data-series="daily" x="${bar.x}" y="${bar.y}" width="${bar.width}" height="${bar.height}" rx="${bar.radius}" fill="${index === bars.length - 1 && meta.currentDayPartial ? theme.glow : theme.daily}" opacity="${index === bars.length - 1 ? 1 : 0.82}"/>`
+    : '').filter(Boolean).join('\n    ');
   const stamp = meta.generatedAt ? new Date(meta.generatedAt).toISOString().slice(0, 16).replace('T', ' ') + ' UTC' : 'unknown';
   const statLine = `${days} days · ${total} contributions · ${activeDays} active days${peak ? ` · peak ${peak.commits}` : ''} · Updated ${stamp} · Snapshot ${(meta.snapshotId || 'legacy').slice(0, 10)}`;
 
@@ -258,15 +272,6 @@ function renderModernSvg(title, description, meta, allData, days, options = {}) 
       <stop offset="0" stop-color="${theme.panel}" stop-opacity="0.72"/>
       <stop offset="1" stop-color="${theme.background}" stop-opacity="1"/>
     </linearGradient>
-    <linearGradient id="daily-area" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="${theme.daily}" stop-opacity="0.23"/>
-      <stop offset="0.58" stop-color="${theme.daily}" stop-opacity="0.07"/>
-      <stop offset="1" stop-color="${theme.daily}" stop-opacity="0"/>
-    </linearGradient>
-    <filter id="point-glow" x="-300%" y="-300%" width="700%" height="700%">
-      <feGaussianBlur stdDeviation="3.5" result="blur"/>
-      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
-    </filter>
   </defs>
   <rect x="0.5" y="0.5" width="${layout.width - 1}" height="${layout.height - 1}" rx="${layout.radius}" fill="url(#chart-bg)" stroke="${border}"/>
   <g font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif">
@@ -274,16 +279,16 @@ function renderModernSvg(title, description, meta, allData, days, options = {}) 
     <text x="${layout.pad.left}" y="58" fill="${theme.muted}" font-size="${layout.metaSize}">${escapeXml(sourceLabel)} · ${escapeXml(rangeLabel)}</text>
     <text x="${layout.pad.left}" y="78" fill="${theme.muted}" font-size="${layout.metaSize}" opacity="0.94">${escapeXml(statLine)}</text>
     <g transform="translate(${layout.width - layout.pad.right - 182},30)" font-size="${layout.metaSize}" fill="${theme.muted}">
-      <line x1="0" y1="0" x2="25" y2="0" stroke="${theme.daily}" stroke-width="2.6" stroke-linecap="round"/>
+      <rect x="3" y="-5" width="17" height="8" rx="2" fill="${theme.daily}"/>
       <text x="33" y="4">Daily</text>
-      <line x1="92" y1="0" x2="117" y2="0" stroke="${theme.trend}" stroke-width="1.7" stroke-dasharray="5 6" stroke-linecap="round" opacity="0.72"/>
+      <line x1="92" y1="0" x2="117" y2="0" stroke="${theme.trend}" stroke-width="2" stroke-linecap="round" opacity="0.92"/>
       <text x="125" y="4">7d trend</text>
     </g>
     ${grid.join('\n    ')}
-    ${areaPath ? `<path d="${areaPath}" fill="url(#daily-area)"/>` : ''}
-    ${trendPath ? `<path d="${trendPath}" fill="none" stroke="${theme.trend}" stroke-width="${layout.trendStroke}" stroke-dasharray="5 7" stroke-linejoin="round" stroke-linecap="round" opacity="0.66" vector-effect="non-scaling-stroke"/>` : ''}
-    ${dailyPath ? `<path d="${dailyPath}" fill="none" stroke="${theme.daily}" stroke-width="${layout.dailyStroke}" stroke-linejoin="round" stroke-linecap="round" vector-effect="non-scaling-stroke"/>` : ''}
-    ${lastPoint ? `<circle cx="${lastPoint.x.toFixed(2)}" cy="${lastPoint.y.toFixed(2)}" r="3.2" fill="${theme.daily}" filter="url(#point-glow)"/>` : ''}
+    <g data-chart-series="daily-bars">
+      ${barMarkup}
+    </g>
+    ${trendPath ? `<path data-series="trend" d="${trendPath}" fill="none" stroke="${theme.trend}" stroke-width="${Math.max(2, layout.trendStroke)}" stroke-linejoin="round" stroke-linecap="round" opacity="0.94" vector-effect="non-scaling-stroke"/>` : ''}
     ${labels.join('\n    ')}
   </g>
 </svg>\n`;
@@ -295,7 +300,7 @@ function renderModernHtml(title, description, meta, allData, options = {}) {
   const layout = resolveLayout(options);
   const payload = JSON.stringify({ title, description, meta, data: allData, theme, layout }).replace(/</g, '\\u003c');
   const safeTitle = escapeHtml(title);
-  const safeDescription = escapeHtml(description || 'A live SVG view of daily GitHub contribution activity with a 7-day trend line and selectable time windows.');
+  const safeDescription = escapeHtml(description || 'An interactive bar chart of daily GitHub contributions with a smooth 7-day trend line and selectable time windows.');
 
   return `<!doctype html>
 <html lang="en">
@@ -330,8 +335,8 @@ function renderModernHtml(title, description, meta, allData, options = {}) {
     .foot { display:flex; justify-content:space-between; gap:18px; align-items:center; padding:14px 24px 18px; color:var(--muted); font-size:12px; border-top:1px solid rgba(48,54,61,.55); }
     .legend { display:flex; gap:16px; flex-wrap:wrap; }
     .legend span { display:inline-flex; align-items:center; gap:7px; }
-    .swatch { width:25px; height:0; border-top:2px solid var(--green); border-radius:999px; }
-    .swatch.trend { border-color:var(--blue); border-top-style:dashed; opacity:.72; }
+    .swatch { width:16px; height:9px; background:var(--green); border-radius:2px; }
+    .swatch.trend { width:25px; height:0; background:transparent; border-top:2px solid var(--blue); border-radius:999px; opacity:.94; }
     .tooltip { position:fixed; display:none; pointer-events:none; transform:translate(-50%,-118%); z-index:10; min-width:190px; padding:11px 12px; border:1px solid var(--line-2); border-radius:13px; background:rgba(5,8,13,.96); box-shadow:0 18px 60px rgba(0,0,0,.55); }
     .tooltip strong { display:block; margin-bottom:7px; }
     .tip-row { display:flex; justify-content:space-between; gap:18px; color:var(--muted); margin-top:4px; font-size:12px; }
@@ -410,6 +415,7 @@ function renderModernHtml(title, description, meta, allData, options = {}) {
     };
     const clamp = (v,min,max) => Math.max(min,Math.min(max,v));
     const smooth = ${smoothPath.toString()};
+    const barRects = ${dailyBarRects.toString()};
     const esc = (s) => String(s).replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&apos;'}[ch]));
 
     function buildGeometry() {
@@ -417,12 +423,12 @@ function renderModernHtml(title, description, meta, allData, options = {}) {
       const plotW=width-pad.left-pad.right, plotH=height-pad.top-pad.bottom;
       const rawMax=Math.max(...visible.map(p=>Math.max(Number(p.commits)||0,Number(p.ma7)||0)),1);
       const maxValue=Math.max(1,rawMax*1.14);
-      const x=(i)=>pad.left+(i/Math.max(1,visible.length-1))*plotW;
+      const x=(i)=>pad.left+((i+0.5)/Math.max(1,visible.length))*plotW;
       const y=(v)=>pad.top+(1-(Number(v)||0)/maxValue)*plotH;
       const baseline=pad.top+plotH;
       const daily=visible.map((p,i)=>({x:x(i),y:y(p.commits)}));
       const trend=visible.map((p,i)=>({x:x(i),y:y(p.ma7)}));
-      return {pad,width,height,plotW,plotH,maxValue,x,y,baseline,daily,trend,dailyPath:smooth(daily,.18),trendPath:smooth(trend,.24)};
+      return {pad,width,height,plotW,plotH,maxValue,x,y,baseline,daily,trend,bars:barRects(daily,baseline,plotW),trendPath:smooth(trend,.24)};
     }
 
     function render() {
@@ -442,16 +448,15 @@ function renderModernHtml(title, description, meta, allData, options = {}) {
         const anchor=i===0?'start':(i===ticks-1?'end':'middle');
         labels.push('<text x="'+g.x(idx).toFixed(2)+'" y="'+(layout.height-Math.max(18,Math.round(layout.pad.bottom*.34)))+'" fill="'+theme.muted+'" font-size="'+layout.labelSize+'" text-anchor="'+anchor+'" opacity=".86">'+esc(fmtDate(visible[idx].date,selectedDays>=365))+'</text>');
       }
-      const area=g.daily.length ? g.dailyPath+' L '+g.daily[g.daily.length-1].x.toFixed(2)+' '+g.baseline.toFixed(2)+' L '+g.daily[0].x.toFixed(2)+' '+g.baseline.toFixed(2)+' Z' : '';
-      const lastPoint=g.daily[g.daily.length-1];
-      chart.innerHTML = '<defs><linearGradient id="bg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="'+theme.panel+'" stop-opacity=".72"/><stop offset="1" stop-color="'+theme.background+'"/></linearGradient><linearGradient id="area" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="'+theme.daily+'" stop-opacity=".23"/><stop offset=".58" stop-color="'+theme.daily+'" stop-opacity=".07"/><stop offset="1" stop-color="'+theme.daily+'" stop-opacity="0"/></linearGradient><filter id="glow" x="-300%" y="-300%" width="700%" height="700%"><feGaussianBlur stdDeviation="3.5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>'+
+      const bars=g.bars.map((bar,i)=>bar.height>0?'<rect data-series="daily" x="'+bar.x+'" y="'+bar.y+'" width="'+bar.width+'" height="'+bar.height+'" rx="'+bar.radius+'" fill="'+(i===g.bars.length-1&&meta.currentDayPartial?theme.glow:theme.daily)+'" opacity="'+(i===g.bars.length-1?'1':'.82')+'"/>':'').join('');
+      chart.innerHTML = '<defs><linearGradient id="bg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="'+theme.panel+'" stop-opacity=".72"/><stop offset="1" stop-color="'+theme.background+'"/></linearGradient></defs>'+
         '<rect x=".5" y=".5" width="'+(g.width-1)+'" height="'+(g.height-1)+'" rx="'+layout.radius+'" fill="url(#bg)" stroke="'+theme.border+'"/>'+
         '<g font-family="-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif">'+
         '<text x="'+g.pad.left+'" y="34" fill="'+theme.text+'" font-size="'+layout.titleSize+'" font-weight="700">'+esc(payload.title)+'</text>'+
         '<text x="'+g.pad.left+'" y="58" fill="'+theme.muted+'" font-size="'+layout.metaSize+'">'+esc((meta.source==='github'?'@'+(meta.username||''):((meta.repo||'repository')+' · '+(meta.branch||'ref'))))+' · '+esc(first&&last?(fmtDate(first.date,true)+' → '+fmtDate(last.date,true)):(selectedDays+'d'))+'</text>'+
         '<text x="'+g.pad.left+'" y="78" fill="'+theme.muted+'" font-size="'+layout.metaSize+'">'+selectedDays+' days · '+fmtNum(total)+' contributions · '+active+' active days'+(peak?' · peak '+peak.commits:'')+'</text>'+
-        '<g transform="translate('+(g.width-g.pad.right-182)+',30)" font-size="'+layout.metaSize+'" fill="'+theme.muted+'"><line x1="0" y1="0" x2="25" y2="0" stroke="'+theme.daily+'" stroke-width="2.6" stroke-linecap="round"/><text x="33" y="4">Daily</text><line x1="92" y1="0" x2="117" y2="0" stroke="'+theme.trend+'" stroke-width="1.7" stroke-dasharray="5 6" stroke-linecap="round" opacity=".72"/><text x="125" y="4">7d trend</text></g>'+
-        grid.join('')+(area?'<path d="'+area+'" fill="url(#area)"/>':'')+(g.trendPath?'<path d="'+g.trendPath+'" fill="none" stroke="'+theme.trend+'" stroke-width="'+layout.trendStroke+'" stroke-dasharray="5 7" stroke-linejoin="round" stroke-linecap="round" opacity=".66"/>':'')+(g.dailyPath?'<path d="'+g.dailyPath+'" fill="none" stroke="'+theme.daily+'" stroke-width="'+layout.dailyStroke+'" stroke-linejoin="round" stroke-linecap="round"/>':'')+(lastPoint?'<circle cx="'+lastPoint.x.toFixed(2)+'" cy="'+lastPoint.y.toFixed(2)+'" r="3.2" fill="'+theme.daily+'" filter="url(#glow)"/>':'')+labels.join('')+'</g>';
+        '<g transform="translate('+(g.width-g.pad.right-182)+',30)" font-size="'+layout.metaSize+'" fill="'+theme.muted+'"><rect x="3" y="-5" width="17" height="8" rx="2" fill="'+theme.daily+'"/><text x="33" y="4">Daily</text><line x1="92" y1="0" x2="117" y2="0" stroke="'+theme.trend+'" stroke-width="2" stroke-linecap="round" opacity=".92"/><text x="125" y="4">7d trend</text></g>'+
+        grid.join('')+'<g data-chart-series="daily-bars">'+bars+'</g>'+(g.trendPath?'<path data-series="trend" d="'+g.trendPath+'" fill="none" stroke="'+theme.trend+'" stroke-width="'+Math.max(2,layout.trendStroke)+'" stroke-linejoin="round" stroke-linecap="round" opacity=".94"/>':'')+labels.join('')+'</g>';
       document.getElementById('stat-total').textContent=fmtNum(total);
       document.getElementById('stat-active').textContent=active+' / '+visible.length;
       document.getElementById('stat-peak').textContent=peak?(peak.commits+' · '+fmtDate(peak.date,false)):'—';
@@ -481,7 +486,7 @@ function renderModernHtml(title, description, meta, allData, options = {}) {
       const rect=chart.getBoundingClientRect();
       const svgX=(evt.clientX-rect.left)/rect.width*layout.width;
       const ratio=(svgX-layout.pad.left)/Math.max(1,geometry.plotW);
-      const idx=Math.max(0,Math.min(visible.length-1,Math.round(ratio*(visible.length-1))));
+      const idx=Math.max(0,Math.min(visible.length-1,Math.floor(ratio*visible.length)));
       const p=visible[idx];
       tooltip.style.display='block'; tooltip.style.left=evt.clientX+'px'; tooltip.style.top=evt.clientY+'px';
       tooltip.innerHTML='<strong>'+fmtDate(p.date,true)+'</strong><div class="tip-row"><span>Daily</span><b>'+fmtNum(p.commits)+'</b></div><div class="tip-row"><span>7d trend</span><b>'+Number(p.ma7).toFixed(2)+'</b></div>';
@@ -500,6 +505,8 @@ module.exports = {
   THEMES,
   resolveLayout,
   smoothPath,
+  dailyBarRects,
+  chartGeometry,
   renderModernSvg,
   renderModernHtml
 };

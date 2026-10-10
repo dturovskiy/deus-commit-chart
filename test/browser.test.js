@@ -96,14 +96,24 @@ test('embedded browser script executes and rebuilds chart for 30/90/365 without 
     Date, Intl, Number, Math, String, JSON, Array };
   vm.runInNewContext(inlineScript[1], context, { timeout: 1500 });
   assert.match(el('chart').innerHTML, /30 days · 22 contributions/);
-  assert.match(el('chart').innerHTML, /<path d="M /);
+  assert.match(el('chart').innerHTML, /<g data-chart-series="daily-bars">/);
+  assert.match(el('chart').innerHTML, /<rect data-series="daily"/);
+  assert.match(el('chart').innerHTML, /<path data-series="trend" d="M /);
+  assert.equal((el('chart').innerHTML.match(/<rect data-series="daily"/g) || []).length, 1);
+  assert.doesNotMatch(el('chart').innerHTML, /<path data-series="daily"/);
+  // Pointer positions now use day-bin centers rather than line-plot endpoints.
+  el('chart').listeners.pointermove({ clientX: 1059, clientY: 180 });
+  assert.match(el('tooltip').innerHTML, /Oct 10, 2026/);
+  assert.match(el('tooltip').innerHTML, /<b>22<\/b>/);
   assert.equal(el('stat-total').textContent, '22');
   assert.equal(el('stat-active').textContent, '1 / 30');
   assert.equal(buttons[0].attributes['aria-pressed'], 'true');
   buttons[1].listeners.click();
   assert.match(el('chart').innerHTML, /90 days · 22 contributions/);
+  assert.equal((el('chart').innerHTML.match(/<rect data-series="daily"/g) || []).length, 1);
   assert.equal(buttons[1].attributes['aria-pressed'], 'true');
   buttons[2].listeners.click();
   assert.match(el('chart').innerHTML, /365 days · 22 contributions/);
+  assert.equal((el('chart').innerHTML.match(/<rect data-series="daily"/g) || []).length, 1);
   assert.equal(manifest.ranges[365].total, 22);
 });

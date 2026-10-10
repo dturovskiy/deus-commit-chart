@@ -61,7 +61,9 @@ test('renderSvg produces static README-safe SVG without scripts', () => {
   assert.doesNotMatch(svg, /<script/i);
   assert.match(svg, /viewBox="0 0 1000 350"/);
   assert.match(svg, / C /);
-  assert.match(svg, /stroke-dasharray="5 7"/);
+  assert.match(svg, /data-chart-series="daily-bars"/);
+  assert.match(svg, /data-series="trend"/);
+  assert.doesNotMatch(svg, /data-series="daily"[^>]*d="/);
   assert.match(svg, />7d trend<\/text>/);
 });
 

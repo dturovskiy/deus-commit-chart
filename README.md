@@ -189,7 +189,7 @@ Available SVG themes:
 - `github-compact`;
 - `github-light`.
 
-Use `--hide-border` for a borderless SVG. Daily activity is rendered as a restrained smooth curve with a fading area fill; the blue dashed `7d trend` is the 7-day moving average. Curve control points are clamped to adjacent data values so smoothing does not create artificial overshoot between daily points.
+Use `--hide-border` for a borderless SVG. The combined chart displays **one green bar per day** for discrete GitHub contribution counts, with a **smooth blue `7d trend` line** above the bars. Zero-activity days remain empty at the baseline; the current, still-incomplete day is highlighted. Bar widths scale automatically for 30/90/365-day windows. The trend uses shape-preserving interpolation without inventing intermediate peaks.
 
 Layout presets:
 
