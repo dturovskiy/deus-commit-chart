@@ -20,6 +20,14 @@
 4. If local Node.js is available, download the published `dist` workflow artifact and run `node verify-activity-assets.js dist`. On Linux CI also run `python3 ci/validate-svg.py dist`. These verify checksums and SVG XML policy.
 5. Inspect the public README URL. GitHub's image proxy may cache an older SVG even when `activity-assets` is updated. Do not claim a guaranteed cache TTL without measurement.
 
+## Freshness and recovery monitoring
+
+- `.github/workflows/monitor-freshness.yml` checks the real `activity-assets` branch on a two-hour offset schedule. The configured threshold is **8 hours** from `manifest.generatedAt` (allowing several missed publish windows).
+- It validates the **actual published files** with `verify-activity-assets.js` and `ci/validate-svg.py`, then runs `node ci/check-freshness.js` against the manifest. A missing branch/file, corrupt checksum, invalid SVG, incomplete manifest or stale timestamp fails the job.
+- A failure opens **one deduplicated** issue titled `[chart-health] stale or missing contribution charts`; a later successful run closes it. GitHub issue notifications require the account to follow the repository or have suitable notification settings. Issue creation on a real incident is not simulated in production during rollout.
+- `workflow_dispatch` supports a safe manual check of `main`. The monitor does not verify GitHub's image-proxy cache; it verifies `activity-assets`. GitHub scheduled Actions may be delayed; this is **not** a strict real-time SLA.
+- `ci/rehearse-rollback.sh OLD_DIR NEW_DIR` runs a real local-bare-Git test: it pushes two separately validated snapshots, rejects a corrupt third snapshot while checking the remote ref remains unchanged, then creates a new forward-only restore commit and compares every recovered asset and manifest byte-for-byte.
+
 ## When publication fails
 
 1. Inspect the failing CI step and error classification. Missing dates must stop the build, never silently become zero-activity days.
@@ -40,8 +48,11 @@ git log --oneline -5
 # Manually choose GOOD_SHA of a previous verified activity-assets commit.
 git show GOOD_SHA:manifest.json
 git restore --source=GOOD_SHA --staged --worktree -- .
-node /path/to/main/verify-activity-assets.js .
-python3 /path/to/main/ci/validate-svg.py .
+# verifyDirectory rejects a .git folder, so validate a clean archive:
+VALIDATION_DIR="$(mktemp -d)"
+git archive "$(git write-tree)" | tar -xf - -C "$VALIDATION_DIR"
+node /path/to/main/verify-activity-assets.js "$VALIDATION_DIR"
+python3 /path/to/main/ci/validate-svg.py "$VALIDATION_DIR"
 git diff --cached --stat
 git commit -m "revert: restore verified contribution chart snapshot"
 git push origin HEAD:refs/heads/activity-assets

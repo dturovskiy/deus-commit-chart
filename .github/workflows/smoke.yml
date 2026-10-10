@@ -83,6 +83,18 @@ jobs:
             grep -q '^<svg ' ".tmp/action-smoke/activity-${days}d.svg"
           done
 
+      - name: Rehearse failed publish and forward-only rollback on a local test remote
+        shell: bash
+        run: |
+          set -euo pipefail
+          node build-activity-assets.js \
+            --source local \
+            --repo /tmp/deus-commit-chart-fixture \
+            --branch main \
+            --out-dir .tmp/rollback-second \
+            --title "Rollback verification candidate"
+          bash ci/rehearse-rollback.sh .tmp/action-smoke .tmp/rollback-second
+
       - name: Generate interactive HTML
         run: |
           node generate-commit-chart.js \

@@ -246,6 +246,8 @@ https://raw.githubusercontent.com/dturovskiy/deus-commit-chart/activity-assets/a
 
 The workflow rebuilds on relevant `main` changes, every two hours, and on manual dispatch. It validates one immutable snapshot before publication and fast-forwards the dedicated `activity-assets` branch (no force push), retaining rollback history; `main` stays free of generated chart commits.
 
+A separate **Chart freshness monitor** runs every two hours (offset from publishing). It checks the **published** manifest age against an 8-hour threshold and independently verifies the published HTML/SVG checksums and SVG XML. If unhealthy, it opens one deduplicated GitHub issue with a CI-run link; on recovery, it closes that issue. Its alert latency also depends on GitHub Actions scheduling and does **not** guarantee image proxy cache freshness. Manual trigger: `gh workflow run monitor-freshness.yml --ref main`. The local rollback rehearsal runs in smoke CI against an isolated bare Git remote; see [Operations](docs/OPERATIONS.md).
+
 A profile README can embed the default 30-day range directly from the generated branch:
 
 ```html
