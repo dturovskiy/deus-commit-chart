@@ -377,7 +377,7 @@ function renderModernHtml(title, description, meta, allData, options = {}) {
       </div>
       <footer class="foot">
         <div class="legend"><span><i class="swatch"></i>Daily activity</span><span><i class="swatch trend"></i>7d trend</span></div>
-        <div><span id="privacy-note"></span> Today's count is incomplete. Range switches use embedded data without API requests.</div>
+        <div><span id="privacy-note"></span> Today's count is incomplete. Range switches rebuild the SVG in-browser from embedded data without API requests.</div>
       </footer>
     </section>
   </main>
