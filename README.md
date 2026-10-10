@@ -317,20 +317,20 @@ user
 
 This is contribution-calendar activity, not a raw sum of commits from one repository. GitHub's `contributionCount` can include qualifying commits and other profile contributions such as pull requests, issues, reviews, discussions, repository creation, and similar contribution-calendar events.
 
-Private/internal repository activity has an additional visibility rule. GitHub's GraphQL documentation states that private and internal contributions require the appropriate viewer authorization, and anonymized restricted contribution counts are only exposed when the account has enabled **Private contributions** in profile contribution settings. The publishing workflow uses `DEUS_COMMIT_CHART_TOKEN` when that secret exists and otherwise falls back to `github.token`. Rather than guessing what a particular token can see, the generator records GitHub's `restrictedContributionsCount` and `hasAnyRestrictedContributions` response fields so the generated report can state what was actually returned. Repository names and private details are never written to the chart—only daily counts are used.
+**Public data policy: daily-aggregates-only-v1.** Private/internal contribution activity depends on the GitHub token and account contribution-visibility settings. The publisher uses `DEUS_COMMIT_CHART_TOKEN` when configured and otherwise falls back to `github.token`. It now queries only the contribution-calendar **date and daily count**, never requests the restricted/private breakdown (`restrictedContributionsCount`, `hasAnyRestrictedContributions`) or separate commit/total counters, and does not serialize these fields or local repository/author details in public GitHub-mode HTML, SVG, or manifest.
 
-The GraphQL query also records `restrictedContributionsCount` and `hasAnyRestrictedContributions` in the embedded metadata, so the interactive report can tell whether GitHub actually returned anonymized private/internal counts.
+**Important:** the published 365 daily counts may still include private/internal contributions exposed to the token. This aggregate signal can reveal their existence or timing; the chart cannot keep the same daily totals while concealing their private component. For strictly public-only charts, use appropriate GitHub token/account privacy settings or do not publish. Previously published versions may remain in Git history or caches; this change does not erase those historical files.
 
 ## Output metrics
 
 The HTML report includes:
 
-- a smooth daily activity SVG with a fading area fill;
-- a dashed `7d trend` (the 7-day moving average);
+- discrete green daily contribution bars;
+- a smooth blue `7d trend` (the 7-day moving average);
 - instant 30d / 90d / 365d in-browser SVG rebuilding;
 - active-day count;
 - peak day;
-- data freshness and private-count visibility metadata;
+- data freshness and a generic source-visibility notice (no private-count breakdown);
 - exact calendar range.
 
 The static SVG includes:

@@ -465,10 +465,8 @@ function renderModernHtml(title, description, meta, allData, options = {}) {
       const privacy=document.getElementById('privacy-note');
       if (privacy) {
         privacy.textContent=meta.source==='github'
-          ? ((Number(meta.restrictedContributionsCount)||0)>0
-              ? ('Includes '+fmtNum(meta.restrictedContributionsCount)+' anonymized private/internal contribution counts.')
-              : 'No restricted private/internal counts were returned by the current GitHub token.')
-          : 'Local source.';
+          ? 'Daily aggregates follow GitHub token visibility and account settings; no private contribution breakdown is published.'
+          : 'Local Git activity source.';
       }
     }
 

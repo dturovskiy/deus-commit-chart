@@ -6,8 +6,7 @@ const DAY_MS = 86400000;
 const GRAPHQL_QUERY = [
   'query CommitChart($login: String!, $from: DateTime!, $to: DateTime!, $edgeFrom: DateTime!, $edgeTo: DateTime!) {',
   '  user(login: $login) { contributionsCollection(from: $from, to: $to) {',
-  '    totalCommitContributions restrictedContributionsCount hasAnyRestrictedContributions',
-  '    contributionCalendar { totalContributions weeks { contributionDays { date contributionCount } } }',
+  '    contributionCalendar { weeks { contributionDays { date contributionCount } } }',
   '  }',
   '  edge: contributionsCollection(from: $edgeFrom, to: $edgeTo) {',
   '    contributionCalendar { weeks { contributionDays { date contributionCount } } }',
@@ -95,13 +94,6 @@ function mergeCalendarWeeks(primary, boundary) {
   return [{ contributionDays: Array.from(merged, ([date, contributionCount]) => ({ date, contributionCount })) }];
 }
 
-function nonNegativeAggregate(value, key) {
-  if (!Number.isSafeInteger(value) || value < 0) {
-    throw new Error('Invalid GitHub aggregate: ' + key);
-  }
-  return value;
-}
-
 async function fetchGithubDailyCounts(username, options = {}) {
   if (!/^[A-Za-z0-9-]{1,39}$/.test(username || '')) throw new Error('Invalid GitHub username');
   const token = options.token ?? (process.env.DEUS_COMMIT_CHART_GITHUB_TOKEN ||
@@ -162,16 +154,12 @@ async function fetchGithubDailyCounts(username, options = {}) {
   if (!edgeCalendar) throw new Error('Missing GitHub boundary calendar');
   const counts = assertCalendar(
     mergeCalendarWeeks(calendar.weeks, edgeCalendar.weeks), window.startDate, window.endDate);
-  // Metadata is aggregated; NEVER include token or private repository identifiers.
+  // Only public chart identity is retained. Daily aggregates are the chart's
+  // intentional published signal; do not request or persist restricted/private
+  // contribution breakdowns, even if the caller token could read them.
   return {
     counts, startDate: window.startDate, endDate: window.endDate, asOf: asOf.toISOString(),
-    sourceDetails: {
-      type: 'github', username,
-      totalContributions: nonNegativeAggregate(calendar.totalContributions, 'totalContributions'),
-      totalCommitContributions: nonNegativeAggregate(collection.totalCommitContributions, 'totalCommitContributions'),
-      restrictedContributionsCount: nonNegativeAggregate(collection.restrictedContributionsCount, 'restrictedContributionsCount'),
-      hasAnyRestrictedContributions: Boolean(collection.hasAnyRestrictedContributions)
-    }
+    sourceDetails: { type: 'github', username }
   };
 }
 

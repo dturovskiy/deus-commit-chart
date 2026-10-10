@@ -92,6 +92,7 @@ function createAssetBundle(sourceData, opts = {}) {
     [name, { bytes: Buffer.byteLength(value), sha256: hash(value) }]));
   const manifest = {
     schemaVersion: 1, snapshotId: meta.snapshotId,
+    publicDataPolicy: 'daily-aggregates-only-v1',
     generatedAt: meta.generatedAt, source: meta.source,
     username: meta.username, sourceCommit: process.env.GITHUB_SHA || null,
     workflowRun: process.env.GITHUB_RUN_ID || null,

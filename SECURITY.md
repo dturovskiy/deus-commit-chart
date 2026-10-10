@@ -20,4 +20,4 @@ The project never intentionally writes GitHub tokens into generated HTML or SVG 
 
 ## Security boundaries
 
-Static SVG output must remain script-free and self-contained. The reusable GitHub Action generates files only; publishing or force-pushing generated assets is deliberately left to the caller workflow so repository mutation remains explicit.
+Static SVG output must remain script-free and self-contained. The reusable GitHub Action generates files only; the caller's publishing workflow validates artifacts and creates a fast-forward commit to the `activity-assets` branch, never a force push. Public GitHub-mode reports may contain aggregate daily counts that reflect authorized private contributions, but must not include tokens, source repository identities, private contribution breakdown fields, or raw GraphQL response objects. The independent publication verifier enforces the allowed metadata contract.

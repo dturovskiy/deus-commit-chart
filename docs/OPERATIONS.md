@@ -83,7 +83,7 @@ The [Smoke CI run 38086628526](https://github.com/dturovskiy/deus-commit-chart/a
 
 ## Source visibility and privacy
 
-GitHub contribution counts depend on the viewer token and GitHub account settings. A viewer with access to restricted/private contribution counts can produce different totals from an anonymous viewer. Do not publish a raw GraphQL response, token, repository names, issues or commit messages. The existing interactive report includes aggregate `restrictedContributionsCount`; whether to expose it publicly remains an explicit pending policy decision.
+GitHub contribution counts depend on the viewer token and GitHub account settings. A viewer with access to restricted/private contributions can obtain different daily aggregates from an anonymous viewer. Our **public-data policy is `daily-aggregates-only-v1`**: GitHub's restricted/private contribution breakdown and separate commit totals are neither fetched for chart creation nor serialized into public assets. Daily aggregates still may include private activity according to token/account settings; preserving them necessarily discloses that aggregated signal. Do not publish raw GraphQL responses, tokens, repository identities, commit messages or issue contents. Old public history and cached versions may still contain the earlier restricted-count metadata; do not rewrite published Git history casually because recovery/rollback references depend on it.
 
 ## Confirmed initial production release
 

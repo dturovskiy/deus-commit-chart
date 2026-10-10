@@ -256,13 +256,10 @@ function createMeta(args, sourceData, series) {
   const activeDays = series.filter((point) => point.commits > 0).length;
   return {
     source: sourceData.sourceDetails.type,
-    repo: sourceData.sourceDetails.repo || null,
-    branch: sourceData.sourceDetails.branch || null,
-    author: sourceData.sourceDetails.author || null,
-    username: sourceData.sourceDetails.username || null,
-    totalCommitContributions: sourceData.sourceDetails.totalCommitContributions ?? null,
-    restrictedContributionsCount: sourceData.sourceDetails.restrictedContributionsCount ?? null,
-    hasAnyRestrictedContributions: sourceData.sourceDetails.hasAnyRestrictedContributions ?? null,
+    repo: sourceData.sourceDetails.type === 'local' ? sourceData.sourceDetails.repo || null : null,
+    branch: sourceData.sourceDetails.type === 'local' ? sourceData.sourceDetails.branch || null : null,
+    author: sourceData.sourceDetails.type === 'local' ? sourceData.sourceDetails.author || null : null,
+    username: sourceData.sourceDetails.type === 'github' ? sourceData.sourceDetails.username || null : null,
     schemaVersion: 1,
     snapshotId: require('./contribution-snapshot').snapshotIdentity(sourceData, series),
     currentDayPartial: true,

@@ -23,10 +23,10 @@ When `source: github` or `--source github` is used, the tool may process:
 - the GitHub username requested by the workflow or CLI;
 - daily aggregate contribution counts returned by GitHub's GraphQL API;
 - contribution-calendar date ranges;
-- aggregate metadata such as active-day totals, total commit contributions, `restrictedContributionsCount`, and `hasAnyRestrictedContributions` when GitHub returns those fields;
+- public chart metadata such as generation time, source account, calendar ranges and active-day totals (but **not** GitHub's restricted/private contribution breakdown);
 - a GitHub token supplied by the user or caller workflow solely to authenticate the GitHub API request.
 
-The generated chart does not include private repository names, private commit messages, source code, issue contents, pull-request contents, or other private repository details. Restricted/private contribution activity, when GitHub exposes it to the authenticated viewer, is represented only through aggregate counts.
+The tool intentionally does **not request** `restrictedContributionsCount`, `hasAnyRestrictedContributions`, `totalCommitContributions`, or the calendar's separate total aggregate from GraphQL for chart generation. It does not publish those fields in generated HTML, SVG, or manifests. **The daily contribution counts themselves remain public in the generated chart.** Depending on the GitHub token's authorization and account visibility settings, those daily aggregates can include private/internal contribution activity, making the existence or timing of such activity inferable. The tool cannot preserve those daily totals and also conceal their private component. Anyone requiring public-only contributions must choose a token and GitHub account privacy settings that produce a suitable calendar, or avoid publishing the chart.
 
 ### Local Git source
 
@@ -58,7 +58,7 @@ The project maintainer does not sell user data and does not intentionally receiv
 
 You can avoid GitHub API processing entirely by using the local Git source. You can stop future processing by removing the Action from your workflow or by no longer running the CLI.
 
-If you publish generated assets, remove those assets from the location where you published them if you no longer want them to be publicly available.
+If you publish generated assets, remove those assets from the location where you published them if you no longer want them to be publicly available. **Historical versions may remain accessible in Git commit history, previously uploaded workflow artifacts, GitHub image caches, forks and third-party archives.** A future privacy-safe version does not retroactively erase older public artifacts.
 
 ## Security reports and privacy questions
 

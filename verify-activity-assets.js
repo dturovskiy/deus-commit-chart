@@ -32,6 +32,24 @@ function verifyDirectory(dir) {
   const match = html.match(/<script id="chart-data" type="application\/json">([\s\S]*?)<\/script>/);
   if (!match) throw new Error('Missing HTML data');
   const payload = JSON.parse(match[1]);
+  // Public artifacts intentionally contain daily aggregates, not GitHub's
+  // restricted/private contribution breakdown or arbitrary source metadata.
+  const allowedTopLevel = new Set(['title', 'description', 'meta', 'data', 'theme', 'layout']);
+  const allowedMetadata = new Set([
+    'source', 'repo', 'branch', 'author', 'username',
+    'schemaVersion', 'snapshotId', 'currentDayPartial', 'generatedAt',
+    'totalCommits', 'activeDays', 'calendarDays', 'startDate', 'endDate', 'defaultDays'
+  ]);
+  if (Object.keys(payload).some((key) => !allowedTopLevel.has(key)) ||
+      !payload.meta || Object.keys(payload.meta).some((key) => !allowedMetadata.has(key))) {
+    throw new Error('Unexpected public chart payload metadata');
+  }
+  if (payload.meta.source === 'github' && [payload.meta.repo, payload.meta.branch, payload.meta.author].some((v) => v != null)) {
+    throw new Error('Private source fields must not appear in public GitHub chart metadata');
+  }
+  if (!['github', 'local'].includes(payload.meta.source)) {
+    throw new Error('Unexpected chart source');
+  }
   if (payload.meta.snapshotId !== manifest.snapshotId ||
       payload.meta.generatedAt !== manifest.generatedAt ||
       payload.data[0]?.date !== manifest.rangeStart ||
