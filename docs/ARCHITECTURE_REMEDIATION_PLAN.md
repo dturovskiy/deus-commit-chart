@@ -204,11 +204,21 @@ This was verified on feature-branch smoke + live API builds. No image-generated 
 
 Implementation merged in [PR #2](https://github.com/dturovskiy/deus-commit-chart/pull/2) as `dad9f87`. [Production publish 38085355727](https://github.com/dturovskiy/deus-commit-chart/actions/runs/38085355727) and [main smoke 38085355677](https://github.com/dturovskiy/deus-commit-chart/actions/runs/38085355677) passed. Remote `activity-assets` has verified snapshot `182029efbeebcacae06114868c322dd621f385ccd1128fdd4814b514012c1546`. All published 30/90/365 SVGs now use positive-count green bars and one smooth blue 7-day trend line; interactive HTML uses the same snapshot. GitHub image-cache lag still requires measurement.
 
+## Freshness and recovery implementation evidence (2026-10-10)
+
+- **Operational choice:** scheduled GitHub publication continues every two hours. A separate monitor is offset from it and treats **eight hours** since `activity-assets/manifest.json.generatedAt` as stale; this permits delayed scheduled runs but is not a contractual source-to-README freshness guarantee. GitHub's image-proxy cache is independent.
+- **Integrity:** health checks archive the **real published branch** then independently verify manifest checksums, 30/90/365 numeric parity, valid SVG XML, and freshness. The monitor is read-only with respect to `activity-assets`.
+- **Alert:** fail-closed monitor creates at most one open GitHub issue titled `[chart-health] stale or missing contribution charts` with a diagnostic workflow link, then closes it after verified recovery. Delivery of notifications depends on GitHub watch/notification settings. The production incident lifecycle is not exercised by deliberately breaking production.
+- **Recovery:** `ci/rehearse-rollback.sh` creates an isolated bare Git remote, pushes two valid snapshots, rejects a deliberately corrupted candidate (test remote ref unchanged), then restores the older release as a new forward-only commit. It checks restored manifest and all four assets byte-for-byte.
+- **Verification:** [Smoke 38086628526](https://github.com/dturovskiy/deus-commit-chart/actions/runs/38086628526) **SUCCESS**, 27 tests passed, checksum rejection and rollback PASS in logs; [real GraphQL build 38086631846](https://github.com/dturovskiy/deus-commit-chart/actions/runs/38086631846) **SUCCESS**, production publish SKIPPED on the feature branch.
+- **Still open:** GitHub README image-proxy lag measurement and separate public private/restricted metadata policy. The chart publisher and health monitor do not alter GitHub's contribution calculation semantics.
+
 ## 10. Evidence and source paths
 
 - `generate-commit-chart.js:146-269,291-351,1048-1090` — adapters, series, CLI.
 - `modern-renderer.js:108-199,217-283,286-511` — renderer/embedded browser JS.
-- `.github/workflows/publish-pages.yml` — collection and force-push publication.
+- `.github/workflows/publish-pages.yml` — validated collection and fast-forward-only publication.
+- `.github/workflows/monitor-freshness.yml`, `ci/check-freshness.js`, `ci/rehearse-rollback.sh` — monitoring and rollback rehearsal.
 - `.github/workflows/smoke.yml` and `test/generator.test.js` — current coverage.
 - `action.yml`, `README.md`, `PRIVACY.md`, `SECURITY.md` — public contracts and boundaries.
 - `dturovskiy/README.md` — live README embed in profile repository.

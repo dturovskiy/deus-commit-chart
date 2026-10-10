@@ -42,8 +42,8 @@
 - [x] **DC-G2-05** Validate SVG XML, absence of scripts/remote resources, finite path coordinates and output file completeness.
 - [x] **DC-G2-06** Gate publication on validation; a failed fetch/render/validation must preserve previously published good artifacts.
 - [x] **DC-G2-07** Decide and implement guarded remote-ref publication; do not retain unconditional force-push without recovery protections.
-- [ ] **DC-G2-08** Retain immutable build artifacts and previous manifest sufficient to restore an earlier verified release.
-- [ ] **DC-G2-09** Rehearse rollback and verify restored content hashes in a nonproduction environment.
+- [x] **DC-G2-08** Retain immutable build artifacts and previous manifest sufficient to restore an earlier verified release. (Verified test-remote restore from earlier manifest and artifact history; 90-day GitHub build-artifact retention.)
+- [x] **DC-G2-09** Rehearse rollback and verify restored content hashes in a nonproduction environment. (Smoke run 38086628526, isolated bare Git remote; manifest and all four assets byte-for-byte matched.)
 - [x] **DC-G2-10** Scope `contents: write` and publishing credentials to the minimum necessary permissions; protect secrets from logs.
 - [ ] **DC-G2-11** Add freshness health/failure reporting with an explicit configurable policy; separately document profile image-cache limitations.
 - [ ] **DC-G2-12** Measure actual GitHub README embed lag and caching behavior; do not claim instantaneous invalidation without evidence.
@@ -73,7 +73,7 @@
 - [ ] **DC-G4-06** Add SVG golden tests plus XML/path checks; static SVG must not contain executable script or network dependencies.
 - [ ] **DC-G4-07** Add HTML/browser-level test of range controls, tooltip values, current-day state and responsive rendering.
 - [x] **DC-G4-08** Verify static-vs-interactive numerical parity for the same snapshot.
-- [ ] **DC-G4-09** Add end-to-end negative publish test: one failed stage leaves the production ref/artifacts unchanged.
+- [x] **DC-G4-09** Add end-to-end negative publish test: one failed stage leaves the production ref/artifacts unchanged. (Isolated production-like Git remote: corrupt candidate rejected, ref unchanged; actual production never subjected to a failure injection.)
 - [x] **DC-G4-10** Require numerical/integrity CI checks before publication; never rely solely on grep/file-existence smoke assertions.
 - [x] **DC-G4-11** Confirm local mode continues producing correct results without GitHub credentials or network access.
 
@@ -87,7 +87,7 @@
 - [ ] **DC-G5-04** Inspect actual README image after publish; record any remaining GitHub caching lag.
 - [ ] **DC-G5-05** Review Action permissions, error handling, public-output privacy and compatibility.
 - [ ] **DC-G5-06** Update README/CLI/Action docs, troubleshooting runbook and release notes.
-- [ ] **DC-G5-07** Save the tested rollback command/process and prove it restores a known-good manifest.
+- [x] **DC-G5-07** Save the tested rollback command/process and prove it restores a known-good manifest. (ci/rehearse-rollback.sh, docs/OPERATIONS.md, smoke CI run 38086628526.)
 - [ ] **DC-G5-08** Close finding IDs **DC-01–DC-15** only with linked evidence, explicit mitigation or accepted risk.
 
 **Gate 5 exit:** maintainable, verifiable release that cannot silently publish known-invalid data.
@@ -118,6 +118,13 @@
 - `activity-assets` updated to `042b73d`. Manifest snapshot `182029efbeebcacae06114868c322dd621f385ccd1128fdd4814b514012c1546` (2026-10-10T20:51:11.180Z). Totals: 30d=212, 90d=773, 365d=3058.
 - Inspected **published** SVG and HTML via DEUS MCP `git show`: static 30d has 30 bars, 90d 89 bars, 365d 293 bars; each has exactly one 7d trend path, no former daily path or area. Interactive HTML embeds same snapshot ID and totals.
 - Production files are verified; GitHub README proxy cache freshness remains a separate, open measurement task. No claim that every screenshot has refreshed instantly.
+
+## Freshness & Recovery implementation evidence (2026-10-10)
+
+- [Smoke 38086628526](https://github.com/dturovskiy/deus-commit-chart/actions/runs/38086628526) passed 27/27 tests and logged the expected `Asset checksum mismatch` rejection; the test remote ref remained unchanged.
+- The same run successfully rehearsed a forward-only rollback from `d0d03fc24aa594a9aba8c1c02e2a7a2424a5c29a` to a new verified restore commit `7f8d81c16eea8018796982030ad85b2df1f84e1d`; manifest and HTML/30/90/365 SVGs matched the first snapshot byte-for-byte.
+- [GraphQL build 38086631846](https://github.com/dturovskiy/deus-commit-chart/actions/runs/38086631846) passed on feature branch with publish job skipped.
+- Monitor checks the published `activity-assets` tree, not the source repo, with an **8-hour** threshold and deduplicated issue-creation/closure on error/recovery. Issue-delivery/production incident lifecycle and image proxy cache measurements are still open until independently observed.
 
 ## Evidence log (fill as work progresses)
 
