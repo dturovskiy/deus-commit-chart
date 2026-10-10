@@ -106,7 +106,7 @@ test('embedded browser script executes and rebuilds chart for 30/90/365 without 
     const staticSvg = assets['activity-' + days + 'd.svg'];
     const bars = (text) => [...text.matchAll(/<rect data-series="daily"[^>]+\/>/g)].map(m => m[0]);
     const trend = (text) => text.match(/<path data-series="trend" d="([^"]+)"/)?.[1];
-    const xs = (text) => [...text.matchAll(/text-anchor="(?:start|middle|end)" opacity="\.86">([^<]+)<\/text>/g)].map(m => m[1]);
+    const xs = (text) => [...text.matchAll(/text-anchor="(?:start|middle|end)" opacity="(?:0)?\.86">([^<]+)<\/text>/g)].map(m => m[1]);
     assert.deepEqual(bars(live), bars(staticSvg), days + 'd HTML/SVG bars must match exactly');
     assert.equal(trend(live), trend(staticSvg), days + 'd trend paths must match exactly');
     assert.deepEqual(xs(live), xs(staticSvg), days + 'd ticks must match exactly');
