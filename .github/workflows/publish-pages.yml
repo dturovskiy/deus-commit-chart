@@ -13,6 +13,7 @@ on:
       - 'package.json'
       - 'package-lock.json'
       - 'test/**'
+      - 'ci/validate-svg.py'
       - '.github/workflows/publish-pages.yml'
   schedule:
     - cron: '17 */2 * * *'
@@ -51,6 +52,8 @@ jobs:
             --title "GitHub contribution activity"
       - name: Verify all generated artifacts
         run: node verify-activity-assets.js dist
+      - name: Validate SVG XML and embedded-resource policy
+        run: python3 ci/validate-svg.py dist
       - name: Retain immutable verified build evidence
         uses: actions/upload-artifact@v4
         with:
@@ -80,6 +83,8 @@ jobs:
           path: dist/
       - name: Reverify exact downloaded artifacts
         run: node verify-activity-assets.js dist
+      - name: Reverify SVG XML before publishing
+        run: python3 ci/validate-svg.py dist
       - name: Publish with fast-forward history (no force push)
         env:
           TARGET_BRANCH: activity-assets

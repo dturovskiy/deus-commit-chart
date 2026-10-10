@@ -76,6 +76,7 @@ jobs:
           set -euo pipefail
           test -s .tmp/action-smoke/index.html
           node verify-activity-assets.js .tmp/action-smoke
+          python3 ci/validate-svg.py .tmp/action-smoke
           grep -q '30 days · 3 contributions' .tmp/action-smoke/activity-30d.svg
           for days in 30 90 365; do
             test -s ".tmp/action-smoke/activity-${days}d.svg"

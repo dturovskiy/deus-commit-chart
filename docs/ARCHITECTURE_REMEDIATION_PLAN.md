@@ -181,7 +181,18 @@ Required invariants:
 
 All gates in [REMEDIATION_CHECKLIST.md](REMEDIATION_CHECKLIST.md) are complete with linked test/evidence and reviewed decisions. Every generated artifact is traceable to one frozen validated snapshot; numerical correctness is verified; stale data is visible/monitorable; publication cannot silently replace good data with invalid data; rollback is tested. The project continues to work with GitHub profile SVGs and offline local Git mode.
 
-## 9. Evidence and source paths
+## 9. Verified remediation evidence (2026-10-10)
+
+- Reviewed changes live in `fix/chart-snapshot-integrity-20261010`; **not merged into `main`**.
+- A real GraphQL publish-build initially failed integrity validation because the full-year GitHub calendar omitted **2025-10-11** (GitHub responded with 364 days beginning 2025-10-12). This was not a zero-activity day in the API response; the fail-closed behavior was correct. See [diagnostic run](https://github.com/dturovskiy/deus-commit-chart/actions/runs/38082697496).
+- Boundary-calendar recovery is now performed through a short **aliased `contributionsCollection` within the same one GraphQL HTTP POST**. Overlapping days must agree, incomplete calendars still fail. The source dataset is frozen before any HTML/SVG render.
+- [Real GitHub API build 38082860981](https://github.com/dturovskiy/deus-commit-chart/actions/runs/38082860981) passed source validation, all four artifact generation checks, the integrity verifier and artifact retention. The run's publish job was **skipped** because it ran on a non-`main` review branch.
+- Captured snapshot: `b2b7861480c2199d7b737b9ec982385d056e4b51ae479759243063be5132a5d3`, `generatedAt=2026-10-10T20:13:15.317Z`, 365 days `2025-10-11..2026-10-10`. Values at that instant: **22** on Oct 10, **204** in 30 days, **765** in 90 days and **3050** in 365 days; source token includes restricted/private aggregate data as before.
+- [Smoke CI 38083046571](https://github.com/dturovskiy/deus-commit-chart/actions/runs/38083046571) passed on the updated code including browser VM execution and a partial-week GraphQL fixture.
+- DEUS MCP project runtime reports `package_manager_binary_missing`; Node validation was performed on a GitHub Actions Node 22 runner dispatched and examined **only through DEUS MCP**.
+- **Still open:** XML-level validation independent of template assumptions, freshness alerts and cache observability, public privacy metadata policy, rollback rehearsal, production deployment and post-deploy README inspection.
+
+## 10. Evidence and source paths
 
 - `generate-commit-chart.js:146-269,291-351,1048-1090` — adapters, series, CLI.
 - `modern-renderer.js:108-199,217-283,286-511` — renderer/embedded browser JS.
