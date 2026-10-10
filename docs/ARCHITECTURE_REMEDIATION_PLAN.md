@@ -224,6 +224,13 @@ The implementation was reviewed and merged via [PR #3](https://github.com/dturov
 - **Verification:** [PR #4](https://github.com/dturovskiy/deus-commit-chart/pull/4) merged as `20e065e`; [Smoke 38087484385](https://github.com/dturovskiy/deus-commit-chart/actions/runs/38087484385) passed **31 tests**, [live GraphQL build 38087488714](https://github.com/dturovskiy/deus-commit-chart/actions/runs/38087488714) passed. [Production publish 38087609571](https://github.com/dturovskiy/deus-commit-chart/actions/runs/38087609571) and [production monitor 38087690459](https://github.com/dturovskiy/deus-commit-chart/actions/runs/38087690459) succeeded. Inspected remote `activity-assets` manifest, 365-point HTML payload and all SVGs; all exclude the prohibited fields and share snapshot `809d1f6975f7a37866ecf83a824fce742b437e6a6fd305b4ea7caec83eca9a10`.
 - **Historical limitation:** Previously published metadata can remain in Git history, caches, archived CI artifacts, forks or downstream mirrors. This release does not erase those records. Rollback must not restore a pre-policy artifact to production.
 
+## Final calendar contract and profile-cache observations (2026-10-10)
+
+- [PR #5](https://github.com/dturovskiy/deus-commit-chart/pull/5) merged as `69294b7`. [Publish 38088912319](https://github.com/dturovskiy/deus-commit-chart/actions/runs/38088912319) and [main smoke 38088912320](https://github.com/dturovskiy/deus-commit-chart/actions/runs/38088912320) passed. Details in [CALENDAR_AND_CACHE_POLICY.md](CALENDAR_AND_CACHE_POLICY.md).
+- Independent `chart-contract.js` rejects 365-day source tampering, incorrect seven-day averages/cumulative counts and mismatch between actual samples and the published `snapshotId`. The runner timezone is not permitted to reassign UTC commit dates; date-boundary tests include DST, leap day, year rollover and future-dated commits.
+- The responsive HTML uses a full-width, horizontally scrollable SVG at narrow viewports with a keyboard-focusable region, newest day initially visible, explicit partial-today notice and theme contrast tests. Real-device visual QA is still pending.
+- [README cache sample 38088946652](https://github.com/dturovskiy/deus-commit-chart/actions/runs/38088946652) at 2026-10-10 21:47:13.611536Z matched the published snapshot 28.47s after generation. Profile markup referenced **raw.githubusercontent.com**, and the raw SVG returned `Cache-Control: max-age=300`; this **does not prove camo image proxy or browser cache invalidation**. Repeated measurements remain required.
+
 ## 10. Evidence and source paths
 
 - `generate-commit-chart.js:146-269,291-351,1048-1090` — adapters, series, CLI.

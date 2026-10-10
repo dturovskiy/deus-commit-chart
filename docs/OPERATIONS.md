@@ -26,6 +26,12 @@ All chart windows are anchored to the build's **UTC day**. GitHub's contribution
 
 An independent read-only [README cache audit workflow](../.github/workflows/audit-readme-cache.yml) records direct raw versus GitHub profile-image proxy snapshot identity where GitHub allows it. `matched` is one observation, not a bound on cache lifetime. Probe failure does not interrupt the publisher or health monitor. Image-proxy observations live in 30-day GitHub Actions artifacts.
 
+## README cache-audit result and interpretation
+
+On [2026-10-10 run 38088946652](https://github.com/dturovskiy/deus-commit-chart/actions/runs/38088946652), the current production snapshot had been generated 28.47 seconds earlier and was already returned by the direct raw URL and the URL embedded by the actual GitHub profile HTML. The profile's image `src` was **raw.githubusercontent.com**, not `camo.githubusercontent.com`. The raw response advertised `Cache-Control: max-age=300` and a CDN `ETag`; this is **not a guaranteed maximum update delay** for GitHub mobile/browser image caches.
+
+The audit reports **`profile_raw_matched`** when GitHub emits a direct raw image link and that image has the latest snapshot. A **`proxy_matched`** or **`proxy_lag_observed`** classification requires an actual independent `camo.githubusercontent.com` URL. Continue to collect multiple scheduled samples after distinct publishes. Do not alert on an unobservable proxy or claim that a single matching sample establishes a strict SLA.
+
 ## Freshness and recovery monitoring
 
 - `.github/workflows/monitor-freshness.yml` checks the real `activity-assets` branch on a two-hour offset schedule. The configured threshold is **8 hours** from `manifest.generatedAt` (allowing several missed publish windows).

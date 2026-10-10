@@ -10,7 +10,7 @@
 
 - [x] **DC-G0-01** Confirm branch, HEAD, remotes, and existing untracked files before implementation; do not touch unrelated `.tmp-30.svg`. (DEUS MCP git summary and status, 2026-10-10.)
 - [x] **DC-G0-02** Restore Node/npm execution in the DEUS MCP environment or select a reproducible alternate runner; record exact command, runtime and outcome.
-- [ ] **DC-G0-03** Execute `npm test`, `npm run check`, and the relevant GitHub CI workflow; record failures without masking them.
+- [x] **DC-G0-03** Execute `npm test`, `npm run check`, and the relevant GitHub CI workflow; record failures without masking them. (Smoke 38088841377: both commands, Python probe, rollback; real GraphQL build 38088845811.)
 - [ ] **DC-G0-04** Save reference manifest of existing 30d/90d/365d SVG and HTML, source SHA and latest known publish run.
 - [x] **DC-G0-05** Add a fixed-date fixture for 2026-10-09=7, 2026-10-10=3 and replacement 2026-10-10=15; assert last daily point and total delta +12.
 - [x] **DC-G0-06** Write down actual source/token visibility assumptions, expected freshness behavior and UTC/calendar-date semantics before editing ingestion logic.
@@ -25,9 +25,9 @@
 - [x] **DC-G1-04** Inject a fixed clock/`asOf` into date calculation; eliminate independently computed current dates within a build.
 - [x] **DC-G1-05** Validate exact expected calendar coverage, monotonic dates, uniqueness, valid ISO dates and nonnegative integer counts; fail on missing/invalid GraphQL data.
 - [x] **DC-G1-06** Preserve legitimate zero-activity days, but stop treating absent API dates as real zeros.
-- [ ] **DC-G1-07** Test UTC midnight, calendar year boundary, DST transition, leap day and future timestamps; document date/timezone policy.
-- [ ] **DC-G1-08** Distinguish GitHub `contributions` from local `commits`; retain any documented compatibility aliases.
-- [ ] **DC-G1-09** Explicitly identify incomplete current-day data without reassigning GitHub's recorded calendar dates.
+- [x] **DC-G1-07** Test UTC midnight, calendar year boundary, DST transition, leap day and future timestamps; document date/timezone policy. (CI 38088841377; docs/CALENDAR_AND_CACHE_POLICY.md.)
+- [x] **DC-G1-08** Distinguish GitHub `contributions` from local `commits`; retain any documented compatibility aliases. (CI 38088841377 and tested SVG/HTML dynamic labels; legacy `totalCommits` metadata alias retained.)
+- [x] **DC-G1-09** Explicitly identify incomplete current-day data without reassigning GitHub's recorded calendar dates. (`Today partial` in README SVG and HTML, original GitHub dates preserved; CI 38088841377.)
 - [x] **DC-G1-10** Create deterministic serialized fixture/snapshot and prove offline repeatability.
 - [x] **DC-G1-11** Review metadata exposed through public HTML/SVG, including restricted/private aggregate fields; no token/private repository names in output. (Public-data policy daily-aggregates-only-v1; production PR #4 and run 38087609571 verified; history limitations documented.)
 
@@ -57,7 +57,7 @@
 - [x] **DC-G3-03** Remove or quarantine legacy `renderHtml`/`renderSvg` only after proving old CLI and Action behavior remains supported.
 - [x] **DC-G3-04** Decide chart style: discrete daily bars/points + smooth 7d trend (recommended), or explicitly tested daily interpolation. (Chosen daily bars + 7d line; verified on smoke and real GraphQL branch build 2026-10-10.)
 - [x] **DC-G3-05** Verify flat sections, spikes, zero days and adjacent extrema without artificial overshoot/false intermediate values.
-- [ ] **DC-G3-06** Label `Daily` vs `7d trend`, note incomplete current day, display data freshness in the static SVG.
+- [x] **DC-G3-06** Label `Daily` vs `7d trend`, note incomplete current day, display data freshness in the static SVG. (Smoke 38088841377 and live GraphQL 38088845811.)
 - [x] **DC-G3-07** Preserve script-free README SVG, self-contained HTML and instant 30/90/365 range switching.
 - [ ] **DC-G3-08** Check legibility for 30/90/365 and narrow displays; validate accessible titles/descriptions and color contrast.
 
@@ -81,7 +81,7 @@
 
 ## Gate 5 — Release and handoff
 
-- [ ] **DC-G5-01** Record design decisions on freshness SLA, visibility, time-zone semantics, chart style and publication strategy in the plan or an ADR.
+- [x] **DC-G5-01** Record design decisions on freshness SLA, visibility, time-zone semantics, chart style and publication strategy in the plan or an ADR. (docs/CALENDAR_AND_CACHE_POLICY.md, PRIVACY.md, docs/OPERATIONS.md, architecture plan.)
 - [ ] **DC-G5-02** Verify one candidate build against a known API response captured with the intended token at the same observation time.
 - [x] **DC-G5-03** Verify the published HTML + three SVGs all match the candidate manifest and snapshot ID.
 - [ ] **DC-G5-04** Inspect actual README image after publish; record any remaining GitHub caching lag.
@@ -142,6 +142,15 @@
 - Production `activity-assets` manifest: policy `daily-aggregates-only-v1`, snapshot `809d1f6975f7a37866ecf83a824fce742b437e6a6fd305b4ea7caec83eca9a10`, generated `2026-10-10T21:26:13.288Z`, ranges **219/780/3065** contributions. Published HTML and all three SVGs are free of the restricted-count metadata; the HTML preserves 365 daily values, including **37** for Oct 10 at that timestamp.
 - [Production freshness monitor 38087690459](https://github.com/dturovskiy/deus-commit-chart/actions/runs/38087690459): **SUCCESS** against this release.
 - **Privacy limitation:** chart daily aggregates may include token-visible private activity. Historical Git objects, GitHub Actions artifacts, forks, and image caches can retain older metadata; no destructive history rewrite was attempted.
+
+## UTC contract, mobile layout and README cache audit (2026-10-10)
+
+- [PR #5](https://github.com/dturovskiy/deus-commit-chart/pull/5) merged as `69294b756645f8cbd3271cd642c015de42855917`; [production publish 38088912319](https://github.com/dturovskiy/deus-commit-chart/actions/runs/38088912319) and [main smoke 38088912320](https://github.com/dturovskiy/deus-commit-chart/actions/runs/38088912320) SUCCESS.
+- [Feature smoke 38088841377](https://github.com/dturovskiy/deus-commit-chart/actions/runs/38088841377): `npm run check`, `npm test` and 3 offline Python probe tests passed; the run includes UTC midnight, leap-day, year boundary, DST, future commit, cross-timezone determinism, source-unit labels and mobile DOM/CSS tests.
+- [GraphQL candidate 38088845811](https://github.com/dturovskiy/deus-commit-chart/actions/runs/38088845811): live API build SUCCESS, publish SKIPPED on review branch.
+- New `chart-contract.js` validates the 365-day series, running totals, trailing seven-day mean, UTC end date and recomputed SHA-256 snapshot identity in both the builder and independent verifier.
+- **First read-only cache observation:** [run 38088946652](https://github.com/dturovskiy/deus-commit-chart/actions/runs/38088946652). Published generatedAt `2026-10-10T21:46:45.145Z`, observed `21:47:13.611536Z` (**28.47s** later), full snapshot `c62df1c12e738534be893db36a91865813f50ba2e2d0443778ed00e3825f86a9`. GitHub profile HTML exposed **raw.githubusercontent.com** image source; the direct raw asset and profile image URL matched the published snapshot. Both responses advertised `Cache-Control: max-age=300`. **No independent camo cache was observed.** This sample cannot establish an upper bound on browser/proxy invalidation. Classification was subsequently refined to avoid labelling a raw embed as a camo proxy.
+- **Not closed:** repeated longitudinal cache-lag measurements, physical device/browser visual review for narrow-screen readability, and actual browser/proxy cache behavior under a demonstrably stale image.
 
 ## Evidence log (fill as work progresses)
 

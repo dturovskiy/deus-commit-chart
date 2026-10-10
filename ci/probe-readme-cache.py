@@ -59,6 +59,17 @@ def inspect_svg(content, snapshot):
             "matchesPublished": bool(seen and seen.group(1) == snapshot[:10]),
             "contentBytes": len(content)}
 
+def classify_observation(raw_matches, embed_host, image_matches):
+    if raw_matches is False:
+        return "direct_raw_lag_observed"
+    if not raw_matches or image_matches is None:
+        return "inconclusive"
+    if embed_host == "camo.githubusercontent.com":
+        return "proxy_matched" if image_matches else "proxy_lag_observed"
+    if embed_host == "raw.githubusercontent.com":
+        return "profile_raw_matched" if image_matches else "profile_raw_lag_observed"
+    return "inconclusive"
+
 def main():
     if len(sys.argv) != 3:
         raise SystemExit("Usage: ci/probe-readme-cache.py PUBLISHED_MANIFEST OUTPUT_JSON")
@@ -89,9 +100,14 @@ def main():
                 "headers": proxied["headers"], "elapsedMs": proxied["elapsedMs"]
             }
         direct = report["observations"].get("raw", {}).get("matchesPublished")
-        proxy = report["observations"].get("profileImage", {}).get("matchesPublished")
-        report["state"] = "matched" if direct and proxy else (
-            "proxy_lag_observed" if direct and proxy is False else "inconclusive"
+        profile_image = report["observations"].get("profileImage", {}).get("matchesPublished")
+        embed_host = report["observations"].get("profile", {}).get("embedHost")
+        report["state"] = classify_observation(direct, embed_host, profile_image)
+        # A raw.githubusercontent.com embed is *not* an independent camo cache.
+        report["independentImageProxyObserved"] = embed_host == "camo.githubusercontent.com"
+        report["snapshotAgeAtProbeSeconds"] = round(
+            (datetime.fromisoformat(report["observedAt"]) -
+             datetime.fromisoformat(manifest["generatedAt"].replace("Z", "+00:00"))).total_seconds(), 2
         )
     except (OSError, ValueError, urllib.error.URLError) as exc:
         # Observability is non-blocking: don't break verified chart publication.
