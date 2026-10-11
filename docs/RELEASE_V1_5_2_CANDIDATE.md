@@ -11,7 +11,7 @@
 
 ## Required steps, in dependency order
 
-- [ ] Complete DC-G3-08 direct visual acceptance in [VISUAL_QA_MATRIX.md](VISUAL_QA_MATRIX.md).
+- [ ] Complete DC-G3-08 direct visual acceptance in [VISUAL_QA_MATRIX.md](VISUAL_QA_MATRIX.md). **Actual desktop Marketplace and mobile GitHub profile screenshots have now been reviewed** in [VISUAL_QA_SCREENSHOT_FINDINGS.md](VISUAL_QA_SCREENSHOT_FINDINGS.md). Both show the 30-day bars/trend without clipping, but the 1120-wide static SVG scales its metadata, dates and legend to very small text on iPhone. This finding must be remediated or explicitly reviewed as an acceptable zoom-to-read limitation; the screenshots do not establish light theme, interactive HTML or 90/365 human visual coverage. Do not complete G3-08 or promote this release solely from passing Chromium assertions.
 - [x] Record reviewed operational dispositions for DC-G2-10 publishing rights and DC-G2-12 GitHub-owned image cache in [RELEASE_RISK_DECISIONS.md](RELEASE_RISK_DECISIONS.md), with ongoing risks tracked in [TECH_DEBT_REGISTER.md](TECH_DEBT_REGISTER.md). The real publisher [#38148635625](https://github.com/dturovskiy/deus-commit-chart/actions/runs/38148635625) and cache probe [#38148744110](https://github.com/dturovskiy/deus-commit-chart/actions/runs/38148744110) passed; neither strict job-level write isolation nor a cache TTL is asserted.
 - [ ] Pass full PR-only Smoke after all candidate content changes; verify Node + Python suites, real two-theme Chromium, secrets guard, SVG XML, privacy and rollback.
 - [ ] Merge this release-candidate branch as a reviewed PR only after the above evidence is complete; verify `main` remains clean/synchronized.
