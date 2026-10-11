@@ -108,7 +108,7 @@ async function main() {
       assert.match(view.chart,/data-series="trend"/);
       assert.match(view.peak,/2/);
     }
-    const tooltip=await cdp.eval("(()=>{const chart=document.querySelector('#chart');const r=chart.getBoundingClientRect();const payload=JSON.parse(document.getElementById('chart-data').textContent);const layout=payload.layout;const x=r.left+r.width*(layout.width-layout.pad.right-3)/layout.width;chart.dispatchEvent(new PointerEvent('pointermove',{clientX:x,clientY:r.top+60,bubbles:true}));return {visible:getComputedStyle(document.querySelector('#tooltip')).display,html:document.querySelector('#tooltip').innerHTML};})()");
+    const tooltip=await cdp.eval("(()=>{const chart=document.querySelector('#chart');const r=chart.getBoundingClientRect();const payload=JSON.parse(document.getElementById('chart-data').textContent);const layout=payload.layout;const x=r.left+r.width*(layout.width-layout.pad.right-0.1)/layout.width;chart.dispatchEvent(new PointerEvent('pointermove',{clientX:x,clientY:r.top+60,bubbles:true}));return {visible:getComputedStyle(document.querySelector('#tooltip')).display,html:document.querySelector('#tooltip').innerHTML};})()");
     assert.equal(tooltip.visible,'block');
     assert.match(tooltip.html,/>Daily<\/span><b>2<\/b>/);
     assert.match(tooltip.html,/>7d trend<\/span><b>/);
