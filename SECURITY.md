@@ -2,7 +2,7 @@
 
 ## Supported versions
 
-Security and privacy fixes are applied to the latest supported release, **v1.5.0**. The historical signed major tag `v1` currently resolves to **v1.4.1** and does **not** automatically include these fixes. Prefer `dturovskiy/deus-commit-chart@v1.5.0` or its verified immutable commit SHA until a signed major-tag update is separately approved.
+Security and privacy fixes are applied to the latest supported release, **v1.5.1**. The historical signed major tag `v1` currently resolves to **v1.4.1** and does **not** automatically include these fixes. Prefer `dturovskiy/deus-commit-chart@v1.5.1` or its verified immutable commit SHA until a signed major-tag update is separately approved.
 
 ## Reporting a vulnerability
 

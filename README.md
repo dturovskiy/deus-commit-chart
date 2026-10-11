@@ -5,14 +5,14 @@
 </p>
 
 <p align="center">
-  Generate smooth 30d / 90d / 365d profile charts as README-safe SVGs, plus an interactive HTML report powered by GitHub Actions or local Git data.
+  Generate accurate daily activity bars and a smooth seven-day trend for 30 / 90 / 365 days as README-safe SVGs, plus a self-contained interactive HTML report built from GitHub or local Git data.
 </p>
 
 <p align="center">
   <a href="https://github.com/dturovskiy/deus-commit-chart/releases/latest"><img alt="GitHub release" src="https://img.shields.io/github/v/release/dturovskiy/deus-commit-chart?display_name=tag"></a>
   <a href="https://github.com/dturovskiy/deus-commit-chart/actions/workflows/smoke.yml"><img alt="Smoke CI" src="https://github.com/dturovskiy/deus-commit-chart/actions/workflows/smoke.yml/badge.svg"></a>
   <a href="https://github.com/dturovskiy/deus-commit-chart/blob/main/LICENSE"><img alt="License" src="https://img.shields.io/github/license/dturovskiy/deus-commit-chart"></a>
-  <img alt="GitHub Action" src="https://img.shields.io/badge/GitHub%20Action-v1-2088FF?logo=githubactions&logoColor=white">
+  <img alt="GitHub Action" src="https://img.shields.io/badge/GitHub%20Action-v1.5.1-2088FF?logo=githubactions&logoColor=white">
 </p>
 
 <p align="center">
@@ -39,7 +39,7 @@ Use the versioned GitHub Action in any workflow:
 
 ```yaml
 - name: Generate contribution charts
-  uses: dturovskiy/deus-commit-chart@v1.5.0
+  uses: dturovskiy/deus-commit-chart@v1.5.1
   with:
     username: ${{ github.repository_owner }}
     token: ${{ github.token }}
@@ -53,60 +53,11 @@ The Action generates `index.html` plus static `activity-30d.svg`, `activity-90d.
 
 ## Add it to your GitHub profile
 
-The fastest setup is to call Deus Commit Chart as a GitHub Action from your profile repository. Create `.github/workflows/activity-chart.yml` in `USERNAME/USERNAME`:
+The Action **generates files only**. Installing it does not schedule jobs, modify a branch, or update your README. If you want a profile embed, copy the **[complete, opt-in profile workflow](docs/PROFILE_WORKFLOW_EXAMPLE.yml)** to `USERNAME/USERNAME/.github/workflows/activity-chart.yml`. That sample calls the pinned `@v1.5.1` release, validates the output, and publishes HTML/SVG to the dedicated `activity-assets` branch without force-pushing.
 
-```yaml
-name: Update activity chart
+**The example is manual-only by default.** Run it once using **Actions → Update contribution chart → Run workflow**. To refresh automatically, uncomment its optional **daily UTC** schedule. Standard GitHub-hosted runners are free for public repositories; runs in private repositories can consume your account's included Actions minutes. Use the dedicated `activity-assets` branch only for generated charts—the example replaces its other contents.
 
-on:
-  schedule:
-    - cron: '17 */6 * * *'
-  workflow_dispatch:
-
-permissions:
-  contents: write
-
-jobs:
-  chart:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout profile repository
-        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
-
-      - name: Generate charts
-        uses: dturovskiy/deus-commit-chart@v1.5.0
-        with:
-          username: ${{ github.repository_owner }}
-          token: ${{ secrets.DEUS_COMMIT_CHART_TOKEN || github.token }}
-          default-days: '30'
-          ranges: '30,90,365'
-          layout: spacious
-          output-dir: activity-dist
-
-      - name: Publish generated branch
-        env:
-          TARGET_BRANCH: activity-assets
-        run: |
-          set -euo pipefail
-          temp_dir="$(mktemp -d)"
-          cp -a activity-dist/. "$temp_dir/"
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          if git ls-remote --exit-code --heads origin "$TARGET_BRANCH" >/dev/null; then
-            git fetch origin "$TARGET_BRANCH"
-            git switch -C "$TARGET_BRANCH" FETCH_HEAD
-            git rm -r --ignore-unmatch . >/dev/null
-          else
-            git switch --orphan "$TARGET_BRANCH"
-          fi
-          find . -mindepth 1 -maxdepth 1 ! -name .git -exec rm -rf {} +
-          cp -a "$temp_dir"/. .
-          git add -A
-          git commit -m "chore: refresh verified activity charts"
-          git push origin "HEAD:refs/heads/$TARGET_BRANCH"
-```
-
-Run the workflow once from **Actions → Update activity chart → Run workflow**. It creates `activity-assets` with `activity-30d.svg`, `activity-90d.svg`, `activity-365d.svg`, and the interactive `index.html`.
+The standalone Action itself needs only the token it uses to query GitHub; **`contents: write` is required only by your optional publishing workflow**, not by the generator. The example uses a separate Git worktree so publishing never deletes the checked-out source. It avoids empty commits when output bytes are identical, but since build timestamps change, repeated runs with unchanged counts can still create history. The maintainer's own publisher has a stricter verified snapshot no-op check; do not assume the shorter consumer example has that feature.
 
 Then embed the 30-day chart in the profile README:
 
@@ -125,9 +76,9 @@ Then embed the 30-day chart in the profile README:
 </p>
 ```
 
-For public contribution activity, the workflow token is usually sufficient. To request broader private/internal visibility, add a repository secret named `DEUS_COMMIT_CHART_TOKEN` containing a GitHub token with access appropriate to the contributions you want GitHub to return. The generated chart contains aggregate daily counts only and never writes private repository names or commit details.
+For public contribution activity, the workflow token is usually sufficient. To request broader private/internal visibility, add a repository secret named `DEUS_COMMIT_CHART_TOKEN` containing a GitHub token with access appropriate to the contributions you want GitHub to return. The generated chart intentionally contains aggregate daily counts only, not repository names or commit details. **Those counts can nevertheless reveal the timing of private activity visible to the token.**
 
-The action only generates files; publishing them is intentionally explicit in the caller workflow. **Version pin:** use `@v1.5.0` for the validated snapshot and privacy-safe release. The historical signed `@v1` major tag remains on `v1.4.1` until separately authorized and signed; it **does not** automatically select `v1.5.0`. See [Marketplace Release Policy](docs/MARKETPLACE_RELEASE_POLICY.md). Its main inputs are `username`, `token`, `default-days`, `ranges`, `theme`, `layout`, `width`, `height`, `hide-border`, and `output-dir`. It also supports `source: local` for workflows that want to chart a checked-out Git repository instead of a GitHub account.
+The Action only generates files; publishing them is intentionally explicit in the caller workflow. **Version pin:** use `@v1.5.1` for the validated snapshot and metadata-minimized release. The historical signed `@v1` major tag remains on `v1.4.1` until separately authorized and signed; it **does not** automatically select `v1.5.1`. See [Marketplace Release Policy](docs/MARKETPLACE_RELEASE_POLICY.md). Its main inputs are `username`, `token`, `default-days`, `ranges`, `theme`, `layout`, `width`, `height`, `hide-border`, and `output-dir`. It also supports `source: local` for workflows that want to chart a checked-out Git repository instead of a GitHub account.
 
 ## Interactive HTML
 
@@ -213,7 +164,7 @@ GITHUB_TOKEN=... node generate-commit-chart.js \
   --title "GitHub contribution activity"
 ```
 
-The token is read from one of these environment variables, in order:
+The token is read from one of these environment variables, in order. Set it using your runner's secrets or an environment variable; **never paste a real token into a committed workflow or CLI command history**:
 
 1. `DEUS_COMMIT_CHART_GITHUB_TOKEN`
 2. `GITHUB_TOKEN`
@@ -258,7 +209,7 @@ A profile README can embed the default 30-day range directly from the generated 
 </p>
 ```
 
-The generated `index.html` still contains the interactive 30d / 90d / 365d switcher and can be opened locally from a workflow artifact/checkout. If GitHub Pages is enabled later for the `activity-assets` branch, the same HTML can be served as an interactive public page without changing the generator.
+The generated `index.html` still contains the interactive 30d / 90d / 365d switcher and can be opened locally from the chosen output directory or a checkout of the published `activity-assets` branch. The maintainer's scheduled publisher does **not** upload Actions artifacts. If GitHub Pages is enabled later for the `activity-assets` branch, the same HTML can be served as an interactive public page without changing the generator.
 
 By default the publishing workflow authenticates with `github.token`. An optional repository secret named `DEUS_COMMIT_CHART_TOKEN` can override it when broader GitHub contribution visibility is required.
 
@@ -286,10 +237,10 @@ This removes the runtime dependency on an external Vercel/serverless chart endpo
 
 ### Local source
 
-The local source reads commit dates from:
+The local source reads ISO 8601 author timestamps with timezone offsets from Git, then buckets commit instants by **UTC date** (not by the author’s local date):
 
 ```bash
-git log --date=short --format=%ad
+git log --format=%aI
 ```
 
 Optional filters:
@@ -335,9 +286,9 @@ The HTML report includes:
 
 The static SVG includes:
 
-- a smooth daily activity line and area;
-- a dashed 7-day trend;
-- activity total;
+- one discrete bar per day with recorded activity;
+- a separate smooth 7-day moving-average trend line (no artificial daily line or filled area);
+- the exact activity total;
 - active-day count;
 - source and date-range metadata.
 
@@ -393,7 +344,7 @@ The architecture audit and remediation work are tracked inside this repository:
 - [Marketplace Release Policy](docs/MARKETPLACE_RELEASE_POLICY.md) — signed major-tag compatibility, release migration and manual tagged-consumer verification.
 - [Repository Hygiene and Secrets Audit](docs/REPO_HYGIENE_AND_SECRETS_AUDIT.md) — tracked-source credential guard, old public-data history, branch cleanup and verified release baseline.
 
-Initial data-integrity and publishing fixes shipped on 2026-10-10; additional remediation items remain open until supported by test or release evidence.
+Release [v1.5.1](https://github.com/dturovskiy/deus-commit-chart/releases/tag/v1.5.1) shipped the validated snapshot and privacy-minimized metadata; remaining remediation items stay open until supported by test or release evidence.
 
 ## Development
 

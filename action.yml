@@ -1,5 +1,5 @@
 name: Deus Commit Chart
-description: Generate interactive HTML and README-safe SVG contribution charts from GitHub or a local Git repository.
+description: Generate daily-bar SVG charts with 7-day trends and interactive HTML from GitHub or local Git. No hosted chart backend.
 author: dturovskiy
 branding:
   icon: activity

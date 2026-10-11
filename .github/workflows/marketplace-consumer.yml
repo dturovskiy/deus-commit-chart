@@ -35,7 +35,7 @@ jobs:
 
       - name: Consume exact released Action by remote tag in offline/local mode
         id: local
-        uses: dturovskiy/deus-commit-chart@v1.5.0
+        uses: dturovskiy/deus-commit-chart@v1.5.1
         with:
           source: local
           repo: /tmp/deus-marketplace-consumer
@@ -61,7 +61,7 @@ jobs:
 
       - name: Consume exact released Action via authenticated GraphQL
         id: github
-        uses: dturovskiy/deus-commit-chart@v1.5.0
+        uses: dturovskiy/deus-commit-chart@v1.5.1
         with:
           source: github
           username: ${{ github.repository_owner }}

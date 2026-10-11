@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.5.1
+
+- Refresh the GitHub Marketplace-facing README: accurate daily bars + 7-day trend, UTC local Git semantics, current release badge and explicit private-contribution aggregate disclosure.
+- Replace a fragile profile publication snippet with a complete **manual-by-default** consumer workflow. Users can opt into one daily refresh; installation of the Action itself never starts a scheduled job.
+- Keep publishing inside an isolated Git worktree and use a fast-forward-only push. Avoid failing on byte-identical output, while explicitly documenting that timestamp-only refreshes can still create commits.
+- Add an actual isolated bare-Git integration test of the published workflow example: first publish, identical repeat, changed data and source checkout integrity.
+- No change to chart generation, public input/output contracts or the signed older `@v1` alias. Existing consumers of `@v1.5.0` remain unaffected.
+
 ## 1.5.0
 
 - Generate one validated 365-day activity snapshot and reuse it across interactive HTML and all requested 30/90/365-day SVG files, with a verifiable `manifest.json` and SHA-256 file digests.
