@@ -18,9 +18,9 @@ jobs:
       contents: write
     steps:
       - name: Checkout trusted source
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version: '22'
       # Dependency-free source build; no package setup or regression suite.
@@ -46,10 +46,25 @@ jobs:
         run: |
           set -euo pipefail
           temp_dir="$(mktemp -d)"
+          previous_dir="$(mktemp -d)"
+          trap 'rm -rf "$temp_dir" "$previous_dir"' EXIT
           cp -a dist/. "$temp_dir/"
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git fetch origin "$TARGET_BRANCH"
+          git archive FETCH_HEAD | tar -xf - -C "$previous_dir"
+          # Two unchanged samples should not create two Git commits or cache churn.
+          # Both full asset bundles are independently verified before comparison.
+          decision=0
+          node ci/should-publish.js "$previous_dir" dist || decision=$?
+          if [[ "$decision" -eq 0 ]]; then
+            echo "Verified contribution data and source revision unchanged; keeping published snapshot."
+            exit 0
+          fi
+          if [[ "$decision" -ne 1 ]]; then
+            echo "Could not safely compare published snapshots." >&2
+            exit "$decision"
+          fi
           git switch -C "$TARGET_BRANCH" FETCH_HEAD
           git rm -r --ignore-unmatch . >/dev/null
           find . -mindepth 1 -maxdepth 1 ! -name .git -exec rm -rf {} +

@@ -127,7 +127,7 @@ Then embed the 30-day chart in the profile README:
 
 For public contribution activity, the workflow token is usually sufficient. To request broader private/internal visibility, add a repository secret named `DEUS_COMMIT_CHART_TOKEN` containing a GitHub token with access appropriate to the contributions you want GitHub to return. The generated chart contains aggregate daily counts only and never writes private repository names or commit details.
 
-The action only generates files; publishing them is intentionally explicit in the caller workflow. Its main inputs are `username`, `token`, `default-days`, `ranges`, `theme`, `layout`, `width`, `height`, `hide-border`, and `output-dir`. It also supports `source: local` for workflows that want to chart a checked-out Git repository instead of a GitHub account.
+The action only generates files; publishing them is intentionally explicit in the caller workflow. **Release note:** the public `@v1` major tag currently resolves to the signed September 2026 `v1.4.1` release, not to the newer unreleased `main` implementation. See [Marketplace Release Policy](docs/MARKETPLACE_RELEASE_POLICY.md) before adopting new internal features or updating version tags. Its main inputs are `username`, `token`, `default-days`, `ranges`, `theme`, `layout`, `width`, `height`, `hide-border`, and `output-dir`. It also supports `source: local` for workflows that want to chart a checked-out Git repository instead of a GitHub account.
 
 ## Interactive HTML
 
@@ -244,7 +244,7 @@ https://raw.githubusercontent.com/dturovskiy/deus-commit-chart/activity-assets/a
 https://raw.githubusercontent.com/dturovskiy/deus-commit-chart/activity-assets/activity-365d.svg
 ```
 
-The workflow runs **only on its six-hour schedule or manual dispatch on `main`**. It makes one GraphQL request, generates HTML/SVG with a manifest, checks data integrity and XML, then creates a fast-forward commit on `activity-assets` (no force-push). **There is no regression suite, dependency install, separate build job or uploaded Actions artifact in the scheduled refresh.** The last published assets stay intact if generation or validation fails.
+The workflow runs **only on its six-hour schedule or manual dispatch on `main`**. It makes one GraphQL request, generates HTML/SVG with a manifest, checks data integrity and XML, then creates a fast-forward commit on `activity-assets` (no force-push). **There is no regression suite, dependency install, separate build job or uploaded Actions artifact in the scheduled refresh.** The publisher skips creating a commit when the existing deployed assets pass full validation and both the 365-day snapshot and generator source revision are unchanged; it still checks GitHub every six hours. In that case the visible `Updated` timestamp remains the time of the **last published snapshot**, not the most recent no-op check. A new UTC day, changed contribution count, modified generator code or damaged existing assets forces publication. The last published assets stay intact if generation or validation fails.
 
 **CI runs only when a PR targets `main`.** The PR-only Smoke workflow tests source code, offline/local Marketplace Action compatibility, 30/90/365 SVG/HTML behavior and rollback. There are **no automatic freshness or README-cache audit workflows**; those diagnostics are available manually, do not create issues and do not run on a schedule. See the [Operations runbook](docs/OPERATIONS.md) for manual usage and failure recovery.
 
@@ -390,6 +390,7 @@ The architecture audit and remediation work are tracked inside this repository:
 - [Calendar, Responsive Chart and README Cache Policy](docs/CALENDAR_AND_CACHE_POLICY.md) — UTC source semantics, independently verified series invariants, mobile scrolling and read-only cache measurements.
 - [Source Adapters and Rendering Contracts](docs/SOURCE_AND_RENDER_ARCHITECTURE.md) — local Git/GraphQL boundaries, error taxonomy, shared SVG/HTML mathematics and compatibility.
 - [CI and GitHub Action Security Review](docs/CI_ACTION_SECURITY_REVIEW.md) — permission boundaries, publication guarantees, compatibility evidence and outstanding supply-chain risks.
+- [Marketplace Release Policy](docs/MARKETPLACE_RELEASE_POLICY.md) — current signed `@v1` target, compatibility guarantees and explicit versioned-release approval steps.
 
 Initial data-integrity and publishing fixes shipped on 2026-10-10; additional remediation items remain open until supported by test or release evidence.
 

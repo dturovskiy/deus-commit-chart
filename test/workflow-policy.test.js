@@ -28,6 +28,9 @@ test('profile publisher has only one six-hour scheduled job and optional manual 
   assert.doesNotMatch(content, /npm (?:test|run check|ci|install)|upload-artifact|download-artifact/);
   assert.match(content, /node build-activity-assets\.js/);
   assert.match(content, /node verify-activity-assets\.js dist/);
+  assert.match(content, /node ci\/should-publish\.js "\$previous_dir" dist/);
+  assert.match(content, /git archive FETCH_HEAD \| tar -xf - -C "\$previous_dir"/);
+  assert.match(content, /if \[\[ "\$decision" -eq 0 \]\]; then/);
   assert.match(content, /python3 ci\/validate-svg\.py dist/);
   assert.match(content, /git push origin "HEAD:refs\/heads\/\$TARGET_BRANCH"/);
   assert.doesNotMatch(content, /git push --force/);
@@ -53,4 +56,41 @@ test('Marketplace composite Action entry point remains unchanged in the runtime 
   assert.match(action, /node "\$GITHUB_ACTION_PATH\/build-activity-assets\.js"/);
   assert.match(action, /node "\$GITHUB_ACTION_PATH\/verify-activity-assets\.js"/);
   assert.match(action, /source: github or local|Data source: github or local/);
+  assert.doesNotMatch(action, /npm (?:ci|install)/);
+});
+
+test('Marketplace inputs/outputs preserve the signed v1.4.1 public contract', () => {
+  const action = fs.readFileSync(path.join(__dirname, '../action.yml'), 'utf8');
+  const section = (from, to) => action.split(new RegExp('^' + from + ':\\s*$', 'm'))[1]
+    .split(new RegExp('^' + to + ':\\s*$', 'm'))[0];
+  const keys = text => [...text.matchAll(/^  ([a-z][\w-]+):$/gm)].map(match => match[1]);
+  assert.deepEqual(keys(section('inputs','outputs')), [
+    'source','username','token','repo','branch','author','default-days',
+    'ranges','theme','layout','width','height','hide-border','output-dir','title'
+  ]);
+  assert.deepEqual(keys(section('outputs','runs')), ['output-dir','index-html']);
+});
+
+test('external GitHub Actions are pinned to reviewed full release SHAs', () => {
+  const shaCheckout = '11d5960a326750d5838078e36cf38b85af677262';
+  const shaSetup = '49933ea5288caeca8642d1e84afbd3f7d6820020';
+  const files = [
+    '../action.yml',
+    '../.github/workflows/publish-pages.yml',
+    '../.github/workflows/smoke.yml',
+    '../.github/workflows/monitor-freshness.yml',
+    '../.github/workflows/audit-readme-cache.yml'
+  ];
+  for (const file of files) {
+    const content = fs.readFileSync(path.join(__dirname,file),'utf8');
+    for (const {name,sha} of [
+      {name:'actions/checkout',sha:shaCheckout},
+      {name:'actions/setup-node',sha:shaSetup}
+    ]) {
+      for(const match of content.matchAll(new RegExp('uses: ' + name + '@([^\\s]+)','g'))){
+        assert.equal(match[1],sha,file + ' ' + name);
+      }
+    }
+    assert.doesNotMatch(content, /uses:\s+actions\/[\w-]+@v\d+/);
+  }
 });

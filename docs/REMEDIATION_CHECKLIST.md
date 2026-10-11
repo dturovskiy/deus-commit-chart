@@ -42,10 +42,10 @@
 - [x] **DC-G2-05** Validate SVG XML, absence of scripts/remote resources, finite path coordinates and output file completeness.
 - [x] **DC-G2-06** Gate publication on validation; a failed fetch/render/validation must preserve previously published good artifacts.
 - [x] **DC-G2-07** Decide and implement guarded remote-ref publication; do not retain unconditional force-push without recovery protections.
-- [x] **DC-G2-08** Retain immutable build artifacts and previous manifest sufficient to restore an earlier verified release. (Verified test-remote restore from earlier manifest and artifact history; 90-day GitHub build-artifact retention.)
+- [x] **DC-G2-08** Retain previous verified manifest/artifact versions sufficient to restore an earlier release. (The fast-forward `activity-assets` Git history retains HTML/SVG + manifests, proven by isolated rollback rehearsal. GitHub workflow artifacts were intentionally removed to reduce quota usage.)
 - [x] **DC-G2-09** Rehearse rollback and verify restored content hashes in a nonproduction environment. (Smoke run 38086628526, isolated bare Git remote; manifest and all four assets byte-for-byte matched.)
-- [x] **DC-G2-10** Scope `contents: write` and publishing credentials to the minimum necessary permissions; protect secrets from logs.
-- [x] **DC-G2-11** Add freshness health/failure reporting with an explicit configurable policy; separately document profile image-cache limitations. (Scheduled health workflow; tested failure policy in 27-test suite; production healthy-run 38086854207. Live incident notification delivery remains untested.)
+- [ ] **DC-G2-10** Scope `contents: write` and publishing credentials to the minimum necessary permissions; protect secrets from logs. (Accepted lean-publisher trade-off: one trusted main-only job needs `contents: write` during generation and publishing; per-step write isolation would require another job or separate short-lived credential. No secrets written to HTML/SVG/manifest or logs.)
+- [ ] **DC-G2-11** Add freshness health/failure reporting with an explicit configurable policy; separately document profile image-cache limitations. (Manual-only diagnostic retained; scheduled monitors and automatic incident issues intentionally retired after 2026-10-11 notification overload. This is an **accepted operating policy**, not a pending reactivation.)
 - [ ] **DC-G2-12** Measure actual GitHub README embed lag and caching behavior; do not claim instantaneous invalidation without evidence.
 
 **Gate 2 exit:** every publication is validated, traceable, recoverable and capable of flagging stale data.
