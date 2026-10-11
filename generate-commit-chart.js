@@ -11,6 +11,7 @@ const {
   renderModernHtml
 } = require('./modern-renderer');
 
+const { trailingMean7 } = require('./activity-metrics');
 const RANGE_OPTIONS = [30, 90, 365];
 // Themes and layout presets are owned by the renderer (one source of truth).
 
@@ -161,14 +162,13 @@ function buildSeries(counts, startDate, endDate) {
     cumulative += commits;
 
     const previousSix = series.slice(Math.max(0, series.length - 6)).map((point) => point.commits);
-    const values = previousSix.concat(commits);
-    const ma7 = values.reduce((sum, value) => sum + value, 0) / values.length;
+    const ma7 = trailingMean7(previousSix.concat(commits));
 
     series.push({
       date,
       commits,
       cumulative,
-      ma7: Number(ma7.toFixed(2))
+      ma7
     });
   }
 

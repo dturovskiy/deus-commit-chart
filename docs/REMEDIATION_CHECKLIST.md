@@ -8,8 +8,8 @@
 
 ## Verified checkpoint — 2026-10-11
 
-- **Detailed technical gates: 48/56 checked, 8 open**, including the newly captured full published HTML/SVG SHA-256 manifest (DC-G0-04).
-- **Final acceptance assertions: 8/9 checked, 1 open.** Counting both groups: **56/65 checked, 9 open**. These are *checkbox state*, not an estimate of release readiness.
+- **Detailed technical gates: 49/56 checked, 7 open**, including the newly captured full published HTML/SVG SHA-256 manifest (DC-G0-04).
+- **Final acceptance assertions: 8/9 checked, 1 open.** Counting both groups: **57/65 checked, 8 open**. These are *checkbox state*, not an estimate of release readiness.
 - Security/hygiene: ten GitHub branches tied to merged PRs were deleted; `origin/tag-v1-check`, `main` and `activity-assets` were retained. The [audit](REPO_HYGIENE_AND_SECRETS_AUDIT.md) found no high-confidence credential values across 268 reachable blobs and documented **four historical HTML snapshots containing private contribution breakdown fields**, which cannot be erased by ordinary branch pruning. The PR-only secret guard passed in [Smoke CI #38134694024](https://github.com/dturovskiy/deus-commit-chart/actions/runs/38134694024), scanning 57 tracked files and passing 5 synthetic tests.
 - Intentionally open/accepted: G2-10 single write-scoped publisher, G2-11 manual-only freshness diagnostics, cache/proxy latency, actual browser QA, and **signed major alias `v1`** approval; [new `v1.5.0` release](https://github.com/dturovskiy/deus-commit-chart/releases/tag/v1.5.0) is published and separately validated. Do not reopen scheduled CI or silently enable `main` branch protection.
 
@@ -86,7 +86,7 @@
 
 ## Gate 3 — Renderer and chart readability
 
-- [ ] **DC-G3-01** Extract shared pure functions for range selection, daily totals, trailing 7-day average, geometry and tick generation.
+- [x] **DC-G3-01** Extract shared pure functions for range selection, daily totals, trailing 7-day average, geometry and tick generation. (`activity-metrics.js` provides `dailyTotals`/`trailingMean7` used by the series builder, static SVG and browser-injected script; `modern-renderer.js` shares `selectRange`, `chartGeometry`, `dailyBarRects`, `buildTicks`, `smoothPath`. `test/activity-metrics.test.js` plus preexisting six SVG goldens and independent `chart-contract.js` verifier are the PR gates.)
 - [x] **DC-G3-02** Make static SVG and interactive HTML consume the same normalized snapshot and rendering mathematics. (Inline browser embeds canonical renderer range/geometry/ticks functions; 30/90/365 exact bar/path/tick parity passed in smoke 38094293267.)
 - [x] **DC-G3-03** Remove or quarantine legacy `renderHtml`/`renderSvg` only after proving old CLI and Action behavior remains supported.
 - [x] **DC-G3-04** Decide chart style: discrete daily bars/points + smooth 7d trend (recommended), or explicitly tested daily interpolation. (Chosen daily bars + 7d line; verified on smoke and real GraphQL branch build 2026-10-10.)

@@ -1,5 +1,6 @@
 'use strict';
 
+const { dailyTotals } = require('./activity-metrics');
 const RANGE_OPTIONS = [30, 90, 365];
 
 const THEMES = {
@@ -237,8 +238,7 @@ function renderModernSvg(title, description, meta, allData, days, options = {}) 
   const layout = resolveLayout(options);
   const geometry = chartGeometry(allData, days, layout);
   const { data, maxValue, x, trendPath, bars } = geometry;
-  const total = data.reduce((sum, point) => sum + (Number(point.commits) || 0), 0);
-  const activeDays = data.filter((point) => Number(point.commits) > 0).length;
+  const { total, activeDays } = dailyTotals(data);
   const first = data[0];
   const last = data.at(-1);
   const peak = data.reduce((best, point) => !best || point.commits > best.commits ? point : best, null);
@@ -412,6 +412,7 @@ function renderModernHtml(title, description, meta, allData, options = {}) {
     const dailyBarRects = ${dailyBarRects.toString()};
     const chartGeometry = ${chartGeometry.toString()};
     const buildTicks = ${buildTicks.toString()};
+    const dailyTotals = ${dailyTotals.toString()};
     const esc = (s) => String(s).replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&apos;'}[ch]));
 
     function buildGeometry() {
@@ -421,7 +422,7 @@ function renderModernHtml(title, description, meta, allData, options = {}) {
 
     function render() {
       geometry = buildGeometry();
-      const g=geometry, total=visible.reduce((s,p)=>s+(Number(p.commits)||0),0), active=visible.filter(p=>Number(p.commits)>0).length;
+      const g=geometry, {total,activeDays:active}=dailyTotals(visible);
       const first=visible[0], last=visible[visible.length-1];
       const peak=visible.reduce((best,p)=>!best||p.commits>best.commits?p:best,null);
       const grid=[];
