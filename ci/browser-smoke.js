@@ -131,9 +131,11 @@ async function main() {
     console.log('BROWSER_CHECK: 390px mobile layout and scroll passed');
     // A real key event activates a focused range button via the browser.
     await cdp.eval("document.querySelector('button[data-range=\"90\"]').focus()");
-    await cdp.send('Input.dispatchKeyEvent',{type:'keyDown',key:'Enter',code:'Enter',windowsVirtualKeyCode:13});
+    assert.equal(await cdp.eval("document.activeElement?.dataset?.range"),'90');
+    await cdp.send('Input.dispatchKeyEvent',{type:'rawKeyDown',key:'Enter',code:'Enter',windowsVirtualKeyCode:13,nativeVirtualKeyCode:13});
+    await cdp.send('Input.dispatchKeyEvent',{type:'char',text:'\r',unmodifiedText:'\r',key:'Enter',code:'Enter',windowsVirtualKeyCode:13});
     await cdp.send('Input.dispatchKeyEvent',{type:'keyUp',key:'Enter',code:'Enter',windowsVirtualKeyCode:13});
-    await waitUntil(()=>cdp.eval("location.hash==='#90d' && document.querySelector('button[data-range=\"90\"]').getAttribute('aria-pressed')==='true'"));
+    await waitUntil(()=>cdp.eval("location.hash==='#90d' && document.querySelector('button[data-range=\"90\"]').getAttribute('aria-pressed')==='true'"),3000);
     assert.equal(cdp.requests.filter(url=>/^https?:\/\//i.test(url||'')).length,0,
       'Self-contained generated HTML must not make remote network requests');
     console.log('REAL_BROWSER_PASS: desktop 30/90/365, tooltip, 390px responsive layout, scroll, keyboard, no HTTP requests');
