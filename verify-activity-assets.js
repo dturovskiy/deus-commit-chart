@@ -5,7 +5,7 @@
 const fs = require('node:fs');
 const path = require('node:path');
 const { createHash } = require('node:crypto');
-const { selectRange } = require('./generate-commit-chart');
+const { selectRange } = require('./modern-renderer');
 const { validateContributionSeries } = require('./chart-contract');
 
 function verifyDirectory(dir) {

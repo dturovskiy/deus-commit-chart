@@ -5,9 +5,9 @@
 const fs = require('node:fs');
 const path = require('node:path');
 const { createHash } = require('node:crypto');
-const { buildSeries, selectRange, createMeta } = require('./generate-commit-chart');
+const { buildSeries, createMeta } = require('./chart-series');
 const { loadContributionSource } = require('./source-adapters');
-const { renderModernHtml, renderModernSvg } = require('./modern-renderer');
+const { selectRange, renderModernHtml, renderModernSvg } = require('./modern-renderer');
 const { validateContributionSeries } = require('./chart-contract');
 const { createContributionSnapshot, snapshotToSourceData } = require('./contribution-snapshot-model');
 
