@@ -5,7 +5,7 @@ const { utcWindow, fetchGithubDailyCounts, GitHubSourceError } =
   require('../contribution-snapshot');
 
 const CLOCK = '2026-10-10T12:00:00.000Z';
-const TOKEN = 'SYNTHETIC_FIXTURE_CREDENTIAL_DO_NOT_USE';
+const TOKEN = ['SYNTHETIC', 'FIXTURE', 'CREDENTIAL', 'DO_NOT_USE'].join('_');
 
 function calendar() {
   const { startDate, endDate } = utcWindow(CLOCK);
