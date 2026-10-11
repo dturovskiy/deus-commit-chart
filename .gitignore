@@ -12,3 +12,28 @@ activity-*.svg
 .tmp/
 .tmp-*.svg
 cache-audit.json
+
+# Local-only credentials and key material (CI also rejects tracked secret patterns).
+.envrc
+*.pem
+*.key
+*.p12
+*.pfx
+id_rsa
+id_ed25519
+credentials.json
+secrets.json
+
+# Editor/diagnostic artefacts, temporary backups and local data.
+*.log
+*.bak
+*.orig
+*.swp
+.cache/
+.pytest_cache/
+.coverage
+coverage/
+.venv/
+.idea/
+*.sqlite
+*.sqlite3

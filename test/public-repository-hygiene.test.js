@@ -7,6 +7,7 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
+const { spawnSync } = require('node:child_process');
 
 const ROOT = path.join(__dirname, '..');
 const PUBLIC_DOCS = ['PROFILE_WORKFLOW_EXAMPLE.yml'];
@@ -41,5 +42,20 @@ test('no archival checklist or internal investigation remains in public docs', (
     'REPO_HYGIENE_AND_SECRETS_AUDIT.md', 'GOD_MODULES_AUDIT.md',
     'RELEASE_RISK_DECISIONS.md']) {
     assert.equal(fs.existsSync(path.join(ROOT, 'docs', name)), false);
+  }
+});
+
+test('local credentials, keys and scratch artifacts are ignored by default', () => {
+  const localOnly = [
+    '.env.production', '.envrc', 'config/private.pem', 'config/private.key',
+    'keys/local.p12', 'keys/local.pfx', 'id_rsa', 'id_ed25519',
+    'credentials.json', 'secrets.json', 'debug.log',
+    'scratch.bak', 'scratch.orig', '.cache/cache.json', 'data.sqlite',
+  ];
+  for (const f of localOnly) {
+    const result = spawnSync('git', ['check-ignore', '--no-index', '-q', '--', f], {
+      cwd: ROOT, encoding: 'utf8', timeout: 5000,
+    });
+    assert.equal(result.status, 0, 'Expected local-only file to be ignored: ' + f);
   }
 });
