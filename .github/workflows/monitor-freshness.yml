@@ -29,6 +29,7 @@ jobs:
         with:
           node-version: '22'
       - name: Fetch actual published artifacts (not source branch)
+        id: fetch_assets
         shell: bash
         run: |
           set -euo pipefail
@@ -36,6 +37,7 @@ jobs:
           mkdir -p /tmp/chart-published
           git archive origin/activity-assets | tar -xf - -C /tmp/chart-published
       - name: Verify published checksums, numerical totals, and SVG XML
+        id: integrity
         shell: bash
         run: |
           set -euo pipefail
@@ -48,11 +50,15 @@ jobs:
         if: always()
         shell: bash
         env:
+          FETCH_OUTCOME: ${{ steps.fetch_assets.outcome }}
+          INTEGRITY_OUTCOME: ${{ steps.integrity.outcome }}
           FRESHNESS_OUTCOME: ${{ steps.freshness.outcome }}
         run: |
           {
             echo '## Chart freshness (manual diagnostic)'
-            echo "- Verification: ${FRESHNESS_OUTCOME}"
+            echo "- Fetch: ${FETCH_OUTCOME:-not-run}"
+            echo "- Integrity: ${INTEGRITY_OUTCOME:-not-run}"
+            echo "- Freshness: ${FRESHNESS_OUTCOME:-not-run}"
             echo "- Configured max age: ${CHART_MAX_AGE_HOURS} hours"
             echo '- Source: verified published activity-assets manifest'
             echo '- No issue is opened and no scheduled monitor is started'

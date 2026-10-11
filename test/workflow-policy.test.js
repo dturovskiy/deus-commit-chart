@@ -51,6 +51,12 @@ test('freshness check and README cache probe never run automatically or modify i
   assert.match(monitor, /max_age_hours:/);
   assert.match(monitor, /if: always\(\)/);
   assert.match(monitor, /GITHUB_STEP_SUMMARY/);
+  assert.match(monitor, /id: fetch_assets/);
+  assert.match(monitor, /id: integrity/);
+  assert.match(monitor, /id: freshness/);
+  assert.match(monitor, /FETCH_OUTCOME/);
+  assert.match(monitor, /INTEGRITY_OUTCOME/);
+  assert.match(monitor, /FRESHNESS_OUTCOME/);
 });
 
 test('Marketplace composite Action entry point remains unchanged in the runtime pipeline', () => {

@@ -1,6 +1,6 @@
 # Verified checklist evidence index (2026-10-11)
 
-> Point-in-time audit of **52 checked** technical gates, not a claim that open gates have been completed. Code file links point to the current default branch; CI run IDs are permanent per-run evidence, while the source tree continues to evolve.
+> Point-in-time audit of **53 checked** technical gates, not a claim that open gates have been completed. Code file links point to the current default branch; CI run IDs are permanent per-run evidence, while the source tree continues to evolve.
 
 ## Technical gates
 
@@ -32,6 +32,7 @@
 | DC-G2-07 | [.github/workflows/publish-pages.yml](https://github.com/dturovskiy/deus-commit-chart/blob/main/.github/workflows/publish-pages.yml) | [PR-only CI 38141152300](https://github.com/dturovskiy/deus-commit-chart/actions/runs/38141152300) |
 | DC-G2-08 | [ci/rehearse-rollback.sh](https://github.com/dturovskiy/deus-commit-chart/blob/main/ci/rehearse-rollback.sh) | [PR-only CI 38141152300](https://github.com/dturovskiy/deus-commit-chart/actions/runs/38141152300) |
 | DC-G2-09 | [ci/rehearse-rollback.sh](https://github.com/dturovskiy/deus-commit-chart/blob/main/ci/rehearse-rollback.sh) | [PR-only CI 38141152300](https://github.com/dturovskiy/deus-commit-chart/actions/runs/38141152300) |
+| DC-G2-11 | [.github/workflows/monitor-freshness.yml](https://github.com/dturovskiy/deus-commit-chart/blob/main/.github/workflows/monitor-freshness.yml), [test/freshness.test.js](https://github.com/dturovskiy/deus-commit-chart/blob/main/test/freshness.test.js) | [Manual success with 8-hour threshold #38145526345](https://github.com/dturovskiy/deus-commit-chart/actions/runs/38145526345), [workflow PR #23](https://github.com/dturovskiy/deus-commit-chart/pull/23) |
 | DC-G3-01 | [test/activity-metrics.test.js](https://github.com/dturovskiy/deus-commit-chart/blob/main/test/activity-metrics.test.js) | [PR-only CI 38141152300](https://github.com/dturovskiy/deus-commit-chart/actions/runs/38141152300) |
 | DC-G3-02 | [test/browser.test.js](https://github.com/dturovskiy/deus-commit-chart/blob/main/test/browser.test.js) | [PR-only CI 38141152300](https://github.com/dturovskiy/deus-commit-chart/actions/runs/38141152300) |
 | DC-G3-03 | [generate-commit-chart.js](https://github.com/dturovskiy/deus-commit-chart/blob/main/generate-commit-chart.js) | [PR-only CI 38141152300](https://github.com/dturovskiy/deus-commit-chart/actions/runs/38141152300) |
@@ -70,12 +71,12 @@
 | Independent numerical verification | [Verifier](https://github.com/dturovskiy/deus-commit-chart/blob/main/verify-activity-assets.js), [production](https://github.com/dturovskiy/deus-commit-chart/actions/runs/38141334818) |
 | Failed publish cannot overwrite verified ref; rollback rehearsed | [Rollback rehearsal](https://github.com/dturovskiy/deus-commit-chart/blob/main/ci/rehearse-rollback.sh), [CI](https://github.com/dturovskiy/deus-commit-chart/actions/runs/38141152300) |
 | Static SVG safe, HTML standalone, local mode offline | [SVG XML check](https://github.com/dturovskiy/deus-commit-chart/blob/main/ci/validate-svg.py), [real Chrome check](https://github.com/dturovskiy/deus-commit-chart/blob/main/ci/browser-smoke.js), [CI](https://github.com/dturovskiy/deus-commit-chart/actions/runs/38141152300) |
-| All checked criteria have evidence links | This 52-gate evidence table, supported acceptance lines, [findings disposition](https://github.com/dturovskiy/deus-commit-chart/blob/main/docs/FINDINGS_DISPOSITION.md), and [live profile audit](https://github.com/dturovskiy/deus-commit-chart/actions/runs/38141361309) |
+| All checked criteria have evidence links | This 53-gate evidence table, supported acceptance lines, [findings disposition](https://github.com/dturovskiy/deus-commit-chart/blob/main/docs/FINDINGS_DISPOSITION.md), and [live profile audit](https://github.com/dturovskiy/deus-commit-chart/actions/runs/38141361309) |
 | Security/privacy and visibility boundary documented | [Privacy](https://github.com/dturovskiy/deus-commit-chart/blob/main/PRIVACY.md), [Security](https://github.com/dturovskiy/deus-commit-chart/blob/main/SECURITY.md), [Release](https://github.com/dturovskiy/deus-commit-chart/releases/tag/v1.5.1), [History audit](https://github.com/dturovskiy/deus-commit-chart/blob/main/docs/REPO_HYGIENE_AND_SECRETS_AUDIT.md) |
 
 ## Accepted limitations and what this does not certify
 
-- **Permission boundary** (G2-10), **manual monitor verification** (G2-11), **cache invalidation timing** (G2-12), and **narrow-screen visual legibility** (G3-08) remain open and must not be disguised as successful tests.
+- **Publisher permission boundary** (G2-10), **cache invalidation timing** (G2-12), and **narrow-screen visual legibility** (G3-08) remain open and must not be disguised as successful tests.
 - The default public `@v1` alias still points to the signed September v1.4.1 release. The latest exact version is `@v1.5.1`; updating Marketplace's default installation alias is explicitly **deferred until checklist closure**.
 - A passing PR suite and browser layout test prove defined behavior on the tested runner, not universal compatibility across all user devices. Independent personal-device visual review is pending.
 - The current GitHub Actions screenshot/cache probe uses the profile's actual HTML and image URL. One `profile_raw_matched` snapshot cannot prove a maximum cache TTL.
