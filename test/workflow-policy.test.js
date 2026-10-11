@@ -141,7 +141,7 @@ test('tagged Marketplace consumer runs only on explicit dispatch and uses remote
 test('the upcoming Marketplace release version is consistent in npm metadata', () => {
   const pkg = require('../package.json');
   const lock = require('../package-lock.json');
-  assert.equal(pkg.version, '1.5.2');
+  assert.equal(pkg.version, '1.5.3');
   assert.equal(lock.version, pkg.version);
   assert.equal(lock.packages[''].version, pkg.version);
   const changelog = fs.readFileSync(path.join(__dirname, '../CHANGELOG.md'), 'utf8');
