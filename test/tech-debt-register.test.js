@@ -41,7 +41,9 @@ test('documentation does not claim old alias or manual cache SLA was fixed', () 
   assert.match(debt,/signed legacy.*v1/);
   assert.match(debt,/zero observed stale-to-fresh transitions/);
   const qa=read('docs/VISUAL_QA_MATRIX.md');
-  assert.match(qa,/final human sign-off pending/);
+  assert.match(qa,/accepted, with explicitly limited real-device scope/);
+  assert.match(qa,/zoom-to-read/);
+  assert.match(checklist,/65\/65 checked, 0 open/);
   assert.match(qa,/VISUAL_QA_SCREENSHOT_FINDINGS\.md/);
   assert.match(qa,/Chromium/);
 });
