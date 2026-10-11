@@ -18,7 +18,7 @@ Prefer GitHub's private vulnerability reporting / security advisory flow for thi
 
 The project never intentionally writes GitHub tokens into generated HTML or SVG output. GitHub tokens are accepted through environment variables or Action secrets and are used only while fetching contribution data.
 
-PR-only Smoke CI runs the standard-library `ci/check_secrets.py` check against tracked source files. It fails on high-confidence credential patterns or credential-like filenames, without printing token contents. This check does not cover older Git history, GitHub logs/artifacts, external forks or unknown token formats; see [Repository Hygiene and Secrets Audit](docs/REPO_HYGIENE_AND_SECRETS_AUDIT.md).
+PR-only Smoke CI runs the standard-library `ci/check_secrets.py` check against tracked source files. It fails on high-confidence credential patterns or credential-like filenames, without printing token contents. The maintainer separately performs bounded historical audits. **A passing scan cannot guarantee the absence of secrets** in old/unreachable Git history, workflow logs, expired artifacts, forks, caches or unknown token formats. Report credible exposures privately using the instructions above; revoke/rotate actual compromised credentials rather than merely deleting a file from `main`.
 
 ## Security boundaries
 
