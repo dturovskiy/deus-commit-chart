@@ -113,6 +113,7 @@ async function main() {
     assert.match(tooltip.html,/>Daily<\/span><b>2<\/b>/);
     assert.match(tooltip.html,/>7d trend<\/span><b>/);
 
+    console.log('BROWSER_CHECK: desktop range switching and tooltip passed');
     // Genuine narrow-viewport CSS/layout, not jsdom or mock DOM.
     await cdp.send('Emulation.setDeviceMetricsOverride',
       {width:390,height:844,deviceScaleFactor:1,mobile:true});
@@ -127,6 +128,7 @@ async function main() {
     assert.notEqual(mobile.hint,'none');
     assert.equal(mobile.focusable,0);
     assert.ok(mobile.accessible);
+    console.log('BROWSER_CHECK: 390px mobile layout and scroll passed');
     // A real key event activates a focused range button via the browser.
     await cdp.eval("document.querySelector('button[data-range=\"90\"]').focus()");
     await cdp.send('Input.dispatchKeyEvent',{type:'keyDown',key:'Enter',code:'Enter',windowsVirtualKeyCode:13});
@@ -138,9 +140,12 @@ async function main() {
   } finally {
     if(socket)socket.close();
     browser.kill('SIGTERM');
-    await sleep(150);
-    if(browser.exitCode===null)browser.kill('SIGKILL');
-    fs.rmSync(temp,{recursive:true,force:true});
+    for(let i=0;i<30 && browser.exitCode===null && browser.signalCode===null;i++)await sleep(100);
+    if(browser.exitCode===null && browser.signalCode===null)browser.kill('SIGKILL');
+    await sleep(250);
+    // Do not mask the original browser assertion with Chrome profile cleanup.
+    try {fs.rmSync(temp,{recursive:true,force:true,maxRetries:8,retryDelay:150});}
+    catch {console.error('Browser temp profile cleanup incomplete');}
   }
 }
 main().catch(err=>{console.error('REAL_BROWSER_FAILURE: '+err.message);process.exitCode=1});
