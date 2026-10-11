@@ -78,7 +78,7 @@ Then embed the 30-day chart in the profile README:
 
 For public contribution activity, the workflow token is usually sufficient. To request broader private/internal visibility, add a repository secret named `DEUS_COMMIT_CHART_TOKEN` containing a GitHub token with access appropriate to the contributions you want GitHub to return. The generated chart intentionally contains aggregate daily counts only, not repository names or commit details. **Those counts can nevertheless reveal the timing of private activity visible to the token.**
 
-The Action only generates files; publishing them is intentionally explicit in the caller workflow. **Version pin:** use `@v1.5.2` after the matching stable release has been published and its remote-tag consumer has passed. The historical signed `@v1` major tag remains on `v1.4.1` until separately authorized and signed; it **does not** automatically select `v1.5.2`. See [Marketplace Release Policy](docs/MARKETPLACE_RELEASE_POLICY.md). Its main inputs are `username`, `token`, `default-days`, `ranges`, `theme`, `layout`, `width`, `height`, `hide-border`, and `output-dir`. It also supports `source: local` for workflows that want to chart a checked-out Git repository instead of a GitHub account.
+The Action only generates files; publishing them is intentionally explicit in the caller workflow. **Version pin:** use the published and independently verified `@v1.5.2` release ([tagged consumer run](https://github.com/dturovskiy/deus-commit-chart/actions/runs/38151449398)). The historical signed `@v1` major tag remains on `v1.4.1` until separately authorized and signed; it **does not** automatically select `v1.5.2`. See [Marketplace Release Policy](docs/MARKETPLACE_RELEASE_POLICY.md). Its main inputs are `username`, `token`, `default-days`, `ranges`, `theme`, `layout`, `width`, `height`, `hide-border`, and `output-dir`. It also supports `source: local` for workflows that want to chart a checked-out Git repository instead of a GitHub account.
 
 ## Interactive HTML
 
@@ -348,7 +348,7 @@ The architecture audit and remediation work are tracked inside this repository:
 - [Prioritized technical-debt register](docs/TECH_DEBT_REGISTER.md) — P0 release blockers, P1 accepted operational risks and P2–P3 maintainability work with explicit revisit triggers; separate from the 65-gate acceptance denominator.
 - [Visual QA acceptance matrix](docs/VISUAL_QA_MATRIX.md) — explicit manual check of native README/HTML, both themes and all three periods, with Chromium CI as supplemental proof.
 
-Release [v1.5.1](https://github.com/dturovskiy/deus-commit-chart/releases/tag/v1.5.1) shipped the validated snapshot and privacy-minimized metadata; remaining remediation items stay open until supported by test or release evidence.
+**Latest stable GitHub Release:** [v1.5.2](https://github.com/dturovskiy/deus-commit-chart/releases/tag/v1.5.2), verified by remote-tag local and authenticated GraphQL consumers. The original 65/65 remediation criteria are complete under documented acceptance scopes; residual technical debt is tracked [separately](docs/TECH_DEBT_REGISTER.md). The historical signed `@v1` still runs v1.4.1 until a safe, separately approved tag migration.
 
 ## Development
 
