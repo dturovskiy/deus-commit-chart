@@ -16,7 +16,7 @@ function createContributionSnapshot(raw) {
   }
   const asOf = new Date(raw.asOf);
   if (typeof raw.asOf !== 'string' ||
-      !/^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d{1,3})?Z$/.test(raw.asOf) ||
+      !(/^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(?:[.][0-9]{1,3})?Z$/).test(raw.asOf) ||
       !Number.isFinite(asOf.getTime()) ||
       asOf.toISOString().slice(0, 19) !== raw.asOf.slice(0, 19)) {
     throw new Error('ContributionSnapshot requires a valid UTC ISO asOf timestamp');
