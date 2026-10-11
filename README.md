@@ -60,7 +60,7 @@ name: Update activity chart
 
 on:
   schedule:
-    - cron: '17 */2 * * *'
+    - cron: '17 */6 * * *'
   workflow_dispatch:
 
 permissions:
@@ -221,7 +221,7 @@ The token is read from one of these environment variables, in order:
 
 Tokens are deliberately not accepted as CLI arguments so they do not appear in the process command line.
 
-The GitHub source requests the trailing 365-day contribution calendar once per batch generation. Generated HTML and SVGs do not contact GitHub afterward. The publisher is scheduled every two hours (and on relevant pushes/manual dispatch); GitHub Actions scheduling and GitHub's image proxy cache can introduce additional, unbounded delays. The SVG labels its UTC build timestamp and snapshot ID.
+The GitHub source requests the trailing 365-day contribution calendar once per batch generation. Generated HTML and SVGs do not contact GitHub afterward. **The profile publisher runs only every six hours (or when manually dispatched), independently of CI.** GitHub Actions scheduling and GitHub's image proxy cache can introduce additional, unbounded delays. The SVG labels its UTC build timestamp and snapshot ID.
 
 ## Automated publishing
 
@@ -244,9 +244,9 @@ https://raw.githubusercontent.com/dturovskiy/deus-commit-chart/activity-assets/a
 https://raw.githubusercontent.com/dturovskiy/deus-commit-chart/activity-assets/activity-365d.svg
 ```
 
-The workflow rebuilds on relevant `main` changes, every two hours, and on manual dispatch. It validates one immutable snapshot before publication and fast-forwards the dedicated `activity-assets` branch (no force push), retaining rollback history; `main` stays free of generated chart commits.
+The workflow runs **only on its six-hour schedule or manual dispatch on `main`**. It makes one GraphQL request, generates HTML/SVG with a manifest, checks data integrity and XML, then creates a fast-forward commit on `activity-assets` (no force-push). **There is no regression suite, dependency install, separate build job or uploaded Actions artifact in the scheduled refresh.** The last published assets stay intact if generation or validation fails.
 
-A separate **Chart freshness monitor** runs every two hours (offset from publishing). It checks the **published** manifest age against an 8-hour threshold and independently verifies the published HTML/SVG checksums and SVG XML. If unhealthy, it opens one deduplicated GitHub issue with a CI-run link; on recovery, it closes that issue. Its alert latency also depends on GitHub Actions scheduling and does **not** guarantee image proxy cache freshness. Manual trigger: `gh workflow run monitor-freshness.yml --ref main`. The local rollback rehearsal runs in smoke CI against an isolated bare Git remote; see [Operations](docs/OPERATIONS.md).
+**CI runs only when a PR targets `main`.** The PR-only Smoke workflow tests source code, offline/local Marketplace Action compatibility, 30/90/365 SVG/HTML behavior and rollback. There are **no automatic freshness or README-cache audit workflows**; those diagnostics are available manually, do not create issues and do not run on a schedule. See the [Operations runbook](docs/OPERATIONS.md) for manual usage and failure recovery.
 
 A profile README can embed the default 30-day range directly from the generated branch:
 

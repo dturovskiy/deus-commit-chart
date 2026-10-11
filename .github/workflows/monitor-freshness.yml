@@ -1,9 +1,7 @@
 name: Chart freshness monitor
 
 on:
-  schedule:
-    # Offset from the 2-hour publisher ('17 */2') to allow jobs to finish.
-    - cron: '49 */2 * * *'
+  # Manual diagnosis only. No scheduled polling or automatic incident issues.
   workflow_dispatch:
 
 concurrency:
@@ -16,11 +14,8 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      issues: write
     env:
-      GH_TOKEN: ${{ github.token }}
-      CHART_MAX_AGE_HOURS: '8'
-      INCIDENT_TITLE: '[chart-health] stale or missing contribution charts'
+      CHART_MAX_AGE_HOURS: '24'
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -41,28 +36,3 @@ jobs:
           python3 ci/validate-svg.py /tmp/chart-published
       - name: Evaluate snapshot freshness
         run: node ci/check-freshness.js /tmp/chart-published/manifest.json
-      - name: Open one incident if stale or unavailable
-        if: failure()
-        shell: bash
-        run: |
-          set -euo pipefail
-          issue="$(gh issue list --repo "$GITHUB_REPOSITORY" --state open --limit 100 --json number,title \
-            --jq '.[] | select(.title=="[chart-health] stale or missing contribution charts") | .number' | head -n1)"
-          if [[ -z "$issue" ]]; then
-            gh issue create --repo "$GITHUB_REPOSITORY" \
-              --title "$INCIDENT_TITLE" \
-              --body "Automatic chart health monitor detected a missing, invalid, or stale published snapshot. Threshold: ${CHART_MAX_AGE_HOURS} hours. Check the [workflow run](https://github.com/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}), then inspect activity-assets:manifest.json and the most recent Publish activity charts workflow. No secrets or private contribution metadata are included in this incident."
-          else
-            echo "Incident already open: #$issue; not creating a duplicate."
-          fi
-      - name: Close the incident after verified recovery
-        if: success()
-        shell: bash
-        run: |
-          set -euo pipefail
-          issue="$(gh issue list --repo "$GITHUB_REPOSITORY" --state open --limit 100 --json number,title \
-            --jq '.[] | select(.title=="[chart-health] stale or missing contribution charts") | .number' | head -n1)"
-          if [[ -n "$issue" ]]; then
-            gh issue close "$issue" --repo "$GITHUB_REPOSITORY" \
-              --comment "Automated monitor verified that the published snapshot is fresh and structurally valid. Run: https://github.com/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
-          fi

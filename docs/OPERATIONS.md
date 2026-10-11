@@ -8,29 +8,30 @@
 
 - Source: GitHub GraphQL contribution calendar; one HTTP POST with full-year and boundary-week aliases.
 - The `main` branch is the source of truth for code. The `activity-assets` branch contains only published HTML/SVG and `manifest.json`.
-- `.github/workflows/publish-pages.yml` runs a read-only build with all regression tests, writes a SHA-256 manifest and validates the generated SVG as XML, then passes an immutable workflow artifact to a separate write-scoped publishing job.
-- The publish job is restricted to `refs/heads/main`. Validation dispatches on review branches never update `activity-assets`.
+- `.github/workflows/publish-pages.yml` is a **single-job data refresh**, scheduled once every six hours (`17 */6 * * *`) or manually dispatched on `main`. It never runs `npm test` or `npm run check`: it renders one GitHub snapshot, validates the SHA-256 manifest/numerical contract and SVG XML, then pushes a new fast-forward commit.
+- The scheduled publisher needs `contents: write` only because the same trusted job publishes directly; it does not upload/download intermediate Actions artifacts, install packages, or run on pull requests. The reviewed Marketplace composite Action remains independent and never publishes for consumers.
+- CI (`.github/workflows/smoke.yml`) runs **only on pull requests targeting `main`** and retains offline Marketplace Action, renderer, failure-policy and rollback tests.
 - The publisher creates a **fast-forward commit**, not a force push. This leaves a recoverable history of generated assets.
 
 ## Verify a production build
 
-1. Use DEUS MCP `run_gh` to inspect the latest `Publish activity charts` run on `main`; both `build` and `publish` must have `conclusion=success`.
+1. Use DEUS MCP `run_gh` to inspect the latest `Publish activity charts` run on `main`; its single `publish` job must have `conclusion=success`.
 2. Fetch `activity-assets` and inspect `git show origin/activity-assets:manifest.json`. Require a 64-character `snapshotId`, `schemaVersion=1`, expected `sourceCommit`, `workflowRun` and `calendarDays=365`.
 3. Compare `git show origin/activity-assets:index.html` embedded JSON with the manifest's exact snapshot ID, start/end dates and totals; check the three SVGs contain the same shortened ID and expected per-range totals.
-4. If local Node.js is available, download the published `dist` workflow artifact and run `node verify-activity-assets.js dist`. On Linux CI also run `python3 ci/validate-svg.py dist`. These verify checksums and SVG XML policy.
+4. If local Node.js is available, archive the published `activity-assets` branch to a clean directory (without `.git`) and run `node verify-activity-assets.js <directory>` followed by `python3 ci/validate-svg.py <directory>`. The production workflow no longer retains Actions artifacts; the branch and manifest are the release evidence.
 5. Inspect the public README URL. GitHub's image proxy may cache an older SVG even when `activity-assets` is updated. Do not claim a guaranteed cache TTL without measurement.
 
 ## Calendar source and README cache probe
 
 All chart windows are anchored to the build's **UTC day**. GitHub's contribution-day labels are preserved verbatim. Local Git commit instants are normalized to UTC; author-local day grouping is intentionally no longer used. The chart contract is independently checked on build and release (365 contiguous dates, cumulative totals, 7-day mean, snapshot identity). See [CALENDAR_AND_CACHE_POLICY.md](CALENDAR_AND_CACHE_POLICY.md).
 
-An independent read-only [README cache audit workflow](../.github/workflows/audit-readme-cache.yml) records direct raw versus GitHub profile-image proxy snapshot identity where GitHub allows it. `matched` is one observation, not a bound on cache lifetime. Probe failure does not interrupt the publisher or health monitor. Image-proxy observations live in 30-day GitHub Actions artifacts.
+The [README cache audit workflow](../.github/workflows/audit-readme-cache.yml) is **manual-only**. It compares the published snapshot with the GitHub profile image when possible and writes a job summary without uploading an artifact. It does not consume scheduled jobs or affect publishing.
 
 ## README cache-audit result and interpretation
 
 On [2026-10-10 run 38088946652](https://github.com/dturovskiy/deus-commit-chart/actions/runs/38088946652), the current production snapshot had been generated 28.47 seconds earlier and was already returned by the direct raw URL and the URL embedded by the actual GitHub profile HTML. The profile's image `src` was **raw.githubusercontent.com**, not `camo.githubusercontent.com`. The raw response advertised `Cache-Control: max-age=300` and a CDN `ETag`; this is **not a guaranteed maximum update delay** for GitHub mobile/browser image caches.
 
-The audit reports **`profile_raw_matched`** when GitHub emits a direct raw image link and that image has the latest snapshot. A **`proxy_matched`** or **`proxy_lag_observed`** classification requires an actual independent `camo.githubusercontent.com` URL. Continue to collect multiple scheduled samples after distinct publishes. Do not alert on an unobservable proxy or claim that a single matching sample establishes a strict SLA.
+The audit reports **`profile_raw_matched`** when GitHub emits a direct raw image link and that image has the latest snapshot. A **`proxy_matched`** or **`proxy_lag_observed`** classification requires an actual independent `camo.githubusercontent.com` URL. Only collect further measurements deliberately with a manual dispatch. Do not alert on an unobservable proxy or claim that a single matching sample establishes a strict SLA.
 
 ## Corrected cache measurement evidence
 
@@ -40,19 +41,18 @@ The audit reports **`profile_raw_matched`** when GitHub emits a direct raw image
 
 At [scheduled publish #38126315444](https://github.com/dturovskiy/deus-commit-chart/actions/runs/38126315444), the build failed in `npm run check`: `test/freshness.test.js` had a fixed `2026-10-10T20:00:00Z` manifest but called `checkFreshness()` **without an injected clock** in three invalid-metadata assertions. The test began failing when that fixture exceeded the 8-hour freshness threshold, even though the code and snapshot were otherwise usable. Publishing was correctly blocked by CI. With no new release, [monitor #38127965027](https://github.com/dturovskiy/deus-commit-chart/actions/runs/38127965027) found the published snapshot 8.32 hours old and opened incident [#8](https://github.com/dturovskiy/deus-commit-chart/issues/8). These represent **one cascading root cause**, not two independent chart defects.
 
-Mitigation: all metadata fixture assertions use a fixed `now`; production validation rejects malformed ranges before testing age. The scheduled **data-only** publisher no longer re-runs the entire source regression suite every two hours. Source changes still run `npm run check` on the push publisher and required PR/main smoke; every scheduled publish retains independent numerical/manifest checks, SVG XML validation, immutable build artifact and revalidation before guarded push. A failed scheduled data fetch or invalid generated artifact remains a real failure and must continue to alert. The monitor's issue is automatically closed after a verified healthy published snapshot.
+Mitigation: all metadata fixture assertions use a fixed `now`; production validation rejects malformed ranges before testing age. The **current design** runs the full regression suite only when a PR targets `main`. Scheduled data refreshes run every six hours and enforce the generated-artifact integrity and SVG XML gates, with no intermediary Actions artifact. A failed scheduled data fetch or invalid asset still fails that publication; it leaves the previous valid chart intact. The old auto-incident monitor and cache audit have been retired from schedules. The historical #8 incident was automatically closed after verified recovery.
 
-## Freshness and recovery monitoring
+## Manual diagnostics and recovery
 
-- `.github/workflows/monitor-freshness.yml` checks the real `activity-assets` branch on a two-hour offset schedule. The configured threshold is **8 hours** from `manifest.generatedAt` (allowing several missed publish windows).
-- It validates the **actual published files** with `verify-activity-assets.js` and `ci/validate-svg.py`, then runs `node ci/check-freshness.js` against the manifest. A missing branch/file, corrupt checksum, invalid SVG, incomplete manifest or stale timestamp fails the job.
-- A failure opens **one deduplicated** issue titled `[chart-health] stale or missing contribution charts`; a later successful run closes it. GitHub issue notifications require the account to follow the repository or have suitable notification settings. Issue creation on a real incident is not simulated in production during rollout.
-- `workflow_dispatch` supports a safe manual check of `main`. The monitor does not verify GitHub's image-proxy cache; it verifies `activity-assets`. GitHub scheduled Actions may be delayed; this is **not** a strict real-time SLA.
-- `ci/rehearse-rollback.sh OLD_DIR NEW_DIR` runs a real local-bare-Git test: it pushes two separately validated snapshots, rejects a corrupt third snapshot while checking the remote ref remains unchanged, then creates a new forward-only restore commit and compares every recovered asset and manifest byte-for-byte.
+- There is **no scheduled freshness monitor** and **no automatic incident issue creation**. The historical `monitor-freshness.yml` remains as an optional read-only `workflow_dispatch` diagnostic: it fetches actual published files, validates checksums and SVG XML, and checks age against **24 hours**. This does not replace publishing or check GitHub image-proxy cache.
+- The README cache probe is also **manual-only**, writes to the GitHub Actions run summary, and retains no Actions artifacts. Neither diagnostic runs while the project is idle.
+- The PR-only Smoke workflow runs `ci/rehearse-rollback.sh OLD_DIR NEW_DIR` against an isolated local bare Git remote. It rejects corrupt publish candidates, verifies the remote ref is unchanged, then restores a verified prior snapshot in a new forward-only commit.
+- A failed six-hour publication remains visible as a failed workflow run, but cannot mutate the published chart if generation/verification fails. Inspect it manually when needed; do not add another periodic notifier.
 
 ## When publication fails
 
-1. Inspect the failing CI step and error classification. Missing dates must stop the build, never silently become zero-activity days.
+1. Inspect the failing *publisher* step or PR CI step and the source error classification. Missing dates must stop publication, never silently become zero-activity days.
 2. Check whether the failure was a GitHub authorization/visibility error, transient HTTP failure, malformed calendar, render issue, or branch push rejection. Do **not** retry auth/schema errors blindly.
 3. Confirm that `activity-assets` still points at the last verified commit. Do not force-push a partially generated artifact.
 4. Resolve the underlying issue on `main` through reviewed changes, rerun validation, then dispatch `Publish activity charts` from `main` when appropriate.
@@ -95,13 +95,13 @@ The [Smoke CI run 38086628526](https://github.com/dturovskiy/deus-commit-chart/a
 - Manifest and all four restored assets matched the original byte-for-byte.
 - No production branch was touched; this is a **release-path rehearsal** and not a live disaster rollback.
 
-[Real GraphQL branch build 38086631846](https://github.com/dturovskiy/deus-commit-chart/actions/runs/38086631846) succeeded, with production publish correctly skipped. The monitor's incident creation/closure will be verified independently of production failure injection; issue creation requires notification preferences for actual delivery.
+[Real GraphQL branch build 38086631846](https://github.com/dturovskiy/deus-commit-chart/actions/runs/38086631846) succeeded, with production publish correctly skipped. Historical monitoring was subsequently exercised during [incident #8](https://github.com/dturovskiy/deus-commit-chart/issues/8); that automatic-monitoring path has since been retired in favor of manual diagnostics.
 
 ## Production monitoring validation (2026-10-10)
 
 - [PR #3](https://github.com/dturovskiy/deus-commit-chart/pull/3) merged as `de1b8c8`. [Publish 38086821217](https://github.com/dturovskiy/deus-commit-chart/actions/runs/38086821217) and [Smoke 38086821198](https://github.com/dturovskiy/deus-commit-chart/actions/runs/38086821198) both passed.
 - [Freshness monitor 38086854207](https://github.com/dturovskiy/deus-commit-chart/actions/runs/38086854207) passed on `main` after the actual publish: reported `healthy`, age `0.008234h` (~30 sec), threshold 8h. Validated `index.html`, 30/90/365 SVG, hashes, numerical parity and XML.
-- The healthy run listed no open incident issue. Incident creation/closure and delivery under a **real production outage** remain unexercised; GitHub image-proxy caching remains out of scope for the manifest monitor.
+- At the time of that historical run, no issue was open. The automatic monitor was later exercised by incident #8 and is **now manual-only**; image-proxy caching remains outside the publisher's correctness contract.
 
 ## Privacy-safe rollback constraint
 

@@ -1,25 +1,9 @@
 name: Publish activity charts
 
 on:
-  push:
-    branches: [main]
-    paths:
-      - 'generate-commit-chart.js'
-      - 'contribution-snapshot.js'
-      - 'local-git-source.js'
-      - 'source-adapters.js'
-      - 'build-activity-assets.js'
-      - 'verify-activity-assets.js'
-      - 'modern-renderer.js'
-      - 'action.yml'
-      - 'package.json'
-      - 'package-lock.json'
-      - 'test/**'
-      - 'chart-contract.js'
-      - 'ci/validate-svg.py'
-      - '.github/workflows/publish-pages.yml'
+  # Publishing is a data refresh, NOT CI. Four times per day, like the original.
   schedule:
-    - cron: '17 */2 * * *'
+    - cron: '17 */6 * * *'
   workflow_dispatch:
 
 concurrency:
@@ -27,24 +11,19 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  build:
+  publish:
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     permissions:
-      contents: read
+      contents: write
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - name: Checkout trusted source
+        uses: actions/checkout@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
           node-version: '22'
-          cache: npm
-      - name: Install
-        run: npm ci
-      # Regression tests are mandatory on source changes (push/PR smoke),
-      # not on every scheduled data-only refresh. The latter still validates
-      # its freshly generated snapshot, checksums, SVG XML and publish payload.
-      - name: Verify code and regressions
-        if: github.event_name != 'schedule'
-        run: npm run check
+      # No npm install or test suite: the generator has zero runtime dependencies.
       - name: Fetch GitHub calendar once and render every range
         env:
           DEUS_COMMIT_CHART_GITHUB_TOKEN: ${{ secrets.DEUS_COMMIT_CHART_TOKEN || github.token }}
@@ -57,40 +36,9 @@ jobs:
             --layout spacious \
             --hide-border \
             --title "GitHub contribution activity"
-      - name: Verify all generated artifacts
+      - name: Verify all generated artifacts, checksums and numerical contract
         run: node verify-activity-assets.js dist
       - name: Validate SVG XML and embedded-resource policy
-        run: python3 ci/validate-svg.py dist
-      - name: Retain immutable verified build evidence
-        uses: actions/upload-artifact@v4
-        with:
-          name: contribution-chart-verified-${{ github.run_id }}
-          path: dist/
-          include-hidden-files: true
-          retention-days: 90
-          if-no-files-found: error
-
-  publish:
-    # Allow workflow_dispatch on a review branch to exercise real GitHub GraphQL
-    # and verify the generated artifacts without modifying production assets.
-    if: github.ref == 'refs/heads/main'
-    needs: build
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '22'
-      - name: Download verified build
-        uses: actions/download-artifact@v4
-        with:
-          name: contribution-chart-verified-${{ github.run_id }}
-          path: dist/
-      - name: Reverify exact downloaded artifacts
-        run: node verify-activity-assets.js dist
-      - name: Reverify SVG XML before publishing
         run: python3 ci/validate-svg.py dist
       - name: Publish with fast-forward history (no force push)
         env:

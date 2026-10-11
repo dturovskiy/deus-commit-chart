@@ -175,6 +175,13 @@
 - [CI/Action security review](CI_ACTION_SECURITY_REVIEW.md) confirms read/write credential separation, branch guard, checksum and XML checks, offline local Action compatibility, error taxonomy and privacy. **Residual P2:** upstream `actions/*@v4` dependencies are major-tag-based, not SHA-pinned.
 - **Still open:** full G3-01 extraction of metrics/tick policy into a separate, independently tested pure package, longitudinal GitHub cache measurements and real-browser visual QA. Do not mark these complete based solely on this refactor.
 
+## Lean PR-only CI and six-hour publishing policy (2026-10-11)
+
+- Decision: **only pull requests targeting `main` trigger Smoke CI**. No push/cron CI, and no regression tests inside the publisher.
+- Publication is the **sole scheduled workflow**, every six hours (`17 */6 * * *`), in one `main`-guarded job: GraphQL → generated HTML/SVG/manifest → checksum/numerical validation → SVG XML validation → fast-forward `activity-assets`. No `npm ci`, test suite, artifact upload/download, or extra runner job.
+- `monitor-freshness.yml` and `audit-readme-cache.yml` are manual-only; there is no scheduled monitor/cache probe, no new automatic incident issues and no cache-audit artifact upload. The existing `action.yml` Marketplace API is unchanged.
+- `test/workflow-policy.test.js` enforces these trigger, storage and publish-policy invariants. PR CI and one production manual publish must pass before claiming this configuration is verified. Earlier logged successful runs are historical and not evidence for this new policy.
+
 ## Evidence log (fill as work progresses)
 
 | Date / change | Finding or gate | Test / run / SHA / link | Result / notes |
