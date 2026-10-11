@@ -4,6 +4,7 @@
 // Every caller supplies one frozen asOf; all sources return the same envelope.
 const { fetchGithubDailyCounts } = require('./contribution-snapshot');
 const { readLocalGitDailyCounts } = require('./local-git-source');
+const { createContributionSnapshot } = require('./contribution-snapshot-model');
 
 async function loadContributionSource(settings, options = {}) {
   if (!settings || !['github', 'local'].includes(settings.source)) {
@@ -11,12 +12,12 @@ async function loadContributionSource(settings, options = {}) {
   }
   const asOf = new Date(options.asOf ?? new Date());
   if (!Number.isFinite(asOf.getTime())) throw new Error('Invalid source asOf timestamp');
-  if (settings.source === 'github') {
-    return fetchGithubDailyCounts(settings.username, { ...options, asOf });
-  }
-  return readLocalGitDailyCounts(
-    settings.repo || '.', settings.branch || 'main', settings.author || '', asOf, options
-  );
+  const raw = settings.source === 'github'
+    ? await fetchGithubDailyCounts(settings.username, { ...options, asOf })
+    : readLocalGitDailyCounts(
+      settings.repo || '.', settings.branch || 'main', settings.author || '', asOf, options
+    );
+  return { ...raw, snapshot: createContributionSnapshot(raw) };
 }
 
 module.exports = { loadContributionSource, fetchGithubDailyCounts, readLocalGitDailyCounts };

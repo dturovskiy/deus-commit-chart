@@ -9,6 +9,7 @@ const { buildSeries, selectRange, createMeta } = require('./generate-commit-char
 const { loadContributionSource } = require('./source-adapters');
 const { renderModernHtml, renderModernSvg } = require('./modern-renderer');
 const { validateContributionSeries } = require('./chart-contract');
+const { createContributionSnapshot, snapshotToSourceData } = require('./contribution-snapshot-model');
 
 const ALLOWED_RANGES = [30, 90, 365];
 const DEFAULTS = {
@@ -59,12 +60,19 @@ function cliArgs(argv) {
 
 function createAssetBundle(sourceData, opts = {}) {
   const options = { ...DEFAULTS, ...opts };
-  const data = buildSeries(sourceData.counts, sourceData.startDate, sourceData.endDate);
+  // A single versioned source snapshot is the only input to each public format.
+  // Regenerate its count Map from frozen validated days to prevent later mutation.
+  const snapshot = sourceData.snapshot || createContributionSnapshot(sourceData);
+  const normalized = snapshotToSourceData(snapshot);
+  const data = buildSeries(normalized.counts, normalized.startDate, normalized.endDate);
   if (sourceData.sourceDetails.type === 'github' && data.length !== 365) {
     throw new Error('Expected complete 365-day GitHub contribution data');
   }
-  const meta = createMeta({ days: options.defaultDays }, sourceData, data);
+  const meta = createMeta({ days: options.defaultDays }, normalized, data);
   validateContributionSeries(data, meta);
+  if (meta.snapshotId !== snapshot.snapshotId) {
+    throw new Error('ContributionSnapshot normalization identity mismatch');
+  }
   const renderOptions = {
     theme: options.theme, layout: options.layout, hideBorder: options.hideBorder,
     width: options.width || undefined, height: options.height || undefined

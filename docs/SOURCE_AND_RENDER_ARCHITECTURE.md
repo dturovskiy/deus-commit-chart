@@ -10,10 +10,11 @@ single-file CLI ──┐
 batch publisher ──┘       ├─> contribution-snapshot.fetchGithubDailyCounts
                            └─> local-git-source.readLocalGitDailyCounts
                                     |
-                       normalized {counts: Map<ISO_UTC_date, integer>,
-                                   startDate, endDate, asOf, sourceDetails}
+                       normalized source data + frozen internal ContributionSnapshot v1
                                     |
-                         buildSeries + createMeta
+                   validate snapshot schema, quality and SHA-256 identity
+                                    |
+                       buildSeries + createMeta
                                     |
                          chart-contract validation
                                     |
@@ -26,7 +27,7 @@ batch publisher ──┘       ├─> contribution-snapshot.fetchGithubDailyCo
 - GitHub GraphQL uses one HTTP POST with a primary and boundary-calendar alias, frozen `asOf`, strict calendar coverage, no private contribution breakdown fields and no client-supplied token in any published artifact.
 - Local Git uses `git log --format=%aI`, groups authors' timestamp instants into UTC days and discards out-of-window commits. Its subprocess has a bounded 20-second timeout and 16 MiB stdout/stderr buffer; it requires no GitHub token or network. Invalid option-like revision names, timestamp formats and subprocess errors fail closed.
 - The shared router validates source and frozen clock and is used by both CLI entry points. The compatibility exports `readLocalGitDailyCounts` and `readGithubDailyCounts` in `generate-commit-chart.js` remain available.
-- A source's `counts` map contains observed non-zero days (local mode) or a fully validated 365-day calendar (GitHub mode). The series builder supplies genuine zeros for local days without commits; GitHub missing dates are **never** silently synthesized from an incomplete API response.
+- A source's `counts` map contains observed non-zero days (local mode) or a fully validated 365-day calendar (GitHub mode). A [versioned, frozen `ContributionSnapshot` v1](CONTRIBUTION_SNAPSHOT_CONTRACT.md) then verifies source identity, complete trailing-365-day UTC sequence and normalized per-day values. Local missing commit dates become inferred zeros with an explicit quality flag; GitHub missing dates are **never** silently synthesized from an incomplete API response. HTML/SVG and manifest are derived from the same frozen snapshot without changing their public schema.
 - The public chart still has daily contributions, totals, 7-day averages, timestamp and snapshot identity. No breaking change to the manifest, HTML payload or static SVG file names.
 
 ## Source error taxonomy

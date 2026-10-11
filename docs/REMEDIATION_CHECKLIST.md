@@ -8,8 +8,8 @@
 
 ## Verified checkpoint — 2026-10-11
 
-- **Detailed technical gates: 46/56 checked, 10 open**, including the newly captured full published HTML/SVG SHA-256 manifest (DC-G0-04).
-- **Final acceptance assertions: 8/9 checked, 1 open.** Counting both groups: **54/65 checked, 11 open**. These are *checkbox state*, not an estimate of release readiness.
+- **Detailed technical gates: 47/56 checked, 9 open**, including the newly captured full published HTML/SVG SHA-256 manifest (DC-G0-04).
+- **Final acceptance assertions: 8/9 checked, 1 open.** Counting both groups: **55/65 checked, 10 open**. These are *checkbox state*, not an estimate of release readiness.
 - Security/hygiene: ten GitHub branches tied to merged PRs were deleted; `origin/tag-v1-check`, `main` and `activity-assets` were retained. The [audit](REPO_HYGIENE_AND_SECRETS_AUDIT.md) found no high-confidence credential values across 268 reachable blobs and documented **four historical HTML snapshots containing private contribution breakdown fields**, which cannot be erased by ordinary branch pruning. The PR-only secret guard passed in [Smoke CI #38134694024](https://github.com/dturovskiy/deus-commit-chart/actions/runs/38134694024), scanning 57 tracked files and passing 5 synthetic tests.
 - Intentionally open/accepted: G2-10 single write-scoped publisher, G2-11 manual-only freshness diagnostics, cache/proxy latency, actual browser QA, and **signed major alias `v1`** approval; [new `v1.5.0` release](https://github.com/dturovskiy/deus-commit-chart/releases/tag/v1.5.0) is published and separately validated. Do not reopen scheduled CI or silently enable `main` branch protection.
 
@@ -47,7 +47,7 @@
 
 ## Gate 1 — Validated contribution snapshot
 
-- [ ] **DC-G1-01** Introduce one versioned `ContributionSnapshot` schema with `schemaVersion`, `snapshotId`, `asOf`, source, calendar range and quality metadata.
+- [x] **DC-G1-01** Introduce one versioned `ContributionSnapshot` schema with `schemaVersion`, `snapshotId`, `asOf`, source, calendar range and quality metadata. (`contribution-snapshot-model.js`, [contract](CONTRIBUTION_SNAPSHOT_CONTRACT.md), `test/contribution-snapshot-model.test.js` verify immutability, source privacy, trailing-365-day range, local inferred zeros, fail-closed tampering and asset/identity consistency; PR verification required before merge.)
 - [x] **DC-G1-02** Separate GitHub GraphQL and local Git source adapters; preserve local offline operation. (2026-10-11: `source-adapters.js` + `local-git-source.js`; smoke 38094293267, live GraphQL 38094296015.)
 - [x] **DC-G1-03** Fetch GitHub data **once** per publish job; freeze the validated snapshot and render all four artifacts from it.
 - [x] **DC-G1-04** Inject a fixed clock/`asOf` into date calculation; eliminate independently computed current dates within a build.
