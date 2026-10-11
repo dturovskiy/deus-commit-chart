@@ -17,25 +17,25 @@
 - [Postrelease publisher #38151631635](https://github.com/dturovskiy/deus-commit-chart/actions/runs/38151631635) **SUCCESS**; `activity-assets/manifest.json`: `sourceCommit=a98f79b`, generated `2026-10-11T15:31:36.016Z`, `snapshotId=ff879826141aaf61…`, 365 days and identical 282/845/3145 totals.
 - Original remediation checklist **65/65**. The 30-day GitHub Marketplace desktop and profile iPhone screenshots plus a follow-up enlarged iPhone screenshot were reviewed; the user explicitly accepts **zoom-to-read** metadata on the compact static SVG. No claim of human visual review of every theme/range or browser: TD-12 retains that wider-device residual.
 
-## Marketplace-specific status: UI **discrepancy confirmed** (2026-10-11)
+## Marketplace installation — verified 2026-10-11
 
-**Direct owner screenshot (2026-10-11, not committed to this public repository):** GitHub Marketplace listing `Deus Commit Chart` displayed `v1.5.2 (Latest)` in **About** and an `@v1.5.2` badge in its README, while **Use latest version → Choose a version** offered **only `v1.4.1`**. Thus the requested new Marketplace-installable version is *not actually available in that selector*. The screenshot is strong UI evidence for **TD-01 being open** despite successful release publication.
+**Owner UI evidence:** initial Marketplace screenshot showed `v1.5.2 (Latest)` in About but only legacy `v1.4.1` under **Use latest version → Choose a version**. The owner then showed the existing [v1.5.2 Release](https://github.com/dturovskiy/deus-commit-chart/releases/tag/v1.5.2) editor with **Publish this Action to the GitHub Marketplace** already enabled, correct action metadata and categories (Continuous integration / Utilities), and used **Update release**.
 
-**Most likely missing step (requires actual UI confirmation):** the stable `v1.5.2` GitHub Release was created via GitHub CLI, which does not expose GitHub Marketplace's separate **Publish this Action to the GitHub Marketplace** release-editor checkbox. GitHub's [official publishing instructions](https://docs.github.com/en/actions/how-tos/create-and-publish-actions/publish-in-github-marketplace) specify this checkbox. This is a probable explanation, **not** proof of the checkbox's current state, which was not visible in the screenshot.
+**Final owner screenshot:** the Marketplace version selector now visibly offers **`v1.5.2`** as well as `v1.4.1`. The versioned install reference is:
 
-**Minimal non-destructive remedy for the maintainer:**
+```yaml
+uses: dturovskiy/deus-commit-chart@v1.5.2
+```
 
-1. Open [existing GitHub Release v1.5.2](https://github.com/dturovskiy/deus-commit-chart/releases/tag/v1.5.2), choose **Edit** (pencil icon).
-2. In the release editor, find **Release Action → Publish this Action to the GitHub Marketplace**, enable it if unchecked, retain existing primary/secondary categories, and select **Update release**. If the checkbox is disabled, check GitHub's Marketplace Developer Agreement/permissions as documented by GitHub. **Do not create another tag/release, delete a version, or force-move the signed major `v1`.**
-3. Refresh the [Marketplace listing](https://github.com/marketplace/actions/deus-commit-chart), open **Use latest version**, and verify that `v1.5.2` is offered and the generated snippet installs exactly `dturovskiy/deus-commit-chart@v1.5.2`. Take a cropped confirmation screenshot if possible.
-4. Only **after** that direct UI proof close TD-01 and record the evidence. If `v1.5.2` is already checked in the editor but still missing from the chooser, do not toggle it off; investigate GitHub Marketplace sync/support instead.
+The new exact version was independently executed in [tagged Action consumer #38151449398](https://github.com/dturovskiy/deus-commit-chart/actions/runs/38151449398). **TD-01 complete.** No new GitHub Release or tag was required; the signed legacy major tag `v1` remains at v1.4.1 by deliberate decision. User-provided screenshots containing unrelated tabs are not uploaded to the public repository.
 
-### Previously completed GitHub Release steps
+## Accidental release Contributors attribution — corrected
 
-- GitHub CLI confirms `v1.5.2` is the **Latest GitHub Release**, but this is **not sufficient evidence** that the GitHub Marketplace listing is advertising the new version or that the green **Use latest version** snippet resolves to `@v1.5.2`.
-- The authenticated DEUS MCP GitHub CLI interface used for this release does not expose a verified Marketplace publish-checkbox/menu action or a browser UI inspection. A Marketplace checkbox/selection has therefore **not** been claimed to have been performed.
-- **Manual verification:** visit [Marketplace listing](https://github.com/marketplace/actions/deus-commit-chart), check the About version and **Use latest version** dropdown snippet; ensure it copies `uses: dturovskiy/deus-commit-chart@v1.5.2` or offers that exact version. If version still shows v1.5.1, open [v1.5.2 GitHub Release](https://github.com/dturovskiy/deus-commit-chart/releases/tag/v1.5.2) in GitHub's web interface and use the official Marketplace publication option for this existing release if available, without creating duplicate tags. Recheck after GitHub refreshes the listing. Do **not** overwrite the signed major `v1` reference to force the latest snippet.
-- Until verified, **TD-01 stays open only for Marketplace listing/install-button confirmation and any necessary explicit GitHub UI publication**. The immutable tag, tested remote Action, GitHub stable Latest and updated repo README are already shipped.
+The v1.5.2 release originally contained a plain-text `@v1` mention while explaining the historical major-version tag. GitHub interpreted this as a mention of the unrelated GitHub account `v1` and included that account in its **Contributors** avatar list. This is not evidence of a PR, commit or access to the repository. [GitHub release documentation](https://docs.github.com/en/repositories/releasing-projects-on-github/managing-releases-in-a-repository) explicitly states that users mentioned in release notes appear under Contributors and are removed when mentions are removed.
+
+Read-only provenance audit found **16 commits between v1.5.1 and v1.5.2**, all authored by Denys Turovskiy; the annotated tag's tagger and the GitHub Release author are both `dturovskiy`. Using DEUS MCP, the original release notes were minimally edited to replace the misleading plain mention with the literal code-formatted tag `v1`. Subsequent `gh release view v1.5.2` confirms that the accidental mention is absent and the release remains stable, non-draft and **Latest**. No code, commit history or tag was modified. The avatar's disappearance from the browser UI is expected under GitHub's documented behaviour; a separate post-edit browser screenshot has not yet been supplied.
+
+**Preventive policy:** when writing release notes, describe a Git reference as `v1` (code-formatted, without a bare at-sign), rather than a bare GitHub user mention. A tag that resembles an account name must not accidentally credit that account.
 
 ## Accepted technical residuals
 

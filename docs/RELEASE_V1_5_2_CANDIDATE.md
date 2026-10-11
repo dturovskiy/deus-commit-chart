@@ -1,6 +1,6 @@
 # v1.5.2 candidate checklist — archived after publishing
 
-> **Archived preparation record.** The v1.5.2 source PR, immutable tag, exact remote-tag consumers and stable GitHub Release are **completed**; see [final release verification report](RELEASE_V1_5_2_REPORT.md). The **Marketplace listing/button remains unverified**, so TD-01 stays open. The previously signed major `@v1` still targets legacy v1.4.1.
+> **Archived preparation record.** The v1.5.2 source PR, immutable tag, exact remote-tag consumers and stable GitHub Release are **completed**; see [final release verification report](RELEASE_V1_5_2_REPORT.md). The **Marketplace version selector now shows `v1.5.2` after the owner's Update release action**, closing TD-01; see the final release report. The previously signed major `@v1` still targets legacy v1.4.1.
 
 ## Candidate scope
 
@@ -18,10 +18,10 @@
 - [x] Created and pushed **new annotated** `v1.5.2` at the verified release commit `a98f79b`. No existing tag or signed `v1` was moved.
 - [x] [Post-tag manual consumer #38151449398](https://github.com/dturovskiy/deus-commit-chart/actions/runs/38151449398) **SUCCESS** on the exact `@v1.5.2` source SHA: local/offline and live GraphQL modes, `LIVE_API_CANDIDATE_PASS`, all 365 days, 30/90/365 totals 282/845/3145.
 - [x] Publish [stable GitHub Release v1.5.2](https://github.com/dturovskiy/deus-commit-chart/releases/tag/v1.5.2) as **Latest**, from the validated new tag.
-- [ ] **Separately verify Marketplace publication option, listing and install snippet**. GitHub Releases Latest alone does not prove the Marketplace checkbox/button has been updated; see [release report](RELEASE_V1_5_2_REPORT.md).
-- [ ] Verify Marketplace `Use latest version` snippet. If GitHub still serves the signed historical `@v1` alias, **do not describe it as v1.5.2**; an updated signed major tag requires a separately approved controlled tag migration/signing workflow. No destructive shortcut.
-- [ ] Record final links/run IDs, post-release README wording, source/manifest SHA, checklist state and any outstanding accepted risks.
+- [x] **Marketplace publication and version selector verified** through actual owner screenshots: release editor's Marketplace checkbox enabled and the updated chooser offers `v1.5.2` as well as `v1.4.1`. See [release report](RELEASE_V1_5_2_REPORT.md).
+- [x] **Use latest version → Choose a version** includes `v1.5.2` after the user's release update; the exact install reference is `dturovskiy/deus-commit-chart@v1.5.2`. Legacy signed `v1` remains unchanged at v1.4.1; no destructive tag migration was used.
+- [x] Record final run IDs, version and source SHA, post-release README, Marketplace screenshot confirmation and remaining accepted risks in [RELEASE_V1_5_2_REPORT.md](RELEASE_V1_5_2_REPORT.md).
 
 ## Promotion blockers
 
-As verified in [the final release report](RELEASE_V1_5_2_REPORT.md), the original remediation checklist is **65/65** and new `v1.5.2` source/tag/remote-tag consumer/Latest GitHub Release are published. **Marketplace listing/button UI confirmation is still outstanding** and tracked as TD-01; the signed legacy `@v1` alias remains unchanged. This is an archived preparation checklist, not evidence of an unperformed Marketplace publication step.
+As verified in [the final release report](RELEASE_V1_5_2_REPORT.md), the original remediation checklist is **65/65** and new `v1.5.2` source/tag/remote-tag consumer/Latest GitHub Release are published. **Marketplace version-selection UI confirmation is complete** and TD-01 is closed; the signed legacy `@v1` alias remains unchanged. This is an archived preparation checklist, not evidence of an unperformed Marketplace publication step.
