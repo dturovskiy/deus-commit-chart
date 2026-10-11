@@ -47,7 +47,10 @@ test('freshness check and README cache probe never run automatically or modify i
     assert.doesNotMatch(content, /cron:|upload-artifact|download-artifact/);
   }
   assert.doesNotMatch(monitor, /issues: write|gh issue create|gh issue close|if: failure\(\)/);
-  assert.match(monitor, /CHART_MAX_AGE_HOURS: '24'/);
+  assert.match(monitor, /CHART_MAX_AGE_HOURS: \$\{\{ inputs\.max_age_hours \|\| '24' \}\}/);
+  assert.match(monitor, /max_age_hours:/);
+  assert.match(monitor, /if: always\(\)/);
+  assert.match(monitor, /GITHUB_STEP_SUMMARY/);
 });
 
 test('Marketplace composite Action entry point remains unchanged in the runtime pipeline', () => {

@@ -8,10 +8,14 @@
 
 ## Verified checkpoint — 2026-10-11
 
-- **Detailed technical gates: 51/56 checked, 5 open**, including the newly captured full published HTML/SVG SHA-256 manifest (DC-G0-04).
-- **Final acceptance assertions: 9/9 checked, 0 open.** Counting both groups: **60/65 checked, 5 open**. These are *checkbox state*, not an estimate of release readiness.
+- **Detailed technical gates: 52/56 checked, 4 open**. G5-02 was completed with a real post-merge candidate/API observation; the four remaining gates are G2-10, G2-11, G2-12 and G3-08.
+- **Final acceptance assertions: 9/9 checked, 0 open.** Counting both groups: **61/65 checked, 4 open**. These are *checkbox state*, not an estimate of release readiness.
 - Security/hygiene: ten GitHub branches tied to merged PRs were deleted; `origin/tag-v1-check`, `main` and `activity-assets` were retained. The [audit](REPO_HYGIENE_AND_SECRETS_AUDIT.md) found no high-confidence credential values across 268 reachable blobs and documented **four historical HTML snapshots containing private contribution breakdown fields**, which cannot be erased by ordinary branch pruning. The PR-only secret guard passed in [Smoke CI #38134694024](https://github.com/dturovskiy/deus-commit-chart/actions/runs/38134694024), scanning 57 tracked files and passing 5 synthetic tests.
 - Intentionally open/accepted: G2-10 single write-scoped publisher, G2-11 manual-only freshness diagnostics, cache/proxy lag upper bound, visual legibility review on actual screens, and **signed major alias `v1`** approval; [new `v1.5.0` release](https://github.com/dturovskiy/deus-commit-chart/releases/tag/v1.5.0) is published and separately validated. Do not reopen scheduled CI or silently enable `main` branch protection.
+
+## Post-merge live GraphQL verification — 2026-10-11
+
+- [PR #22](https://github.com/dturovskiy/deus-commit-chart/pull/22) is merged into `main` at `e111dc3`. The final [manual consumer run #38144804210](https://github.com/dturovskiy/deus-commit-chart/actions/runs/38144804210) completed **SUCCESS** on that exact commit. `LIVE_API_CANDIDATE_PASS`: one captured real GraphQL response, `asOf=2026-10-11T13:51:00.646Z`, 365/365 UTC days, 30/90/365 totals 252/815/3115, numerical HTML/SVG/manifest/SHA-256 and safe XML checks. The response/token was not retained. **This closes G5-02; 61/65 gates checked, four remaining.**
 
 ## Marketplace v1.5.0 release verification — 2026-10-11
 
@@ -116,7 +120,7 @@
 ## Gate 5 — Release and handoff
 
 - [x] **DC-G5-01** Record design decisions on freshness SLA, visibility, time-zone semantics, chart style and publication strategy in the plan or an ADR. (docs/CALENDAR_AND_CACHE_POLICY.md, PRIVACY.md, docs/OPERATIONS.md, architecture plan.)
-- [ ] **DC-G5-02** Verify one candidate build against a known API response captured with the intended token at the same observation time.
+- [x] **DC-G5-02** Verify one candidate build against a known API response captured with the intended token at the same observation time. ([PR #22](https://github.com/dturovskiy/deus-commit-chart/pull/22) squash-merged as `e111dc3` after [PR-only Smoke #38142253198](https://github.com/dturovskiy/deus-commit-chart/actions/runs/38142253198) succeeded with 82/82 Node + 9/9 Python tests; the [post-merge manual consumer #38144804210](https://github.com/dturovskiy/deus-commit-chart/actions/runs/38144804210) ran at `main=e111dc3` and printed `LIVE_API_CANDIDATE_PASS` with captured `asOf=2026-10-11T13:51:00.646Z`, 365/365 UTC days and exact 30/90/365 totals of 252/815/3115. The GraphQL reply and credential were never retained as artifacts.)
 - [x] **DC-G5-03** Verify the published HTML + three SVGs all match the candidate manifest and snapshot ID.
 - [x] **DC-G5-04** Inspect actual README image after publish; record any remaining GitHub caching lag. (After [production publish #38141334818](https://github.com/dturovskiy/deus-commit-chart/actions/runs/38141334818), [manual cache audit #38141361309](https://github.com/dturovskiy/deus-commit-chart/actions/runs/38141361309) parsed the actual GitHub profile HTML, fetched its embedded `raw.githubusercontent.com` SVG and independently matched its snapshot to the production manifest 25.72 seconds after generation; `Cache-Control: max-age=300`. No stale transition or independent camo cache observed; **G2-12 remains open**.)
 - [x] **DC-G5-05** Review Action permissions, error handling, public-output privacy and compatibility. (docs/CI_ACTION_SECURITY_REVIEW.md; smoke 38094293267, published build 38094426663. Upstream Action SHA pinning remains OPEN as separate P2 hardening.)

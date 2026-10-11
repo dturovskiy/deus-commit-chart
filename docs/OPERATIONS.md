@@ -47,6 +47,8 @@ Mitigation: all metadata fixture assertions use a fixed `now`; production valida
 
 ## Manual diagnostics and recovery
 
+The manual freshness workflow accepts an optional `max_age_hours` input (8, 24, 48 or 72 hours; default 24), reports pass/fail in its workflow run and writes a summary even when validation fails. This is an **on-demand diagnostic**, not a continuously operating alerting service. Do not enable scheduled monitors or automatic issues without a separate operational decision.
+
 - There is **no scheduled freshness monitor** and **no automatic incident issue creation**. The historical `monitor-freshness.yml` remains as an optional read-only `workflow_dispatch` diagnostic: it fetches actual published files, validates checksums and SVG XML, and checks age against **24 hours**. This does not replace publishing or check GitHub image-proxy cache.
 - The README cache probe is also **manual-only**, writes to the GitHub Actions run summary, and retains no Actions artifacts. Neither diagnostic runs while the project is idle.
 - The PR-only Smoke workflow runs `ci/rehearse-rollback.sh OLD_DIR NEW_DIR` against an isolated local bare Git remote. It rejects corrupt publish candidates, verifies the remote ref is unchanged, then restores a verified prior snapshot in a new forward-only commit.

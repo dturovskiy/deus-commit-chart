@@ -3,6 +3,13 @@ name: Chart freshness monitor
 on:
   # Manual diagnosis only. No scheduled polling or automatic incident issues.
   workflow_dispatch:
+    inputs:
+      max_age_hours:
+        description: 'Maximum age of the verified published snapshot (hours)'
+        required: false
+        default: '24'
+        type: choice
+        options: ['8', '24', '48', '72']
 
 concurrency:
   group: chart-freshness-monitor
@@ -15,7 +22,7 @@ jobs:
     permissions:
       contents: read
     env:
-      CHART_MAX_AGE_HOURS: '24'
+      CHART_MAX_AGE_HOURS: ${{ inputs.max_age_hours || '24' }}
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
@@ -35,4 +42,18 @@ jobs:
           node verify-activity-assets.js /tmp/chart-published
           python3 ci/validate-svg.py /tmp/chart-published
       - name: Evaluate snapshot freshness
+        id: freshness
         run: node ci/check-freshness.js /tmp/chart-published/manifest.json
+      - name: Record manual diagnostic outcome
+        if: always()
+        shell: bash
+        env:
+          FRESHNESS_OUTCOME: ${{ steps.freshness.outcome }}
+        run: |
+          {
+            echo '## Chart freshness (manual diagnostic)'
+            echo "- Verification: ${FRESHNESS_OUTCOME}"
+            echo "- Configured max age: ${CHART_MAX_AGE_HOURS} hours"
+            echo '- Source: verified published activity-assets manifest'
+            echo '- No issue is opened and no scheduled monitor is started'
+          } >> "$GITHUB_STEP_SUMMARY"
