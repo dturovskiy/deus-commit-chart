@@ -9,12 +9,21 @@ const read = filename => fs.readFileSync(path.join(__dirname,'..',filename),'utf
 test('prioritized debt has unique IDs, explicit release gates and separate counts', () => {
   const register = read('docs/TECH_DEBT_REGISTER.md');
   const matches = [...register.matchAll(/^- \[[x ]\] \*\*TD-(\d{2})\b/gm)].map(m=>m[1]);
-  assert.deepEqual(matches, Array.from({length:13},(_,i)=>String(i+1).padStart(2,'0')));
+  assert.deepEqual(matches, Array.from({length:15},(_,i)=>String(i+1).padStart(2,'0')));
   assert.match(register,/## P0/);
   assert.match(register,/## P1/);
   assert.match(register,/## P2 \/ P3/);
   assert.match(register,/revisit/i);
   assert.match(register,/65-item remediation acceptance contract/);
+  for (const id of ['TD-14','TD-15']) {
+    assert.match(register,new RegExp('^[-] \\[ \\] \\*\\*'+id+'\\b','m'));
+  }
+  const audit = read('docs/GOD_MODULES_AUDIT.md');
+  assert.match(audit,/no production God Object class/i);
+  assert.match(audit,/modern-renderer\.js/);
+  assert.match(audit,/build-activity-assets\.js/);
+  assert.match(audit,/verify-activity-assets\.js/);
+  assert.match(audit,/P2 maintainability risks/);
 });
 
 test('checklist retains actual evidence-backed denominator, not merged debt count', () => {

@@ -345,7 +345,8 @@ The architecture audit and remediation work are tracked inside this repository:
 - [Repository Hygiene and Secrets Audit](docs/REPO_HYGIENE_AND_SECRETS_AUDIT.md) — tracked-source credential guard, old public-data history, branch cleanup and verified release baseline.
 - [Architecture findings disposition](docs/FINDINGS_DISPOSITION.md) — evidence and accepted residual risk for DC-01–DC-15.
 - [Checklist evidence index](docs/CHECKLIST_EVIDENCE_INDEX.md) — implementation, CI and production links for completed remediation criteria.
-- [Prioritized technical-debt register](docs/TECH_DEBT_REGISTER.md) — P0 release blockers, P1 accepted operational risks and P2–P3 maintainability work with explicit revisit triggers; separate from the 65-gate acceptance denominator.
+- [Prioritized technical-debt register](docs/TECH_DEBT_REGISTER.md) — completed release gates, accepted P1 operating risks and deferred P2–P3 improvements; separate from the 65-gate acceptance denominator.
+- [God Object / God Module audit](docs/GOD_MODULES_AUDIT.md) — source-file responsibility map and evidence-backed P2 findings TD-14/TD-15, with refactoring triggers and compatibility guards.
 - [Visual QA acceptance matrix](docs/VISUAL_QA_MATRIX.md) — explicit manual check of native README/HTML, both themes and all three periods, with Chromium CI as supplemental proof.
 
 **Latest stable GitHub Release:** [v1.5.2](https://github.com/dturovskiy/deus-commit-chart/releases/tag/v1.5.2), verified by remote-tag local and authenticated GraphQL consumers. The original 65/65 remediation criteria are complete under documented acceptance scopes; residual technical debt is tracked [separately](docs/TECH_DEBT_REGISTER.md). The historical signed `@v1` still runs v1.4.1 until a safe, separately approved tag migration.

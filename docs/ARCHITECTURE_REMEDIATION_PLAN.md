@@ -1,6 +1,6 @@
 # Deus Commit Chart — Architecture Remediation Plan
 
-> Status: **initial P0/P1 remediation released to production; follow-up gates remain open**
+> Status: **historical 2026-10-10 remediation plan**. Original remediation gates subsequently accepted **65/65** and exact Marketplace version `v1.5.2` published/verified; see [release report](RELEASE_V1_5_2_REPORT.md). Future P2 architecture issues are in [God Module Audit](GOD_MODULES_AUDIT.md).
 > Date: **2026-10-10**
 > Repository: `dturovskiy/deus-commit-chart` (`main`)
 > Companion execution checklist: [REMEDIATION_CHECKLIST.md](REMEDIATION_CHECKLIST.md)

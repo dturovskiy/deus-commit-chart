@@ -1,6 +1,6 @@
 # Source Adapters and Rendering Contracts
 
-> Architecture notes for the 2026-10-11 source/render refactor. The public artifact schema stays at version 1; changes here are internal.
+> Architecture notes for the 2026-10-11 source/render refactor. The public artifact schema stays at version 1; changes here are internal. For a subsequent code-level responsibility/dependency check see [God Module Audit](GOD_MODULES_AUDIT.md): renderer concentration (TD-14) and CLI-as-library imports (TD-15) are deferred P2 maintainability issues, **not** verified runtime failures.
 
 ## Pipeline
 
