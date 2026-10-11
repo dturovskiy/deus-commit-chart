@@ -8,10 +8,17 @@
 
 ## Verified checkpoint — 2026-10-11
 
-- **Detailed technical gates: 43/56 checked, 13 open**, including the newly captured full published HTML/SVG SHA-256 manifest (DC-G0-04).
-- **Final acceptance assertions: 1/9 checked, 8 open.** Counting both groups: **44/65 checked, 21 open**. These are *checkbox state*, not an estimate of release readiness.
-- Security/hygiene: ten GitHub branches tied to merged PRs were deleted; `origin/tag-v1-check`, `main` and `activity-assets` were retained. The [audit](REPO_HYGIENE_AND_SECRETS_AUDIT.md) found no high-confidence credential values across 268 reachable blobs and documented **four historical HTML snapshots containing private contribution breakdown fields**, which cannot be erased by ordinary branch pruning. The PR-only secret guard has synthetic regression tests; mark its CI evidence only after the PR run finishes.
-- Intentionally open/accepted: G2-10 single write-scoped publisher, G2-11 manual-only freshness diagnostics, cache/proxy latency, actual browser QA and signed Marketplace `v1` release coordination. Do not reopen scheduled CI or silently enable `main` branch protection.
+- **Detailed technical gates: 44/56 checked, 12 open**, including the newly captured full published HTML/SVG SHA-256 manifest (DC-G0-04).
+- **Final acceptance assertions: 8/9 checked, 1 open.** Counting both groups: **52/65 checked, 13 open**. These are *checkbox state*, not an estimate of release readiness.
+- Security/hygiene: ten GitHub branches tied to merged PRs were deleted; `origin/tag-v1-check`, `main` and `activity-assets` were retained. The [audit](REPO_HYGIENE_AND_SECRETS_AUDIT.md) found no high-confidence credential values across 268 reachable blobs and documented **four historical HTML snapshots containing private contribution breakdown fields**, which cannot be erased by ordinary branch pruning. The PR-only secret guard passed in [Smoke CI #38134694024](https://github.com/dturovskiy/deus-commit-chart/actions/runs/38134694024), scanning 57 tracked files and passing 5 synthetic tests.
+- Intentionally open/accepted: G2-10 single write-scoped publisher, G2-11 manual-only freshness diagnostics, cache/proxy latency, actual browser QA, and **signed major alias `v1`** approval; [new `v1.5.0` release](https://github.com/dturovskiy/deus-commit-chart/releases/tag/v1.5.0) is published and separately validated. Do not reopen scheduled CI or silently enable `main` branch protection.
+
+## Marketplace v1.5.0 release verification — 2026-10-11
+
+- [PR #13](https://github.com/dturovskiy/deus-commit-chart/pull/13) merged as `8c3919f6f439821849974dd26fc57c158fae2ca7`; [PR Smoke #38135342051](https://github.com/dturovskiy/deus-commit-chart/actions/runs/38135342051) **SUCCESS**: 62/62 Node tests, 9/9 Python tests, PR-only secret scan, offline composite Action, script-free SVG XML and forward-only rollback rehearsal.
+- The **new annotated `v1.5.0` tag** points to that exact commit. [Tagged consumer #38135440039](https://github.com/dturovskiy/deus-commit-chart/actions/runs/38135440039) **SUCCESS**, directly calling `dturovskiy/deus-commit-chart@v1.5.0` for both offline local-Git fixture and authenticated GitHub GraphQL; verified 30/90/365 SVG, HTML, SHA-256 manifest, privacy policy and complete 365-day data.
+- [Public GitHub Release `v1.5.0`](https://github.com/dturovskiy/deus-commit-chart/releases/tag/v1.5.0) published 2026-10-11 with migration notes. The **signed major `v1` alias was not updated** and remains on v1.4.1. No `main` branch protection or new scheduled CI workflow was enabled.
+- The seven newly checked acceptance statements below were already implemented and now have direct test/live-source/release evidence. The *final evidence-audit assertion* remains open; do not claim that every historical checklist checkmark has a matching test or source citation.
 
 ## Gate 0 — Baseline and prerequisites
 
@@ -93,7 +100,7 @@
 - [x] **DC-G5-03** Verify the published HTML + three SVGs all match the candidate manifest and snapshot ID.
 - [ ] **DC-G5-04** Inspect actual README image after publish; record any remaining GitHub caching lag.
 - [x] **DC-G5-05** Review Action permissions, error handling, public-output privacy and compatibility. (docs/CI_ACTION_SECURITY_REVIEW.md; smoke 38094293267, published build 38094426663. Upstream Action SHA pinning remains OPEN as separate P2 hardening.)
-- [ ] **DC-G5-06** Update README/CLI/Action docs, troubleshooting runbook and release notes.
+- [x] **DC-G5-06** Update README/CLI/Action docs, troubleshooting runbook and release notes. ([PR #13](https://github.com/dturovskiy/deus-commit-chart/pull/13), [v1.5.0 release notes](https://github.com/dturovskiy/deus-commit-chart/releases/tag/v1.5.0), [Marketplace release policy](MARKETPLACE_RELEASE_POLICY.md), [Operations](OPERATIONS.md); [PR Smoke #38135342051](https://github.com/dturovskiy/deus-commit-chart/actions/runs/38135342051) and [tagged consumer #38135440039](https://github.com/dturovskiy/deus-commit-chart/actions/runs/38135440039) SUCCESS.)
 - [x] **DC-G5-07** Save the tested rollback command/process and prove it restores a known-good manifest. (ci/rehearse-rollback.sh, docs/OPERATIONS.md, smoke CI run 38086628526.)
 - [ ] **DC-G5-08** Close finding IDs **DC-01–DC-15** only with linked evidence, explicit mitigation or accepted risk.
 
@@ -101,13 +108,13 @@
 
 ## Final acceptance contract
 
-- [ ] All output formats use **one** validated snapshot for each build.
-- [ ] Missing API data never masquerades as zero activity.
-- [ ] A new daily reading can legitimately update 3→15; historical snapshot is not rewritten or misrepresented.
-- [ ] Every published artifact exposes or references traceable freshness/snapshot identity.
-- [ ] Correct values are independently verified, not inferred from a pretty curve or green CI badge.
-- [ ] Errors cannot overwrite the last verified release; rollback has been rehearsed.
-- [ ] README SVG remains valid without JS; HTML is self-contained; local Git mode is offline.
+- [x] All output formats use **one** validated snapshot for each build. (Shared builder/identity tests, [PR Smoke #38135342051](https://github.com/dturovskiy/deus-commit-chart/actions/runs/38135342051), [real tagged consumer #38135440039](https://github.com/dturovskiy/deus-commit-chart/actions/runs/38135440039), verifying four artifacts.)
+- [x] Missing API data never masquerades as zero activity. (`assertCalendar` rejects missing/duplicate/invalid days; [actual boundary-day failure #38082697496](https://github.com/dturovskiy/deus-commit-chart/actions/runs/38082697496) fixed with boundary alias; [PR Smoke #38135342051](https://github.com/dturovskiy/deus-commit-chart/actions/runs/38135342051).)
+- [x] A new daily reading can legitimately update 3→15; historical snapshot is not rewritten or misrepresented. (Frozen fixture in `test/snapshot.test.js`, [PR Smoke #38135342051](https://github.com/dturovskiy/deus-commit-chart/actions/runs/38135342051); immutable snapshot IDs preserve historical data.)
+- [x] Every published artifact exposes or references traceable freshness/snapshot identity. (Manifest `generatedAt`/`snapshotId`, SVG snapshot marker and HTML metadata cross-checked against [production snapshot #38132248720](https://github.com/dturovskiy/deus-commit-chart/actions/runs/38132248720) and [consumer #38135440039](https://github.com/dturovskiy/deus-commit-chart/actions/runs/38135440039).)
+- [x] Correct values are independently verified, not inferred from a pretty curve or green CI badge. (`verify-activity-assets.js` independently re-derives 365-day numerical series, SHA-256 digests and all three SVG range totals; actually exercised with live GitHub source in [tagged consumer #38135440039](https://github.com/dturovskiy/deus-commit-chart/actions/runs/38135440039).)
+- [x] Errors cannot overwrite the last verified release; rollback has been rehearsed. (Publication validates before guarded fast-forward push; isolated corrupted-candidate rejection and restoration in [Smoke #38135342051](https://github.com/dturovskiy/deus-commit-chart/actions/runs/38135342051). **No corrupt-input injection into the real production branch**.)
+- [x] README SVG remains valid without JS; HTML is self-contained; local Git mode is offline. (SVG XML/safety tests, browser VM consistency tests and separate offline local Git fixture executed against **actual `@v1.5.0` remote Action** in [consumer #38135440039](https://github.com/dturovskiy/deus-commit-chart/actions/runs/38135440039).)
 - [x] Security/privacy boundary and source-visibility assumptions are documented. (PR #4, README/PRIVACY.md/SECURITY.md/OPERATIONS.md; historical artifacts may still contain prior metadata.)
 - [ ] All completion checkmarks have actual evidence links or attached test logs.
 

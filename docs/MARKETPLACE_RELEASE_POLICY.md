@@ -5,7 +5,7 @@
 ## Compatibility and actual installed code
 
 - The **signed annotated** major tag `v1` and `v1.4.1` both resolve to `eddf908ead0a83361f4a4e2930405ce30fd3d086` (2026-09-01). They run the original pre-remediation implementation.
-- The **new opt-in release** is `v1.5.0`. Consumers should use `uses: dturovskiy/deus-commit-chart@v1.5.0` for this release, or pin its exact commit SHA after checking the published GitHub Release.
+- The **new opt-in release** is [v1.5.0](https://github.com/dturovskiy/deus-commit-chart/releases/tag/v1.5.0), published 2026-10-11 after real tagged-consumer testing. It points to commit `8c3919f6f439821849974dd26fc57c158fae2ca7`. Consumers should use `uses: dturovskiy/deus-commit-chart@v1.5.0` or pin this exact immutable source commit.
 - A successful `main` CI, current `activity-assets` SVG or merged PR **does not update** `@v1` and is not itself a Marketplace release.
 - Inputs and outputs stay stable: all 15 input names and both `output-dir` and `index-html` outputs from v1.4.1 remain supported.
 - Behavior improvements: one strictly validated 365-day snapshot for HTML and SVG, SHA-256 manifest, strict missing-day errors, bounded source retries, local Git timestamps normalized to UTC, 7-day trend and script-free SVG, public-data policy `daily-aggregates-only-v1` without private/restricted breakdown fields.
