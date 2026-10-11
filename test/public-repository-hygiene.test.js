@@ -17,7 +17,7 @@ test('tracked public docs expose only the supported consumer example', () => {
   assert.deepEqual(actual, PUBLIC_DOCS);
   const text = fs.readFileSync(path.join(ROOT, 'README.md'), 'utf8');
   assert.match(text, /docs\/PROFILE_WORKFLOW_EXAMPLE\.yml/);
-  assert.match(text, /v1\.5\.2/);
+  assert.match(text, /v1\.5\.3/);
 });
 
 test('public markdown links do not point at deleted internal documentation', () => {

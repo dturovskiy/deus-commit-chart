@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.5.3
+
+- Upgrade first-party pinned GitHub Actions to their verified immutable releases: `actions/checkout` v7.0.1 and `actions/setup-node` v7.1.0. These Action internals use Node 24/ESM, while chart generation remains on Node 22 for GitHub-hosted workflows.
+- Disable unnecessary implicit npm dependency caching in the composite Action, PR-only Smoke, scheduled publisher and manual diagnostic; retain the publisher's `persist-credentials: false` and one-job fast-forward-only deployment.
+- Retire the obsolete `mia-platform`-specific WSL wrapper and replace it with portable CLI documentation. Preserve the owner's `assets/deus-apps-logo.svg` brand artwork.
+- Include previous `main` hygiene guardrails that prevent temporary bundles, logs and test reports from being accidentally committed, plus the safe pure `chart-series.js` refactor.
+- Preserve the existing 15 Action inputs, two outputs, validated 365-day GraphQL snapshot model, SVG/HTML rendering, public daily-aggregates-only privacy contract and opt-in publication behavior. Keep the signed legacy major tag `v1` unchanged; consumers should select the immutable version `v1.5.3` after it is published and verified.
+
 ## 1.5.2
 
 - Strengthen regression assurance without changing the published Action input/output contract: full GitHub GraphQL success/failure fixtures, deterministic SVG golden hashes, and an independent captured-live-API-to-candidate check of all 365 contribution days and 30/90/365 totals.

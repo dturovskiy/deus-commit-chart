@@ -23,7 +23,7 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Generate and independently validate charts
-        uses: dturovskiy/deus-commit-chart@v1.5.2
+        uses: dturovskiy/deus-commit-chart@v1.5.3
         with:
           source: github
           username: ${{ github.repository_owner }}

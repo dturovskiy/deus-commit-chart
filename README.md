@@ -12,7 +12,7 @@
   <a href="https://github.com/dturovskiy/deus-commit-chart/releases/latest"><img alt="GitHub release" src="https://img.shields.io/github/v/release/dturovskiy/deus-commit-chart?display_name=tag"></a>
   <a href="https://github.com/dturovskiy/deus-commit-chart/actions/workflows/smoke.yml"><img alt="Smoke CI" src="https://github.com/dturovskiy/deus-commit-chart/actions/workflows/smoke.yml/badge.svg"></a>
   <a href="https://github.com/dturovskiy/deus-commit-chart/blob/main/LICENSE"><img alt="License" src="https://img.shields.io/github/license/dturovskiy/deus-commit-chart"></a>
-  <img alt="GitHub Action" src="https://img.shields.io/badge/GitHub%20Action-v1.5.2-2088FF?logo=githubactions&logoColor=white">
+  <img alt="GitHub Action" src="https://img.shields.io/badge/GitHub%20Action-v1.5.3-2088FF?logo=githubactions&logoColor=white">
 </p>
 
 <p align="center">
@@ -39,7 +39,7 @@ Use the versioned GitHub Action in any workflow:
 
 ```yaml
 - name: Generate contribution charts
-  uses: dturovskiy/deus-commit-chart@v1.5.2
+  uses: dturovskiy/deus-commit-chart@v1.5.3
   with:
     username: ${{ github.repository_owner }}
     token: ${{ github.token }}
@@ -53,7 +53,7 @@ The Action generates `index.html` plus static `activity-30d.svg`, `activity-90d.
 
 ## Add it to your GitHub profile
 
-The Action **generates files only**. Installing it does not schedule jobs, modify a branch, or update your README. If you want a profile embed, copy the **[complete, opt-in profile workflow](docs/PROFILE_WORKFLOW_EXAMPLE.yml)** to `USERNAME/USERNAME/.github/workflows/activity-chart.yml`. That sample calls the pinned `@v1.5.2` release, validates the output, and publishes HTML/SVG to the dedicated `activity-assets` branch without force-pushing.
+The Action **generates files only**. Installing it does not schedule jobs, modify a branch, or update your README. If you want a profile embed, copy the **[complete, opt-in profile workflow](docs/PROFILE_WORKFLOW_EXAMPLE.yml)** to `USERNAME/USERNAME/.github/workflows/activity-chart.yml`. That sample calls the pinned `@v1.5.3` release, validates the output, and publishes HTML/SVG to the dedicated `activity-assets` branch without force-pushing.
 
 **The example is manual-only by default.** Run it once using **Actions → Update contribution chart → Run workflow**. To refresh automatically, uncomment its optional **daily UTC** schedule. Standard GitHub-hosted runners are free for public repositories; runs in private repositories can consume your account's included Actions minutes. Use the dedicated `activity-assets` branch only for generated charts—the example replaces its other contents.
 
@@ -78,7 +78,7 @@ Then embed the 30-day chart in the profile README:
 
 For public contribution activity, the workflow token is usually sufficient. To request broader private/internal visibility, add a repository secret named `DEUS_COMMIT_CHART_TOKEN` containing a GitHub token with access appropriate to the contributions you want GitHub to return. The generated chart intentionally contains aggregate daily counts only, not repository names or commit details. **Those counts can nevertheless reveal the timing of private activity visible to the token.**
 
-The Action only generates files; publishing them is intentionally explicit in the caller workflow. **Version pin:** use the published and independently verified `@v1.5.2` release ([tagged consumer run](https://github.com/dturovskiy/deus-commit-chart/actions/runs/38151449398)). The historical signed major tag `v1` remains on v1.4.1 and **does not** automatically select v1.5.2. Its main inputs are `username`, `token`, `default-days`, `ranges`, `theme`, `layout`, `width`, `height`, `hide-border`, and `output-dir`. It also supports `source: local` for workflows that want to chart a checked-out Git repository instead of a GitHub account.
+The Action only generates files; publishing them is intentionally explicit in the caller workflow. **Version pin:** the next patch release is `@v1.5.3` (first-party Actions v7). Confirm its immutable tag and tagged-consumer run before installing; until then the last verified stable Marketplace tag is `@v1.5.2`. The historical signed major tag `v1` remains on v1.4.1 and **does not** automatically select v1.5.3. Its main inputs are `username`, `token`, `default-days`, `ranges`, `theme`, `layout`, `width`, `height`, `hide-border`, and `output-dir`. It also supports `source: local` for workflows that want to chart a checked-out Git repository instead of a GitHub account.
 
 ## Interactive HTML
 
@@ -331,9 +331,9 @@ Choose the output path yourself, including `/mnt/c/Users/.../Downloads/commit-ch
 - [Copy-ready, opt-in GitHub profile workflow](docs/PROFILE_WORKFLOW_EXAMPLE.yml) — generate and publish your own charts.
 - [Security policy](SECURITY.md) and [privacy policy](PRIVACY.md) — disclosure procedures and data visibility.
 - [Contributor guide](CONTRIBUTING.md) — development, testing and pull requests.
-- [Release v1.5.2](https://github.com/dturovskiy/deus-commit-chart/releases/tag/v1.5.2) — latest Marketplace-installable exact version, verified by remote-tag local Git and authenticated GraphQL tests.
+- [Stable release v1.5.2](https://github.com/dturovskiy/deus-commit-chart/releases/tag/v1.5.2) — verified stable install while the next v1.5.3 candidate is tested and tagged.
 
-The original remediation checklist finished **65/65**. Maintainer-only audit evidence, historical checklists, security investigations and ongoing technical-debt planning are kept outside the public source tree. This does **not** erase historical copies reachable from previous public Git commits or release tags. The signed legacy major tag `v1` still targets v1.4.1; pin `@v1.5.2` for the latest release.
+The original remediation checklist finished **65/65**. Maintainer-only audit evidence, historical checklists, security investigations and ongoing technical-debt planning are kept outside the public source tree. This does **not** erase historical copies reachable from previous public Git commits or release tags. The signed legacy major tag `v1` still targets v1.4.1; pin `@v1.5.3` for the latest release.
 
 ## Development
 
