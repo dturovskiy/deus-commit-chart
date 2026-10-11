@@ -8,10 +8,10 @@
 
 ## Verified checkpoint — 2026-10-11
 
-- **Detailed technical gates: 49/56 checked, 7 open**, including the newly captured full published HTML/SVG SHA-256 manifest (DC-G0-04).
-- **Final acceptance assertions: 8/9 checked, 1 open.** Counting both groups: **57/65 checked, 8 open**. These are *checkbox state*, not an estimate of release readiness.
+- **Detailed technical gates: 51/56 checked, 5 open**, including the newly captured full published HTML/SVG SHA-256 manifest (DC-G0-04).
+- **Final acceptance assertions: 9/9 checked, 0 open.** Counting both groups: **60/65 checked, 5 open**. These are *checkbox state*, not an estimate of release readiness.
 - Security/hygiene: ten GitHub branches tied to merged PRs were deleted; `origin/tag-v1-check`, `main` and `activity-assets` were retained. The [audit](REPO_HYGIENE_AND_SECRETS_AUDIT.md) found no high-confidence credential values across 268 reachable blobs and documented **four historical HTML snapshots containing private contribution breakdown fields**, which cannot be erased by ordinary branch pruning. The PR-only secret guard passed in [Smoke CI #38134694024](https://github.com/dturovskiy/deus-commit-chart/actions/runs/38134694024), scanning 57 tracked files and passing 5 synthetic tests.
-- Intentionally open/accepted: G2-10 single write-scoped publisher, G2-11 manual-only freshness diagnostics, cache/proxy latency, actual browser QA, and **signed major alias `v1`** approval; [new `v1.5.0` release](https://github.com/dturovskiy/deus-commit-chart/releases/tag/v1.5.0) is published and separately validated. Do not reopen scheduled CI or silently enable `main` branch protection.
+- Intentionally open/accepted: G2-10 single write-scoped publisher, G2-11 manual-only freshness diagnostics, cache/proxy lag upper bound, visual legibility review on actual screens, and **signed major alias `v1`** approval; [new `v1.5.0` release](https://github.com/dturovskiy/deus-commit-chart/releases/tag/v1.5.0) is published and separately validated. Do not reopen scheduled CI or silently enable `main` branch protection.
 
 ## Marketplace v1.5.0 release verification — 2026-10-11
 
@@ -118,11 +118,11 @@
 - [x] **DC-G5-01** Record design decisions on freshness SLA, visibility, time-zone semantics, chart style and publication strategy in the plan or an ADR. (docs/CALENDAR_AND_CACHE_POLICY.md, PRIVACY.md, docs/OPERATIONS.md, architecture plan.)
 - [ ] **DC-G5-02** Verify one candidate build against a known API response captured with the intended token at the same observation time.
 - [x] **DC-G5-03** Verify the published HTML + three SVGs all match the candidate manifest and snapshot ID.
-- [ ] **DC-G5-04** Inspect actual README image after publish; record any remaining GitHub caching lag.
+- [x] **DC-G5-04** Inspect actual README image after publish; record any remaining GitHub caching lag. (After [production publish #38141334818](https://github.com/dturovskiy/deus-commit-chart/actions/runs/38141334818), [manual cache audit #38141361309](https://github.com/dturovskiy/deus-commit-chart/actions/runs/38141361309) parsed the actual GitHub profile HTML, fetched its embedded `raw.githubusercontent.com` SVG and independently matched its snapshot to the production manifest 25.72 seconds after generation; `Cache-Control: max-age=300`. No stale transition or independent camo cache observed; **G2-12 remains open**.)
 - [x] **DC-G5-05** Review Action permissions, error handling, public-output privacy and compatibility. (docs/CI_ACTION_SECURITY_REVIEW.md; smoke 38094293267, published build 38094426663. Upstream Action SHA pinning remains OPEN as separate P2 hardening.)
 - [x] **DC-G5-06** Update README/CLI/Action docs, troubleshooting runbook and release notes. ([PR #13](https://github.com/dturovskiy/deus-commit-chart/pull/13), [v1.5.0 release notes](https://github.com/dturovskiy/deus-commit-chart/releases/tag/v1.5.0), [Marketplace release policy](MARKETPLACE_RELEASE_POLICY.md), [Operations](OPERATIONS.md); [PR Smoke #38135342051](https://github.com/dturovskiy/deus-commit-chart/actions/runs/38135342051) and [tagged consumer #38135440039](https://github.com/dturovskiy/deus-commit-chart/actions/runs/38135440039) SUCCESS.)
 - [x] **DC-G5-07** Save the tested rollback command/process and prove it restores a known-good manifest. (ci/rehearse-rollback.sh, docs/OPERATIONS.md, smoke CI run 38086628526.)
-- [ ] **DC-G5-08** Close finding IDs **DC-01–DC-15** only with linked evidence, explicit mitigation or accepted risk.
+- [x] **DC-G5-08** Close finding IDs **DC-01–DC-15** only with linked evidence, explicit mitigation or accepted risk. ([FINDINGS_DISPOSITION.md](FINDINGS_DISPOSITION.md): 15 individually reviewed dispositions with implementation/CI links and explicitly accepted residual risks for automated monitoring, write-scoped publisher, historic chart metadata and README caching.)
 
 **Gate 5 exit:** maintainable, verifiable release that cannot silently publish known-invalid data.
 
@@ -136,7 +136,7 @@
 - [x] Errors cannot overwrite the last verified release; rollback has been rehearsed. (Publication validates before guarded fast-forward push; isolated corrupted-candidate rejection and restoration in [Smoke #38135342051](https://github.com/dturovskiy/deus-commit-chart/actions/runs/38135342051). **No corrupt-input injection into the real production branch**.)
 - [x] README SVG remains valid without JS; HTML is self-contained; local Git mode is offline. (SVG XML/safety tests, browser VM consistency tests and separate offline local Git fixture executed against **actual `@v1.5.0` remote Action** in [consumer #38135440039](https://github.com/dturovskiy/deus-commit-chart/actions/runs/38135440039).)
 - [x] Security/privacy boundary and source-visibility assumptions are documented. (PR #4, README/PRIVACY.md/SECURITY.md/OPERATIONS.md; historical artifacts may still contain prior metadata.)
-- [ ] All completion checkmarks have actual evidence links or attached test logs.
+- [x] All completion checkmarks have actual evidence links or attached test logs. ([CHECKLIST_EVIDENCE_INDEX.md](CHECKLIST_EVIDENCE_INDEX.md) maps all 51 checked technical gates and all 9 acceptance assertions to relevant tracked files/fixtures and successful PR-only CI, release or production evidence. New G5-04 and G5-08 link directly to the actual cache run and disposition register.)
 
 ## Combo chart review evidence (2026-10-10)
 

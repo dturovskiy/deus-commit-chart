@@ -32,6 +32,8 @@ Inspected through DEUS MCP: `generate-commit-chart.js`, `modern-renderer.js`, `t
 
 ## 3. Findings register
 
+> **2026-10-11 update:** this section is the *original historical finding baseline*. For current mitigation status, individual evidence links and accepted residual risk see [FINDINGS_DISPOSITION.md](FINDINGS_DISPOSITION.md). Do not read old `Confirmed` states below as current unresolved defects.
+
 Severity reflects product impact, not an independently proven security vulnerability. **Confirmed** means supported by code/observed artifact; **risk** requires a targeted reproduction or operational measurement.
 
 | ID | Priority | Status | Finding / location | Consequence |

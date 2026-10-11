@@ -343,6 +343,8 @@ The architecture audit and remediation work are tracked inside this repository:
 - [CI and GitHub Action Security Review](docs/CI_ACTION_SECURITY_REVIEW.md) — permission boundaries, publication guarantees, compatibility evidence and outstanding supply-chain risks.
 - [Marketplace Release Policy](docs/MARKETPLACE_RELEASE_POLICY.md) — signed major-tag compatibility, release migration and manual tagged-consumer verification.
 - [Repository Hygiene and Secrets Audit](docs/REPO_HYGIENE_AND_SECRETS_AUDIT.md) — tracked-source credential guard, old public-data history, branch cleanup and verified release baseline.
+- [Architecture findings disposition](docs/FINDINGS_DISPOSITION.md) — evidence and accepted residual risk for DC-01–DC-15.
+- [Checklist evidence index](docs/CHECKLIST_EVIDENCE_INDEX.md) — implementation, CI and production links for completed remediation criteria.
 
 Release [v1.5.1](https://github.com/dturovskiy/deus-commit-chart/releases/tag/v1.5.1) shipped the validated snapshot and privacy-minimized metadata; remaining remediation items stay open until supported by test or release evidence.
 
