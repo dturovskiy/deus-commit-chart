@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1120" height="410" viewBox="0 0 1120 410" role="img" aria-labelledby="chart-title chart-desc">
   <title id="chart-title">GitHub contribution activity</title>
-  <desc id="chart-desc">845 contributions across 89 active days in the last 90 days.</desc>
+  <desc id="chart-desc">868 contributions across 89 active days in the last 90 days.</desc>
   <defs>
     <linearGradient id="chart-bg" x1="0" y1="0" x2="0" y2="1">
       <stop offset="0" stop-color="#111821" stop-opacity="0.72"/>
@@ -11,7 +11,7 @@
   <g font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif">
     <text x="70" y="34" fill="#f0f6fc" font-size="20" font-weight="700" letter-spacing="-0.25">GitHub contribution activity</text>
     <text x="70" y="58" fill="#8b949e" font-size="12">@dturovskiy · Jul 14, 2026 → Oct 11, 2026</text>
-    <text x="70" y="78" fill="#8b949e" font-size="12" opacity="0.94">90 days · 845 contributions · 89 active days · peak 71 · Updated 2026-10-11 15:31 UTC · Today partial · Snapshot ff87982614</text>
+    <text x="70" y="78" fill="#8b949e" font-size="12" opacity="0.94">90 days · 868 contributions · 89 active days · peak 94 · Updated 2026-10-11 17:31 UTC · Today partial · Snapshot 575039f032</text>
     <g transform="translate(896,30)" font-size="12" fill="#8b949e">
       <rect x="3" y="-5" width="17" height="8" rx="2" fill="#39d353"/>
       <text x="33" y="4">Daily</text>
@@ -19,105 +19,105 @@
       <text x="125" y="4">7d trend</text>
     </g>
     <line x1="70" y1="116.00" x2="1078" y2="116.00" stroke="#21262d" stroke-width="1" opacity="0.52"/>
-    <text x="56" y="120.00" fill="#8b949e" font-size="12" text-anchor="end" opacity="0.82">81</text>
+    <text x="56" y="120.00" fill="#8b949e" font-size="12" text-anchor="end" opacity="0.82">107</text>
     <line x1="70" y1="193.33" x2="1078" y2="193.33" stroke="#21262d" stroke-width="1" opacity="0.52"/>
-    <text x="56" y="197.33" fill="#8b949e" font-size="12" text-anchor="end" opacity="0.82">54</text>
+    <text x="56" y="197.33" fill="#8b949e" font-size="12" text-anchor="end" opacity="0.82">71</text>
     <line x1="70" y1="270.67" x2="1078" y2="270.67" stroke="#21262d" stroke-width="1" opacity="0.52"/>
-    <text x="56" y="274.67" fill="#8b949e" font-size="12" text-anchor="end" opacity="0.82">27</text>
+    <text x="56" y="274.67" fill="#8b949e" font-size="12" text-anchor="end" opacity="0.82">36</text>
     <line x1="70" y1="348.00" x2="1078" y2="348.00" stroke="#21262d" stroke-width="1" opacity="0.9"/>
     <text x="56" y="352.00" fill="#8b949e" font-size="12" text-anchor="end" opacity="0.82">0</text>
     <g data-chart-series="daily-bars">
-      <rect data-series="daily" x="71.57" y="342.27" width="8.06" height="5.73" rx="1.8" fill="#39d353" opacity="0.82"/>
-    <rect data-series="daily" x="82.77" y="276.34" width="8.06" height="71.66" rx="1.8" fill="#39d353" opacity="0.82"/>
-    <rect data-series="daily" x="93.97" y="319.34" width="8.06" height="28.66" rx="1.8" fill="#39d353" opacity="0.82"/>
-    <rect data-series="daily" x="105.17" y="327.94" width="8.06" height="20.06" rx="1.8" fill="#39d353" opacity="0.82"/>
-    <rect data-series="daily" x="116.37" y="330.8" width="8.06" height="17.2" rx="1.8" fill="#39d353" opacity="0.82"/>
-    <rect data-series="daily" x="127.57" y="336.53" width="8.06" height="11.47" rx="1.8" fill="#39d353" opacity="0.82"/>
-    <rect data-series="daily" x="138.77" y="345.13" width="8.06" height="2.87" rx="1.8" fill="#39d353" opacity="0.82"/>
-    <rect data-series="daily" x="149.97" y="307.87" width="8.06" height="40.13" rx="1.8" fill="#39d353" opacity="0.82"/>
-    <rect data-series="daily" x="161.17" y="333.67" width="8.06" height="14.33" rx="1.8" fill="#39d353" opacity="0.82"/>
-    <rect data-series="daily" x="172.37" y="336.53" width="8.06" height="11.47" rx="1.8" fill="#39d353" opacity="0.82"/>
-    <rect data-series="daily" x="183.57" y="342.27" width="8.06" height="5.73" rx="1.8" fill="#39d353" opacity="0.82"/>
-    <rect data-series="daily" x="194.77" y="345.13" width="8.06" height="2.87" rx="1.8" fill="#39d353" opacity="0.82"/>
-    <rect data-series="daily" x="205.97" y="319.34" width="8.06" height="28.66" rx="1.8" fill="#39d353" opacity="0.82"/>
-    <rect data-series="daily" x="217.17" y="345.13" width="8.06" height="2.87" rx="1.8" fill="#39d353" opacity="0.82"/>
-    <rect data-series="daily" x="228.37" y="342.27" width="8.06" height="5.73" rx="1.8" fill="#39d353" opacity="0.82"/>
-    <rect data-series="daily" x="239.57" y="302.14" width="8.06" height="45.86" rx="1.8" fill="#39d353" opacity="0.82"/>
-    <rect data-series="daily" x="250.77" y="310.74" width="8.06" height="37.26" rx="1.8" fill="#39d353" opacity="0.82"/>
-    <rect data-series="daily" x="261.97" y="313.6" width="8.06" height="34.4" rx="1.8" fill="#39d353" opacity="0.82"/>
-    <rect data-series="daily" x="273.17" y="322.2" width="8.06" height="25.8" rx="1.8" fill="#39d353" opacity="0.82"/>
-    <rect data-series="daily" x="284.37" y="336.53" width="8.06" height="11.47" rx="1.8" fill="#39d353" opacity="0.82"/>
-    <rect data-series="daily" x="306.77" y="345.13" width="8.06" height="2.87" rx="1.8" fill="#39d353" opacity="0.82"/>
-    <rect data-series="daily" x="317.97" y="316.47" width="8.06" height="31.53" rx="1.8" fill="#39d353" opacity="0.82"/>
-    <rect data-series="daily" x="329.17" y="319.34" width="8.06" height="28.66" rx="1.8" fill="#39d353" opacity="0.82"/>
-    <rect data-series="daily" x="340.37" y="322.2" width="8.06" height="25.8" rx="1.8" fill="#39d353" opacity="0.82"/>
-    <rect data-series="daily" x="351.57" y="302.14" width="8.06" height="45.86" rx="1.8" fill="#39d353" opacity="0.82"/>
-    <rect data-series="daily" x="362.77" y="342.27" width="8.06" height="5.73" rx="1.8" fill="#39d353" opacity="0.82"/>
-    <rect data-series="daily" x="373.97" y="333.67" width="8.06" height="14.33" rx="1.8" fill="#39d353" opacity="0.82"/>
-    <rect data-series="daily" x="385.17" y="339.4" width="8.06" height="8.6" rx="1.8" fill="#39d353" opacity="0.82"/>
-    <rect data-series="daily" x="396.37" y="307.87" width="8.06" height="40.13" rx="1.8" fill="#39d353" opacity="0.82"/>
-    <rect data-series="daily" x="407.57" y="307.87" width="8.06" height="40.13" rx="1.8" fill="#39d353" opacity="0.82"/>
-    <rect data-series="daily" x="418.77" y="284.94" width="8.06" height="63.06" rx="1.8" fill="#39d353" opacity="0.82"/>
-    <rect data-series="daily" x="429.97" y="310.74" width="8.06" height="37.26" rx="1.8" fill="#39d353" opacity="0.82"/>
-    <rect data-series="daily" x="441.17" y="322.2" width="8.06" height="25.8" rx="1.8" fill="#39d353" opacity="0.82"/>
-    <rect data-series="daily" x="452.37" y="342.27" width="8.06" height="5.73" rx="1.8" fill="#39d353" opacity="0.82"/>
-    <rect data-series="daily" x="463.57" y="345.13" width="8.06" height="2.87" rx="1.8" fill="#39d353" opacity="0.82"/>
-    <rect data-series="daily" x="474.77" y="319.34" width="8.06" height="28.66" rx="1.8" fill="#39d353" opacity="0.82"/>
-    <rect data-series="daily" x="485.97" y="336.53" width="8.06" height="11.47" rx="1.8" fill="#39d353" opacity="0.82"/>
-    <rect data-series="daily" x="497.17" y="313.6" width="8.06" height="34.4" rx="1.8" fill="#39d353" opacity="0.82"/>
-    <rect data-series="daily" x="508.37" y="342.27" width="8.06" height="5.73" rx="1.8" fill="#39d353" opacity="0.82"/>
-    <rect data-series="daily" x="519.57" y="316.47" width="8.06" height="31.53" rx="1.8" fill="#39d353" opacity="0.82"/>
-    <rect data-series="daily" x="530.77" y="307.87" width="8.06" height="40.13" rx="1.8" fill="#39d353" opacity="0.82"/>
-    <rect data-series="daily" x="541.97" y="330.8" width="8.06" height="17.2" rx="1.8" fill="#39d353" opacity="0.82"/>
-    <rect data-series="daily" x="553.17" y="330.8" width="8.06" height="17.2" rx="1.8" fill="#39d353" opacity="0.82"/>
-    <rect data-series="daily" x="564.37" y="325.07" width="8.06" height="22.93" rx="1.8" fill="#39d353" opacity="0.82"/>
-    <rect data-series="daily" x="575.57" y="293.54" width="8.06" height="54.46" rx="1.8" fill="#39d353" opacity="0.82"/>
-    <rect data-series="daily" x="586.77" y="325.07" width="8.06" height="22.93" rx="1.8" fill="#39d353" opacity="0.82"/>
-    <rect data-series="daily" x="597.97" y="305.01" width="8.06" height="42.99" rx="1.8" fill="#39d353" opacity="0.82"/>
-    <rect data-series="daily" x="609.17" y="327.94" width="8.06" height="20.06" rx="1.8" fill="#39d353" opacity="0.82"/>
-    <rect data-series="daily" x="620.37" y="259.14" width="8.06" height="88.86" rx="1.8" fill="#39d353" opacity="0.82"/>
-    <rect data-series="daily" x="631.57" y="302.14" width="8.06" height="45.86" rx="1.8" fill="#39d353" opacity="0.82"/>
-    <rect data-series="daily" x="642.77" y="313.6" width="8.06" height="34.4" rx="1.8" fill="#39d353" opacity="0.82"/>
-    <rect data-series="daily" x="653.97" y="262.01" width="8.06" height="85.99" rx="1.8" fill="#39d353" opacity="0.82"/>
-    <rect data-series="daily" x="665.17" y="310.74" width="8.06" height="37.26" rx="1.8" fill="#39d353" opacity="0.82"/>
-    <rect data-series="daily" x="676.37" y="310.74" width="8.06" height="37.26" rx="1.8" fill="#39d353" opacity="0.82"/>
-    <rect data-series="daily" x="687.57" y="336.53" width="8.06" height="11.47" rx="1.8" fill="#39d353" opacity="0.82"/>
-    <rect data-series="daily" x="698.77" y="339.4" width="8.06" height="8.6" rx="1.8" fill="#39d353" opacity="0.82"/>
-    <rect data-series="daily" x="709.97" y="336.53" width="8.06" height="11.47" rx="1.8" fill="#39d353" opacity="0.82"/>
-    <rect data-series="daily" x="721.17" y="296.41" width="8.06" height="51.59" rx="1.8" fill="#39d353" opacity="0.82"/>
-    <rect data-series="daily" x="732.37" y="299.27" width="8.06" height="48.73" rx="1.8" fill="#39d353" opacity="0.82"/>
-    <rect data-series="daily" x="743.57" y="330.8" width="8.06" height="17.2" rx="1.8" fill="#39d353" opacity="0.82"/>
-    <rect data-series="daily" x="754.77" y="325.07" width="8.06" height="22.93" rx="1.8" fill="#39d353" opacity="0.82"/>
-    <rect data-series="daily" x="765.97" y="345.13" width="8.06" height="2.87" rx="1.8" fill="#39d353" opacity="0.82"/>
-    <rect data-series="daily" x="777.17" y="336.53" width="8.06" height="11.47" rx="1.8" fill="#39d353" opacity="0.82"/>
-    <rect data-series="daily" x="788.37" y="330.8" width="8.06" height="17.2" rx="1.8" fill="#39d353" opacity="0.82"/>
-    <rect data-series="daily" x="799.57" y="316.47" width="8.06" height="31.53" rx="1.8" fill="#39d353" opacity="0.82"/>
-    <rect data-series="daily" x="810.77" y="336.53" width="8.06" height="11.47" rx="1.8" fill="#39d353" opacity="0.82"/>
-    <rect data-series="daily" x="821.97" y="325.07" width="8.06" height="22.93" rx="1.8" fill="#39d353" opacity="0.82"/>
-    <rect data-series="daily" x="833.17" y="319.34" width="8.06" height="28.66" rx="1.8" fill="#39d353" opacity="0.82"/>
-    <rect data-series="daily" x="844.37" y="305.01" width="8.06" height="42.99" rx="1.8" fill="#39d353" opacity="0.82"/>
-    <rect data-series="daily" x="855.57" y="330.8" width="8.06" height="17.2" rx="1.8" fill="#39d353" opacity="0.82"/>
-    <rect data-series="daily" x="866.77" y="336.53" width="8.06" height="11.47" rx="1.8" fill="#39d353" opacity="0.82"/>
-    <rect data-series="daily" x="877.97" y="345.13" width="8.06" height="2.87" rx="1.8" fill="#39d353" opacity="0.82"/>
-    <rect data-series="daily" x="889.17" y="339.4" width="8.06" height="8.6" rx="1.8" fill="#39d353" opacity="0.82"/>
-    <rect data-series="daily" x="900.37" y="330.8" width="8.06" height="17.2" rx="1.8" fill="#39d353" opacity="0.82"/>
-    <rect data-series="daily" x="911.57" y="342.27" width="8.06" height="5.73" rx="1.8" fill="#39d353" opacity="0.82"/>
-    <rect data-series="daily" x="922.77" y="342.27" width="8.06" height="5.73" rx="1.8" fill="#39d353" opacity="0.82"/>
-    <rect data-series="daily" x="933.97" y="342.27" width="8.06" height="5.73" rx="1.8" fill="#39d353" opacity="0.82"/>
-    <rect data-series="daily" x="945.17" y="336.53" width="8.06" height="11.47" rx="1.8" fill="#39d353" opacity="0.82"/>
-    <rect data-series="daily" x="956.37" y="330.8" width="8.06" height="17.2" rx="1.8" fill="#39d353" opacity="0.82"/>
-    <rect data-series="daily" x="967.57" y="345.13" width="8.06" height="2.87" rx="1.8" fill="#39d353" opacity="0.82"/>
-    <rect data-series="daily" x="978.77" y="336.53" width="8.06" height="11.47" rx="1.8" fill="#39d353" opacity="0.82"/>
-    <rect data-series="daily" x="989.97" y="307.87" width="8.06" height="40.13" rx="1.8" fill="#39d353" opacity="0.82"/>
-    <rect data-series="daily" x="1001.17" y="342.27" width="8.06" height="5.73" rx="1.8" fill="#39d353" opacity="0.82"/>
-    <rect data-series="daily" x="1012.37" y="342.27" width="8.06" height="5.73" rx="1.8" fill="#39d353" opacity="0.82"/>
-    <rect data-series="daily" x="1023.57" y="302.14" width="8.06" height="45.86" rx="1.8" fill="#39d353" opacity="0.82"/>
-    <rect data-series="daily" x="1034.77" y="319.34" width="8.06" height="28.66" rx="1.8" fill="#39d353" opacity="0.82"/>
-    <rect data-series="daily" x="1045.97" y="327.94" width="8.06" height="20.06" rx="1.8" fill="#39d353" opacity="0.82"/>
-    <rect data-series="daily" x="1057.17" y="216.15" width="8.06" height="131.85" rx="1.8" fill="#39d353" opacity="0.82"/>
+      <rect data-series="daily" x="71.57" y="343.67" width="8.06" height="4.33" rx="1.8" fill="#39d353" opacity="0.82"/>
+    <rect data-series="daily" x="82.77" y="293.88" width="8.06" height="54.12" rx="1.8" fill="#39d353" opacity="0.82"/>
+    <rect data-series="daily" x="93.97" y="326.35" width="8.06" height="21.65" rx="1.8" fill="#39d353" opacity="0.82"/>
+    <rect data-series="daily" x="105.17" y="332.85" width="8.06" height="15.15" rx="1.8" fill="#39d353" opacity="0.82"/>
+    <rect data-series="daily" x="116.37" y="335.01" width="8.06" height="12.99" rx="1.8" fill="#39d353" opacity="0.82"/>
+    <rect data-series="daily" x="127.57" y="339.34" width="8.06" height="8.66" rx="1.8" fill="#39d353" opacity="0.82"/>
+    <rect data-series="daily" x="138.77" y="345.84" width="8.06" height="2.16" rx="1.8" fill="#39d353" opacity="0.82"/>
+    <rect data-series="daily" x="149.97" y="317.69" width="8.06" height="30.31" rx="1.8" fill="#39d353" opacity="0.82"/>
+    <rect data-series="daily" x="161.17" y="337.18" width="8.06" height="10.82" rx="1.8" fill="#39d353" opacity="0.82"/>
+    <rect data-series="daily" x="172.37" y="339.34" width="8.06" height="8.66" rx="1.8" fill="#39d353" opacity="0.82"/>
+    <rect data-series="daily" x="183.57" y="343.67" width="8.06" height="4.33" rx="1.8" fill="#39d353" opacity="0.82"/>
+    <rect data-series="daily" x="194.77" y="345.84" width="8.06" height="2.16" rx="1.8" fill="#39d353" opacity="0.82"/>
+    <rect data-series="daily" x="205.97" y="326.35" width="8.06" height="21.65" rx="1.8" fill="#39d353" opacity="0.82"/>
+    <rect data-series="daily" x="217.17" y="345.84" width="8.06" height="2.16" rx="1.8" fill="#39d353" opacity="0.82"/>
+    <rect data-series="daily" x="228.37" y="343.67" width="8.06" height="4.33" rx="1.8" fill="#39d353" opacity="0.82"/>
+    <rect data-series="daily" x="239.57" y="313.36" width="8.06" height="34.64" rx="1.8" fill="#39d353" opacity="0.82"/>
+    <rect data-series="daily" x="250.77" y="319.86" width="8.06" height="28.14" rx="1.8" fill="#39d353" opacity="0.82"/>
+    <rect data-series="daily" x="261.97" y="322.02" width="8.06" height="25.98" rx="1.8" fill="#39d353" opacity="0.82"/>
+    <rect data-series="daily" x="273.17" y="328.52" width="8.06" height="19.48" rx="1.8" fill="#39d353" opacity="0.82"/>
+    <rect data-series="daily" x="284.37" y="339.34" width="8.06" height="8.66" rx="1.8" fill="#39d353" opacity="0.82"/>
+    <rect data-series="daily" x="306.77" y="345.84" width="8.06" height="2.16" rx="1.8" fill="#39d353" opacity="0.82"/>
+    <rect data-series="daily" x="317.97" y="324.19" width="8.06" height="23.81" rx="1.8" fill="#39d353" opacity="0.82"/>
+    <rect data-series="daily" x="329.17" y="326.35" width="8.06" height="21.65" rx="1.8" fill="#39d353" opacity="0.82"/>
+    <rect data-series="daily" x="340.37" y="328.52" width="8.06" height="19.48" rx="1.8" fill="#39d353" opacity="0.82"/>
+    <rect data-series="daily" x="351.57" y="313.36" width="8.06" height="34.64" rx="1.8" fill="#39d353" opacity="0.82"/>
+    <rect data-series="daily" x="362.77" y="343.67" width="8.06" height="4.33" rx="1.8" fill="#39d353" opacity="0.82"/>
+    <rect data-series="daily" x="373.97" y="337.18" width="8.06" height="10.82" rx="1.8" fill="#39d353" opacity="0.82"/>
+    <rect data-series="daily" x="385.17" y="341.51" width="8.06" height="6.49" rx="1.8" fill="#39d353" opacity="0.82"/>
+    <rect data-series="daily" x="396.37" y="317.69" width="8.06" height="30.31" rx="1.8" fill="#39d353" opacity="0.82"/>
+    <rect data-series="daily" x="407.57" y="317.69" width="8.06" height="30.31" rx="1.8" fill="#39d353" opacity="0.82"/>
+    <rect data-series="daily" x="418.77" y="300.37" width="8.06" height="47.63" rx="1.8" fill="#39d353" opacity="0.82"/>
+    <rect data-series="daily" x="429.97" y="319.86" width="8.06" height="28.14" rx="1.8" fill="#39d353" opacity="0.82"/>
+    <rect data-series="daily" x="441.17" y="328.52" width="8.06" height="19.48" rx="1.8" fill="#39d353" opacity="0.82"/>
+    <rect data-series="daily" x="452.37" y="343.67" width="8.06" height="4.33" rx="1.8" fill="#39d353" opacity="0.82"/>
+    <rect data-series="daily" x="463.57" y="345.84" width="8.06" height="2.16" rx="1.8" fill="#39d353" opacity="0.82"/>
+    <rect data-series="daily" x="474.77" y="326.35" width="8.06" height="21.65" rx="1.8" fill="#39d353" opacity="0.82"/>
+    <rect data-series="daily" x="485.97" y="339.34" width="8.06" height="8.66" rx="1.8" fill="#39d353" opacity="0.82"/>
+    <rect data-series="daily" x="497.17" y="322.02" width="8.06" height="25.98" rx="1.8" fill="#39d353" opacity="0.82"/>
+    <rect data-series="daily" x="508.37" y="343.67" width="8.06" height="4.33" rx="1.8" fill="#39d353" opacity="0.82"/>
+    <rect data-series="daily" x="519.57" y="324.19" width="8.06" height="23.81" rx="1.8" fill="#39d353" opacity="0.82"/>
+    <rect data-series="daily" x="530.77" y="317.69" width="8.06" height="30.31" rx="1.8" fill="#39d353" opacity="0.82"/>
+    <rect data-series="daily" x="541.97" y="335.01" width="8.06" height="12.99" rx="1.8" fill="#39d353" opacity="0.82"/>
+    <rect data-series="daily" x="553.17" y="335.01" width="8.06" height="12.99" rx="1.8" fill="#39d353" opacity="0.82"/>
+    <rect data-series="daily" x="564.37" y="330.68" width="8.06" height="17.32" rx="1.8" fill="#39d353" opacity="0.82"/>
+    <rect data-series="daily" x="575.57" y="306.87" width="8.06" height="41.13" rx="1.8" fill="#39d353" opacity="0.82"/>
+    <rect data-series="daily" x="586.77" y="330.68" width="8.06" height="17.32" rx="1.8" fill="#39d353" opacity="0.82"/>
+    <rect data-series="daily" x="597.97" y="315.53" width="8.06" height="32.47" rx="1.8" fill="#39d353" opacity="0.82"/>
+    <rect data-series="daily" x="609.17" y="332.85" width="8.06" height="15.15" rx="1.8" fill="#39d353" opacity="0.82"/>
+    <rect data-series="daily" x="620.37" y="280.89" width="8.06" height="67.11" rx="1.8" fill="#39d353" opacity="0.82"/>
+    <rect data-series="daily" x="631.57" y="313.36" width="8.06" height="34.64" rx="1.8" fill="#39d353" opacity="0.82"/>
+    <rect data-series="daily" x="642.77" y="322.02" width="8.06" height="25.98" rx="1.8" fill="#39d353" opacity="0.82"/>
+    <rect data-series="daily" x="653.97" y="283.05" width="8.06" height="64.95" rx="1.8" fill="#39d353" opacity="0.82"/>
+    <rect data-series="daily" x="665.17" y="319.86" width="8.06" height="28.14" rx="1.8" fill="#39d353" opacity="0.82"/>
+    <rect data-series="daily" x="676.37" y="319.86" width="8.06" height="28.14" rx="1.8" fill="#39d353" opacity="0.82"/>
+    <rect data-series="daily" x="687.57" y="339.34" width="8.06" height="8.66" rx="1.8" fill="#39d353" opacity="0.82"/>
+    <rect data-series="daily" x="698.77" y="341.51" width="8.06" height="6.49" rx="1.8" fill="#39d353" opacity="0.82"/>
+    <rect data-series="daily" x="709.97" y="339.34" width="8.06" height="8.66" rx="1.8" fill="#39d353" opacity="0.82"/>
+    <rect data-series="daily" x="721.17" y="309.03" width="8.06" height="38.97" rx="1.8" fill="#39d353" opacity="0.82"/>
+    <rect data-series="daily" x="732.37" y="311.2" width="8.06" height="36.8" rx="1.8" fill="#39d353" opacity="0.82"/>
+    <rect data-series="daily" x="743.57" y="335.01" width="8.06" height="12.99" rx="1.8" fill="#39d353" opacity="0.82"/>
+    <rect data-series="daily" x="754.77" y="330.68" width="8.06" height="17.32" rx="1.8" fill="#39d353" opacity="0.82"/>
+    <rect data-series="daily" x="765.97" y="345.84" width="8.06" height="2.16" rx="1.8" fill="#39d353" opacity="0.82"/>
+    <rect data-series="daily" x="777.17" y="339.34" width="8.06" height="8.66" rx="1.8" fill="#39d353" opacity="0.82"/>
+    <rect data-series="daily" x="788.37" y="335.01" width="8.06" height="12.99" rx="1.8" fill="#39d353" opacity="0.82"/>
+    <rect data-series="daily" x="799.57" y="324.19" width="8.06" height="23.81" rx="1.8" fill="#39d353" opacity="0.82"/>
+    <rect data-series="daily" x="810.77" y="339.34" width="8.06" height="8.66" rx="1.8" fill="#39d353" opacity="0.82"/>
+    <rect data-series="daily" x="821.97" y="330.68" width="8.06" height="17.32" rx="1.8" fill="#39d353" opacity="0.82"/>
+    <rect data-series="daily" x="833.17" y="326.35" width="8.06" height="21.65" rx="1.8" fill="#39d353" opacity="0.82"/>
+    <rect data-series="daily" x="844.37" y="315.53" width="8.06" height="32.47" rx="1.8" fill="#39d353" opacity="0.82"/>
+    <rect data-series="daily" x="855.57" y="335.01" width="8.06" height="12.99" rx="1.8" fill="#39d353" opacity="0.82"/>
+    <rect data-series="daily" x="866.77" y="339.34" width="8.06" height="8.66" rx="1.8" fill="#39d353" opacity="0.82"/>
+    <rect data-series="daily" x="877.97" y="345.84" width="8.06" height="2.16" rx="1.8" fill="#39d353" opacity="0.82"/>
+    <rect data-series="daily" x="889.17" y="341.51" width="8.06" height="6.49" rx="1.8" fill="#39d353" opacity="0.82"/>
+    <rect data-series="daily" x="900.37" y="335.01" width="8.06" height="12.99" rx="1.8" fill="#39d353" opacity="0.82"/>
+    <rect data-series="daily" x="911.57" y="343.67" width="8.06" height="4.33" rx="1.8" fill="#39d353" opacity="0.82"/>
+    <rect data-series="daily" x="922.77" y="343.67" width="8.06" height="4.33" rx="1.8" fill="#39d353" opacity="0.82"/>
+    <rect data-series="daily" x="933.97" y="343.67" width="8.06" height="4.33" rx="1.8" fill="#39d353" opacity="0.82"/>
+    <rect data-series="daily" x="945.17" y="339.34" width="8.06" height="8.66" rx="1.8" fill="#39d353" opacity="0.82"/>
+    <rect data-series="daily" x="956.37" y="335.01" width="8.06" height="12.99" rx="1.8" fill="#39d353" opacity="0.82"/>
+    <rect data-series="daily" x="967.57" y="345.84" width="8.06" height="2.16" rx="1.8" fill="#39d353" opacity="0.82"/>
+    <rect data-series="daily" x="978.77" y="339.34" width="8.06" height="8.66" rx="1.8" fill="#39d353" opacity="0.82"/>
+    <rect data-series="daily" x="989.97" y="317.69" width="8.06" height="30.31" rx="1.8" fill="#39d353" opacity="0.82"/>
+    <rect data-series="daily" x="1001.17" y="343.67" width="8.06" height="4.33" rx="1.8" fill="#39d353" opacity="0.82"/>
+    <rect data-series="daily" x="1012.37" y="343.67" width="8.06" height="4.33" rx="1.8" fill="#39d353" opacity="0.82"/>
+    <rect data-series="daily" x="1023.57" y="313.36" width="8.06" height="34.64" rx="1.8" fill="#39d353" opacity="0.82"/>
+    <rect data-series="daily" x="1034.77" y="326.35" width="8.06" height="21.65" rx="1.8" fill="#39d353" opacity="0.82"/>
+    <rect data-series="daily" x="1045.97" y="332.85" width="8.06" height="15.15" rx="1.8" fill="#39d353" opacity="0.82"/>
+    <rect data-series="daily" x="1057.17" y="248.41" width="8.06" height="99.59" rx="1.8" fill="#39d353" opacity="0.82"/>
     <rect data-series="daily" x="1068.37" y="144.49" width="8.06" height="203.51" rx="1.8" fill="#56d364" opacity="1"/>
     </g>
-    <path data-series="trend" d="M 75.60 324.24 C 79.33 320.97, 83.07 314.44, 86.80 314.44 C 90.53 314.44, 94.27 314.85, 98.00 315.24 C 101.73 315.62, 105.47 316.69, 109.20 317.30 C 112.93 317.91, 116.67 318.58, 120.40 318.94 C 124.13 319.29, 127.87 319.27, 131.60 319.74 C 135.33 320.21, 139.07 325.47, 142.80 325.47 C 146.53 325.47, 150.27 320.57, 154.00 320.57 C 157.73 320.57, 161.47 327.51, 165.20 328.77 C 168.93 330.02, 172.67 330.46, 176.40 331.20 C 180.13 331.95, 183.87 332.58, 187.60 333.27 C 191.33 333.95, 195.07 335.30, 198.80 335.30 C 202.53 335.30, 206.27 332.84, 210.00 332.84 C 213.73 332.84, 217.47 332.84, 221.20 332.84 C 224.93 332.84, 228.67 337.77, 232.40 337.77 C 236.13 337.77, 239.87 334.62, 243.60 333.27 C 247.33 331.91, 251.07 330.87, 254.80 329.57 C 258.53 328.27, 262.27 326.68, 266.00 325.47 C 269.73 324.26, 273.47 322.20, 277.20 322.20 C 280.93 322.20, 284.67 324.44, 288.40 324.67 C 292.13 324.90, 295.87 324.94, 299.60 325.07 C 303.33 325.20, 307.07 325.25, 310.80 325.47 C 314.53 325.69, 318.27 327.02, 322.00 327.53 C 325.73 328.05, 329.47 328.36, 333.20 328.77 C 336.93 329.17, 340.67 329.97, 344.40 329.97 C 348.13 329.97, 351.87 327.10, 355.60 327.10 C 359.33 327.10, 363.07 327.94, 366.80 327.94 C 370.53 327.94, 374.27 326.29, 378.00 325.90 C 381.73 325.51, 385.47 325.40, 389.20 325.07 C 392.93 324.74, 396.67 324.31, 400.40 323.84 C 404.13 323.37, 407.87 323.04, 411.60 322.20 C 415.33 321.37, 419.07 316.87, 422.80 316.87 C 426.53 316.87, 430.27 318.10, 434.00 318.10 C 437.73 318.10, 441.47 315.24, 445.20 315.24 C 448.93 315.24, 452.67 316.14, 456.40 316.47 C 460.13 316.80, 463.87 316.93, 467.60 317.30 C 471.33 317.67, 475.07 318.16, 478.80 318.94 C 482.53 319.71, 486.27 321.67, 490.00 323.03 C 493.73 324.40, 497.47 325.68, 501.20 327.10 C 504.93 328.53, 508.67 331.63, 512.40 331.63 C 516.13 331.63, 519.87 331.28, 523.60 330.80 C 527.33 330.33, 531.07 326.87, 534.80 325.90 C 538.53 324.93, 542.27 323.84, 546.00 323.84 C 549.73 323.84, 553.47 325.47, 557.20 325.47 C 560.93 325.47, 564.67 324.53, 568.40 323.84 C 572.13 323.14, 575.87 321.85, 579.60 320.97 C 583.33 320.09, 587.07 319.16, 590.80 318.51 C 594.53 317.85, 598.27 316.87, 602.00 316.87 C 605.73 316.87, 609.47 319.74, 613.20 319.74 C 616.93 319.74, 620.67 311.46, 624.40 309.51 C 628.13 307.55, 631.87 306.19, 635.60 305.41 C 639.33 304.63, 643.07 304.57, 646.80 303.77 C 650.53 302.97, 654.27 300.21, 658.00 299.27 C 661.73 298.34, 665.47 297.24, 669.20 297.24 C 672.93 297.24, 676.67 297.72, 680.40 298.04 C 684.13 298.36, 687.87 298.53, 691.60 299.27 C 695.33 300.01, 699.07 308.45, 702.80 310.74 C 706.53 313.03, 710.27 315.64, 714.00 315.64 C 717.73 315.64, 721.47 313.20, 725.20 313.20 C 728.93 313.20, 732.67 317.27, 736.40 318.51 C 740.13 319.75, 743.87 320.57, 747.60 321.37 C 751.33 322.17, 755.07 322.92, 758.80 323.44 C 762.53 323.95, 766.27 324.67, 770.00 324.67 C 773.73 324.67, 777.47 324.42, 781.20 324.24 C 784.93 324.05, 788.67 323.44, 792.40 323.44 C 796.13 323.44, 799.87 325.06, 803.60 326.30 C 807.33 327.54, 811.07 331.63, 814.80 331.63 C 818.53 331.63, 822.27 331.08, 826.00 330.80 C 829.73 330.52, 833.47 330.45, 837.20 329.97 C 840.93 329.49, 844.67 324.71, 848.40 324.24 C 852.13 323.77, 855.87 323.44, 859.60 323.44 C 863.33 323.44, 867.07 323.79, 870.80 324.24 C 874.53 324.69, 878.27 328.08, 882.00 328.34 C 885.73 328.60, 889.47 328.58, 893.20 328.77 C 896.93 328.95, 900.67 329.14, 904.40 329.57 C 908.13 330.00, 911.87 331.49, 915.60 332.84 C 919.33 334.19, 923.07 337.33, 926.80 338.17 C 930.53 339.00, 934.27 339.80, 938.00 339.80 C 941.73 339.80, 945.47 339.80, 949.20 339.80 C 952.93 339.80, 956.67 337.77, 960.40 337.77 C 964.13 337.77, 967.87 338.30, 971.60 338.57 C 975.33 338.84, 979.07 339.40, 982.80 339.40 C 986.53 339.40, 990.27 334.50, 994.00 334.50 C 997.73 334.50, 1001.47 334.50, 1005.20 334.50 C 1008.93 334.50, 1012.67 334.50, 1016.40 334.50 C 1020.13 334.50, 1023.87 330.39, 1027.60 329.57 C 1031.33 328.75, 1035.07 328.59, 1038.80 327.94 C 1042.53 327.28, 1046.27 326.91, 1050.00 325.47 C 1053.73 324.03, 1057.47 314.87, 1061.20 308.27 C 1064.93 301.67, 1068.67 292.72, 1072.40 284.94" fill="none" stroke="#58a6ff" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" opacity="0.94" vector-effect="non-scaling-stroke"/>
+    <path data-series="trend" d="M 75.60 330.05 C 79.33 327.58, 83.07 322.65, 86.80 322.65 C 90.53 322.65, 94.27 322.96, 98.00 323.25 C 101.73 323.55, 105.47 324.35, 109.20 324.81 C 112.93 325.27, 116.67 325.78, 120.40 326.05 C 124.13 326.32, 127.87 326.30, 131.60 326.65 C 135.33 327.01, 139.07 330.98, 142.80 330.98 C 146.53 330.98, 150.27 327.28, 154.00 327.28 C 157.73 327.28, 161.47 332.53, 165.20 333.47 C 168.93 334.42, 172.67 334.75, 176.40 335.31 C 180.13 335.88, 183.87 336.36, 187.60 336.87 C 191.33 337.39, 195.07 338.41, 198.80 338.41 C 202.53 338.41, 206.27 336.55, 210.00 336.55 C 213.73 336.55, 217.47 336.55, 221.20 336.55 C 224.93 336.55, 228.67 340.27, 232.40 340.27 C 236.13 340.27, 239.87 337.89, 243.60 336.87 C 247.33 335.85, 251.07 335.06, 254.80 334.08 C 258.53 333.10, 262.27 331.90, 266.00 330.98 C 269.73 330.07, 273.47 328.52, 277.20 328.52 C 280.93 328.52, 284.67 330.20, 288.40 330.38 C 292.13 330.55, 295.87 330.58, 299.60 330.68 C 303.33 330.78, 307.07 330.81, 310.80 330.98 C 314.53 331.15, 318.27 332.15, 322.00 332.54 C 325.73 332.93, 329.47 333.17, 333.20 333.47 C 336.93 333.78, 340.67 334.38, 344.40 334.38 C 348.13 334.38, 351.87 332.22, 355.60 332.22 C 359.33 332.22, 363.07 332.85, 366.80 332.85 C 370.53 332.85, 374.27 331.61, 378.00 331.31 C 381.73 331.01, 385.47 330.93, 389.20 330.68 C 392.93 330.43, 396.67 330.10, 400.40 329.75 C 404.13 329.40, 407.87 329.14, 411.60 328.52 C 415.33 327.89, 419.07 324.49, 422.80 324.49 C 426.53 324.49, 430.27 325.42, 434.00 325.42 C 437.73 325.42, 441.47 323.25, 445.20 323.25 C 448.93 323.25, 452.67 323.94, 456.40 324.19 C 460.13 324.44, 463.87 324.54, 467.60 324.81 C 471.33 325.09, 475.07 325.46, 478.80 326.05 C 482.53 326.64, 486.27 328.11, 490.00 329.14 C 493.73 330.17, 497.47 331.14, 501.20 332.22 C 504.93 333.30, 508.67 335.64, 512.40 335.64 C 516.13 335.64, 519.87 335.37, 523.60 335.01 C 527.33 334.65, 531.07 332.04, 534.80 331.31 C 538.53 330.58, 542.27 329.75, 546.00 329.75 C 549.73 329.75, 553.47 330.98, 557.20 330.98 C 560.93 330.98, 564.67 330.27, 568.40 329.75 C 572.13 329.23, 575.87 328.25, 579.60 327.58 C 583.33 326.92, 587.07 326.22, 590.80 325.72 C 594.53 325.23, 598.27 324.49, 602.00 324.49 C 605.73 324.49, 609.47 326.65, 613.20 326.65 C 616.93 326.65, 620.67 320.40, 624.40 318.92 C 628.13 317.45, 631.87 316.42, 635.60 315.83 C 639.33 315.24, 643.07 315.20, 646.80 314.59 C 650.53 313.99, 654.27 311.90, 658.00 311.20 C 661.73 310.49, 665.47 309.66, 669.20 309.66 C 672.93 309.66, 676.67 310.02, 680.40 310.26 C 684.13 310.51, 687.87 310.63, 691.60 311.20 C 695.33 311.76, 699.07 318.13, 702.80 319.86 C 706.53 321.58, 710.27 323.56, 714.00 323.56 C 717.73 323.56, 721.47 321.72, 725.20 321.72 C 728.93 321.72, 732.67 324.79, 736.40 325.72 C 740.13 326.66, 743.87 327.28, 747.60 327.89 C 751.33 328.49, 755.07 329.06, 758.80 329.45 C 762.53 329.83, 766.27 330.38, 770.00 330.38 C 773.73 330.38, 777.47 330.19, 781.20 330.05 C 784.93 329.91, 788.67 329.45, 792.40 329.45 C 796.13 329.45, 799.87 330.67, 803.60 331.61 C 807.33 332.55, 811.07 335.64, 814.80 335.64 C 818.53 335.64, 822.27 335.22, 826.00 335.01 C 829.73 334.80, 833.47 334.75, 837.20 334.38 C 840.93 334.02, 844.67 330.41, 848.40 330.05 C 852.13 329.70, 855.87 329.45, 859.60 329.45 C 863.33 329.45, 867.07 329.71, 870.80 330.05 C 874.53 330.39, 878.27 332.95, 882.00 333.15 C 885.73 333.34, 889.47 333.33, 893.20 333.47 C 896.93 333.61, 900.67 333.75, 904.40 334.08 C 908.13 334.40, 911.87 335.53, 915.60 336.55 C 919.33 337.57, 923.07 339.94, 926.80 340.57 C 930.53 341.20, 934.27 341.81, 938.00 341.81 C 941.73 341.81, 945.47 341.81, 949.20 341.81 C 952.93 341.81, 956.67 340.27, 960.40 340.27 C 964.13 340.27, 967.87 340.67, 971.60 340.88 C 975.33 341.08, 979.07 341.51, 982.80 341.51 C 986.53 341.51, 990.27 337.80, 994.00 337.80 C 997.73 337.80, 1001.47 337.80, 1005.20 337.80 C 1008.93 337.80, 1012.67 337.80, 1016.40 337.80 C 1020.13 337.80, 1023.87 334.70, 1027.60 334.08 C 1031.33 333.46, 1035.07 333.34, 1038.80 332.85 C 1042.53 332.35, 1046.27 332.07, 1050.00 330.98 C 1053.73 329.90, 1057.47 323.67, 1061.20 317.99 C 1064.93 312.31, 1068.67 301.50, 1072.40 293.25" fill="none" stroke="#58a6ff" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" opacity="0.94" vector-effect="non-scaling-stroke"/>
     <text x="75.60" y="389" fill="#8b949e" font-size="12" text-anchor="start" opacity="0.86">Jul 14</text>
     <text x="277.20" y="389" fill="#8b949e" font-size="12" text-anchor="middle" opacity="0.86">Aug 01</text>
     <text x="478.80" y="389" fill="#8b949e" font-size="12" text-anchor="middle" opacity="0.86">Aug 19</text>
