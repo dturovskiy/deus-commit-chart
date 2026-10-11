@@ -8,6 +8,11 @@ spec = importlib.util.spec_from_file_location("chart_cache_probe", SCRIPT)
 probe = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(probe)
 
+SAMPLER = Path(__file__).resolve().parents[1] / "ci" / "sample-readme-cache.py"
+sampler_spec = importlib.util.spec_from_file_location("chart_cache_sampler", SAMPLER)
+sampler = importlib.util.module_from_spec(sampler_spec)
+sampler_spec.loader.exec_module(sampler)
+
 class CacheProbeTests(unittest.TestCase):
     def test_extracts_only_matching_profile_image(self):
         parser = probe.ChartImageParser()
@@ -42,6 +47,40 @@ class CacheProbeTests(unittest.TestCase):
                     "file:///etc/passwd", "https://github.com.evil.invalid"):
             with self.assertRaises(ValueError):
                 probe.fetch(uri)
+
+    def test_longitudinal_sample_matches_do_not_imply_cache_sla(self):
+        samples = [
+            {"state": "profile_raw_matched",
+             "snapshotAgeAtProbeSeconds": age,
+             "observations": {"profile": {"embedHost": "raw.githubusercontent.com"}},
+             "independentImageProxyObserved": False}
+            for age in (8.5, 23.7, 40.0)
+        ]
+        report = sampler.summarize_observations(samples)
+        self.assertEqual(report["sampleCount"], 3)
+        self.assertEqual(report["observedTransitions"], [])
+        self.assertFalse(report["independentImageProxyObserved"])
+        self.assertFalse(report["cacheSlaEstablished"])
+
+    def test_longitudinal_transition_requires_same_actual_embed_host(self):
+        raw_lag = {"state": "profile_raw_lag_observed",
+                   "snapshotAgeAtProbeSeconds": 10,
+                   "observations": {"profile": {"embedHost": "raw.githubusercontent.com"}}}
+        camo_match = {"state": "proxy_matched",
+                      "snapshotAgeAtProbeSeconds": 20,
+                      "observations": {"profile": {"embedHost": "camo.githubusercontent.com"}},
+                      "independentImageProxyObserved": True}
+        self.assertEqual(sampler.summarize_observations([raw_lag, camo_match])["observedTransitions"], [])
+        raw_match = {"state": "profile_raw_matched",
+                     "snapshotAgeAtProbeSeconds": 25,
+                     "observations": {"profile": {"embedHost": "raw.githubusercontent.com"}}}
+        report = sampler.summarize_observations([raw_lag, raw_match])
+        self.assertEqual(report["observedTransitions"], [{
+            "embedHost": "raw.githubusercontent.com",
+            "lastStaleSnapshotAgeSeconds": 10,
+            "firstFreshSnapshotAgeSeconds": 25
+        }])
+        self.assertFalse(report["cacheSlaEstablished"])
 
 if __name__ == "__main__":
     unittest.main()

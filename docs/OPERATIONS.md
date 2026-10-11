@@ -27,7 +27,7 @@ All chart windows are anchored to the build's **UTC day**. GitHub's contribution
 
 To validate a candidate against a **single independently captured live API reply**, manually dispatch `marketplace-consumer.yml` on `main`. The final `ci/live-api-candidate.js` step uses the same secret/fallback token policy as the publisher, keeps the captured reply strictly in memory, checks every UTC day and 30/90/365 sums against the resulting HTML/SVG/manifest, and discards temporary data. Only a success marker with generatedAt, public totals and shortened snapshot ID enters run logs. It performs no publication, scheduled polling, artifact upload or issue creation. Negative fixtures are in `test/live-api-candidate.test.js`.
 
-The [README cache audit workflow](../.github/workflows/audit-readme-cache.yml) is **manual-only**. It compares the published snapshot with the GitHub profile image when possible and writes a job summary without uploading an artifact. It does not consume scheduled jobs or affect publishing.
+The [README cache audit workflow](../.github/workflows/audit-readme-cache.yml) is **manual-only**. It compares the published snapshot with the GitHub profile image when possible and writes a job summary without uploading an artifact. The optional `samples=3` input observes the same published snapshot three times at 15-second intervals, reporting whether an actual same-host stale-to-fresh transition was seen; `samples=1` is the default. It does not consume scheduled jobs or affect publishing. An immediately fresh image is reassuring but does not prove a maximum cache TTL.
 
 ## README cache-audit result and interpretation
 
