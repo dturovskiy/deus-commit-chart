@@ -89,8 +89,8 @@ test('Marketplace inputs/outputs preserve the signed v1.4.1 public contract', ()
 });
 
 test('external GitHub Actions are pinned to reviewed full release SHAs', () => {
-  const shaCheckout = '11d5960a326750d5838078e36cf38b85af677262';
-  const shaSetup = '49933ea5288caeca8642d1e84afbd3f7d6820020';
+  const shaCheckout = '3d3c42e5aac5ba805825da76410c181273ba90b1';
+  const shaSetup = '949feb2413d6458794dcd2491c4babbbce0c15c1';
   const files = [
     '../action.yml',
     '../.github/workflows/publish-pages.yml',
@@ -110,6 +110,15 @@ test('external GitHub Actions are pinned to reviewed full release SHAs', () => {
     }
     assert.doesNotMatch(content, /uses:\s+actions\/[\w-]+@v\d+/);
   }
+  for (const file of ['../action.yml','../.github/workflows/smoke.yml',
+    '../.github/workflows/publish-pages.yml','../.github/workflows/monitor-freshness.yml']) {
+    const content = fs.readFileSync(path.join(__dirname,file),'utf8');
+    assert.match(content, /package-manager-cache: false/,
+      'Disable implicit npm cache when using the Node 24 Action runtime: ' + file);
+  }
+  const publish = workflow('publish-pages.yml');
+  assert.match(publish, /persist-credentials: false/);
+  assert.doesNotMatch(publish, /\bcache:\s*npm\b/);
 });
 
 test('tagged Marketplace consumer runs only on explicit dispatch and uses remote v1.5.2', () => {
@@ -126,7 +135,7 @@ test('tagged Marketplace consumer runs only on explicit dispatch and uses remote
   assert.match(content, /DEUS_COMMIT_CHART_GITHUB_TOKEN: \$\{\{ secrets\.DEUS_COMMIT_CHART_TOKEN \|\| github\.token \}\}/);
   assert.match(content, /python3 ci\/validate-svg\.py/);
   assert.doesNotMatch(content, /upload-artifact|download-artifact|contents: write|git push/);
-  assert.match(content, /actions\/checkout@11d5960a326750d5838078e36cf38b85af677262/);
+  assert.match(content, /actions\/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1/);
 });
 
 test('the upcoming Marketplace release version is consistent in npm metadata', () => {

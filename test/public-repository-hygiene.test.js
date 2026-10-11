@@ -95,3 +95,13 @@ test('generated output directories and diagnostic files stay untracked', () => {
   assert.deepEqual(names.filter(name => forbidden.test(name)), [],
     'Generated or temporary artifacts must not be committed on main');
 });
+
+test('brand logo is retained, obsolete MIA-specific wrapper is retired', () => {
+  assert.ok(fs.existsSync(path.join(ROOT, 'assets/deus-apps-logo.svg')),
+    'Owner brand asset must remain in source history');
+  assert.equal(fs.existsSync(path.join(ROOT, 'run-mia-commit-chart.sh')), false,
+    'Old project-specific helper should not be restored');
+  const readme = fs.readFileSync(path.join(ROOT, 'README.md'), 'utf8');
+  assert.doesNotMatch(readme, /run-mia-commit-chart\.sh|mia-platform/);
+  assert.match(readme, /node generate-commit-chart\.js/);
+});

@@ -312,24 +312,19 @@ The static SVG includes:
 --out           output path
 ```
 
-## WSL helper
+## Local Git reports (Linux, macOS or WSL)
 
-The existing helper remains available for local repository reports:
-
-```bash
-TARGET_REPO=/path/to/git/repo bash run-mia-commit-chart.sh
-```
-
-Optional environment variables:
+Use the standard CLI directly; no project-specific wrapper or special Windows setup is required:
 
 ```bash
-TARGET_REPO=/path/to/git/repo
-BRANCH=main
-OUT_FILE=/path/to/output.html
-TITLE="Commit activity"
+node generate-commit-chart.js \
+  --repo /path/to/git/repo \
+  --branch main \
+  --out commit-chart.html \
+  --title "Commit activity"
 ```
 
-The helper derives the Windows Downloads directory dynamically through WSL and does not hardcode a Windows or Linux username.
+Choose the output path yourself, including `/mnt/c/Users/.../Downloads/commit-chart.html` in WSL if you want it in Windows Downloads.
 
 ## Documentation and project status
 

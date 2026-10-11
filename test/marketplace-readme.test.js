@@ -53,7 +53,7 @@ test('Marketplace README gives users an opt-in/manual profile workflow, not mand
   assert.doesNotMatch(yaml, /^  schedule:/m);
   assert.match(yaml, /#   - cron: '17 4 \* \* \*'/);
   assert.match(yaml, /uses: dturovskiy\/deus-commit-chart@v1\.5\.2/);
-  assert.match(yaml, /actions\/checkout@11d5960a326750d5838078e36cf38b85af677262/);
+  assert.match(yaml, /actions\/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1/);
   assert.doesNotMatch(yaml, /git push (?:-f|--force)|upload-artifact|download-artifact|npm test/);
 });
 
