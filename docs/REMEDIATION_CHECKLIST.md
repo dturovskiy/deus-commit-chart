@@ -6,12 +6,19 @@
 >
 > **Rule for marking complete:** evidence (test output, review link, artifact SHA, CI run, or documented decision) must exist. "Implemented" without verification is **not done**.
 
+## Verified checkpoint — 2026-10-11
+
+- **Detailed technical gates: 43/56 checked, 13 open**, including the newly captured full published HTML/SVG SHA-256 manifest (DC-G0-04).
+- **Final acceptance assertions: 1/9 checked, 8 open.** Counting both groups: **44/65 checked, 21 open**. These are *checkbox state*, not an estimate of release readiness.
+- Security/hygiene: ten GitHub branches tied to merged PRs were deleted; `origin/tag-v1-check`, `main` and `activity-assets` were retained. The [audit](REPO_HYGIENE_AND_SECRETS_AUDIT.md) found no high-confidence credential values across 268 reachable blobs and documented **four historical HTML snapshots containing private contribution breakdown fields**, which cannot be erased by ordinary branch pruning. The PR-only secret guard has synthetic regression tests; mark its CI evidence only after the PR run finishes.
+- Intentionally open/accepted: G2-10 single write-scoped publisher, G2-11 manual-only freshness diagnostics, cache/proxy latency, actual browser QA and signed Marketplace `v1` release coordination. Do not reopen scheduled CI or silently enable `main` branch protection.
+
 ## Gate 0 — Baseline and prerequisites
 
 - [x] **DC-G0-01** Confirm branch, HEAD, remotes, and existing untracked files before implementation; do not touch unrelated `.tmp-30.svg`. (DEUS MCP git summary and status, 2026-10-10.)
 - [x] **DC-G0-02** Restore Node/npm execution in the DEUS MCP environment or select a reproducible alternate runner; record exact command, runtime and outcome.
 - [x] **DC-G0-03** Execute `npm test`, `npm run check`, and the relevant GitHub CI workflow; record failures without masking them. (Smoke 38088841377: both commands, Python probe, rollback; real GraphQL build 38088845811.)
-- [ ] **DC-G0-04** Save reference manifest of existing 30d/90d/365d SVG and HTML, source SHA and latest known publish run.
+- [x] **DC-G0-04** Save a reference manifest of existing 30d/90d/365d SVG and HTML, source SHA and publish run. (Captured exact current asset SHA-256 hashes and 365-day totals in [Repository Hygiene and Secrets Audit](REPO_HYGIENE_AND_SECRETS_AUDIT.md), published run 38132248720, on 2026-10-11.)
 - [x] **DC-G0-05** Add a fixed-date fixture for 2026-10-09=7, 2026-10-10=3 and replacement 2026-10-10=15; assert last daily point and total delta +12.
 - [x] **DC-G0-06** Write down actual source/token visibility assumptions, expected freshness behavior and UTC/calendar-date semantics before editing ingestion logic.
 
@@ -172,7 +179,7 @@
 - [PR #7](https://github.com/dturovskiy/deus-commit-chart/pull/7) merged as `ab272c1d50e72e7bce01b3609100399fbdb7936e`.
 - [Main smoke 38094426657](https://github.com/dturovskiy/deus-commit-chart/actions/runs/38094426657) **SUCCESS**. [Production publish 38094426663](https://github.com/dturovskiy/deus-commit-chart/actions/runs/38094426663): build and publish both **SUCCESS**; [post-deploy health 38094479108](https://github.com/dturovskiy/deus-commit-chart/actions/runs/38094479108) **SUCCESS**.
 - Published `activity-assets` manifest: `sourceCommit=ab272c1`, `workflowRun=38094426663`, snapshot `5e236808b8452d099416b06c3ab71e391457610690be0118f7dfe1b909dc61f6`, generated `2026-10-10T23:16:12.605Z`, 30d=228, 90d=789, 365d=3074. Checked `manifest.json`, `index.html` and 30d SVG directly from the remote with no truncated responses. HTML uses canonical pure renderer functions and the published SVG has daily bars and one trend path.
-- [CI/Action security review](CI_ACTION_SECURITY_REVIEW.md) confirms read/write credential separation, branch guard, checksum and XML checks, offline local Action compatibility, error taxonomy and privacy. **Residual P2:** upstream `actions/*@v4` dependencies are major-tag-based, not SHA-pinned.
+- [CI/Action security review](CI_ACTION_SECURITY_REVIEW.md) documents the original two-job credential separation. **Later policy:** one trusted main-only write-capable publisher was explicitly accepted for reduced CI cost, and external `actions/checkout`/`setup-node` are SHA-pinned as verified by PR #11. Complete least-privilege separation remains OPEN (G2-10).
 - **Still open:** full G3-01 extraction of metrics/tick policy into a separate, independently tested pure package, longitudinal GitHub cache measurements and real-browser visual QA. Do not mark these complete based solely on this refactor.
 
 ## Lean PR-only CI and six-hour publishing policy (2026-10-11)

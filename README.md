@@ -391,6 +391,7 @@ The architecture audit and remediation work are tracked inside this repository:
 - [Source Adapters and Rendering Contracts](docs/SOURCE_AND_RENDER_ARCHITECTURE.md) — local Git/GraphQL boundaries, error taxonomy, shared SVG/HTML mathematics and compatibility.
 - [CI and GitHub Action Security Review](docs/CI_ACTION_SECURITY_REVIEW.md) — permission boundaries, publication guarantees, compatibility evidence and outstanding supply-chain risks.
 - [Marketplace Release Policy](docs/MARKETPLACE_RELEASE_POLICY.md) — current signed `@v1` target, compatibility guarantees and explicit versioned-release approval steps.
+- [Repository Hygiene and Secrets Audit](docs/REPO_HYGIENE_AND_SECRETS_AUDIT.md) — tracked-source credential guard, old public-data history, branch cleanup and verified release baseline.
 
 Initial data-integrity and publishing fixes shipped on 2026-10-10; additional remediation items remain open until supported by test or release evidence.
 

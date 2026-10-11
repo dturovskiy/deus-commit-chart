@@ -8,3 +8,7 @@ __pycache__/
 activity-*.svg
 .env
 .env.*
+# Temporary outputs and manual cache diagnostics stay untracked.
+.tmp/
+.tmp-*.svg
+cache-audit.json
