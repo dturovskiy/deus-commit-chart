@@ -1,3 +1,28 @@
 {
-  "capture": true
+  "spikes-spacious-dark": {
+    "snapshotId": "73482bead3ce956ae38541a0c7d07fd4e0405371b8536bddb1610014d06c8187",
+    "totals": {
+      "30": 36,
+      "90": 95,
+      "365": 273
+    },
+    "hashes": {
+      "30": "409c53ceffcc467b2812eb6256999f5744966bfb75e3f3615f54b1356ed3e26f",
+      "90": "eb23086c4690db58dca5d08b10b030de9cc5a1f94adfd0913f257a74edb743ab",
+      "365": "0cd415f3da74334ee87e6803f44ab80d303f11340e33dc83fa73650d68922310"
+    }
+  },
+  "zero-compact-light": {
+    "snapshotId": "2a2edf1c3c3d0056d1f0153ac842d6664c075c9d16f40f44f7255b60dbeb81a3",
+    "totals": {
+      "30": 0,
+      "90": 0,
+      "365": 0
+    },
+    "hashes": {
+      "30": "0973d39109ac13f643565ebd56d3b49c1fd26c9593a438b0df00ec400a3df119",
+      "90": "5c20e81340628dbac81ed1ea4021b7c8740ef86247e9533690efc10e0f66243a",
+      "365": "af5b0aa3ab98249197d99806d3151b48aeeba259efc17f693b9c462fe8972ee6"
+    }
+  }
 }

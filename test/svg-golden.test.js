@@ -59,15 +59,7 @@ if(process.argv.includes('--print-golden')) {
 } else {
   test('fixed 30/90/365 SVG golden outputs remain byte-stable in both themes and layouts',()=>{
     const expected=require('./svg-golden.json');
-    const actual=renders();
-    // This temporary capture mode is used once to record baseline from PR CI.
-    // It will be removed before merge, with the reviewed hashes checked in.
-    if(expected.capture===true) {
-      console.log('SVG_GOLDEN_CANDIDATE '+JSON.stringify(actual));
-      assert.equal(Object.keys(actual).length,2);
-    } else {
-      assert.deepEqual(actual,expected,
-        'Golden SVG changed; review intended visual/data/metadata differences before updating fixtures');
-    }
+    assert.deepEqual(renders(),expected,
+      'Golden SVG changed; review intended visual/data/metadata differences before updating fixtures');
   });
 }

@@ -8,8 +8,8 @@
 
 ## Verified checkpoint — 2026-10-11
 
-- **Detailed technical gates: 44/56 checked, 12 open**, including the newly captured full published HTML/SVG SHA-256 manifest (DC-G0-04).
-- **Final acceptance assertions: 8/9 checked, 1 open.** Counting both groups: **52/65 checked, 13 open**. These are *checkbox state*, not an estimate of release readiness.
+- **Detailed technical gates: 46/56 checked, 10 open**, including the newly captured full published HTML/SVG SHA-256 manifest (DC-G0-04).
+- **Final acceptance assertions: 8/9 checked, 1 open.** Counting both groups: **54/65 checked, 11 open**. These are *checkbox state*, not an estimate of release readiness.
 - Security/hygiene: ten GitHub branches tied to merged PRs were deleted; `origin/tag-v1-check`, `main` and `activity-assets` were retained. The [audit](REPO_HYGIENE_AND_SECRETS_AUDIT.md) found no high-confidence credential values across 268 reachable blobs and documented **four historical HTML snapshots containing private contribution breakdown fields**, which cannot be erased by ordinary branch pruning. The PR-only secret guard passed in [Smoke CI #38134694024](https://github.com/dturovskiy/deus-commit-chart/actions/runs/38134694024), scanning 57 tracked files and passing 5 synthetic tests.
 - Intentionally open/accepted: G2-10 single write-scoped publisher, G2-11 manual-only freshness diagnostics, cache/proxy latency, actual browser QA, and **signed major alias `v1`** approval; [new `v1.5.0` release](https://github.com/dturovskiy/deus-commit-chart/releases/tag/v1.5.0) is published and separately validated. Do not reopen scheduled CI or silently enable `main` branch protection.
 
@@ -27,6 +27,12 @@
 - A real test executes the *exact published example script* with a temporary bare Git remote, checks initial publication, identical no-op, changed counts, preserved `main` and all normal output paths. The Action's public input/output contract and maintainer's scheduled publisher remain unchanged.
 - New annotated `v1.5.1` points to `b61509e`; [real tagged consumer #38138078385](https://github.com/dturovskiy/deus-commit-chart/actions/runs/38138078385) **SUCCESS** in both local and live GraphQL modes. [GitHub Release v1.5.1](https://github.com/dturovskiy/deus-commit-chart/releases/tag/v1.5.1) published 2026-10-11 as stable. GitHub's default-branch README reflects the new example; public Marketplace/search caches may take time to refresh.
 - **Checklist status stays 52/65**. No new technical or acceptance box has been closed by copy edits or an offline Git publishing rehearsal: responsive browser QA, measured profile-image caching and security/permission decisions remain separate evidence requirements.
+
+## GraphQL fixture and SVG golden verification — 2026-10-11
+
+- [PR #17](https://github.com/dturovskiy/deus-commit-chart/pull/17): new fixed-clock, synthetic **GitHub GraphQL fixtures** cover complete/partial calendars, boundary repair, visibility-field minimization, malformed conflicting days, 401/403, 429/503, transient recovery and abort/timeout. Test credentials are synthetic and never read from GitHub.
+- Static **SVG goldens**: six pinned full-file SHA-256 hashes (30/90/365 for sparse/spiky dark-spacious and all-zero light-compact calendars), accompanied by exact range-total, snapshot-marker, daily bar/trend, XML/safety and independent manifest assertions. Hashes were obtained from [PR CI #38139132957](https://github.com/dturovskiy/deus-commit-chart/actions/runs/38139132957), then committed as reviewable JSON, with the temporary capture-mode fallback removed. Future intentional visual changes require explicit fixture review.
+- No chart runtime, output schema, existing Marketplace tag or schedule changes; `@v1.5.1` remains the latest published release. This closes **G4-03 and G4-06**, but **does not** claim real-browser QA (G4-07), narrow-display visual review (G3-08) or actual README proxy cache measurements (G2-12).
 
 ## Gate 0 — Baseline and prerequisites
 
@@ -89,10 +95,10 @@
 
 - [x] **DC-G4-01** Use a fixed injected clock for all time-dependent tests; repair the January 2026 fixture so its 30d assertion is meaningful.
 - [x] **DC-G4-02** Add data invariants and regression tests: 3→15, zero, missing day, duplicate date, invalid count, current-day partial and cumulative delta.
-- [ ] **DC-G4-03** Add GraphQL fixtures: success, partial calendar, auth failure, rate limit, transient server error, timeout and visibility differences.
+- [x] **DC-G4-03** Add GraphQL fixtures: success, partial calendar, auth failure, rate limit, transient server error, timeout and visibility differences. (`test/graphql-fixtures.test.js`: fixed 365-day calendar, boundary recovery, different restricted-visibility response counts, missing/invalid/contradictory days, 401/403/429/503, network recovery and bounded timeout; [PR #17](https://github.com/dturovskiy/deus-commit-chart/pull/17).)
 - [x] **DC-G4-04** Assert exactly **one** GitHub API collection per build and one `snapshotId` across all formats.
 - [x] **DC-G4-05** Assert exact totals, date ranges, trend values and output metadata for each selected 30/90/365 window.
-- [ ] **DC-G4-06** Add SVG golden tests plus XML/path checks; static SVG must not contain executable script or network dependencies.
+- [x] **DC-G4-06** Add SVG golden tests plus XML/path checks; static SVG must not contain executable script or network dependencies. (`test/svg-golden.test.js` + checked-in `test/svg-golden.json`: six full-content SHA-256 baselines for 30/90/365-day spikes/dark/spacious and zero/light/compact, deterministic UTC fixtures; independently enforced by `ci/validate-svg.py` and manifest SHA checks; [PR #17](https://github.com/dturovskiy/deus-commit-chart/pull/17).)
 - [ ] **DC-G4-07** Add HTML/browser-level test of range controls, tooltip values, current-day state and responsive rendering.
 - [x] **DC-G4-08** Verify static-vs-interactive numerical parity for the same snapshot.
 - [x] **DC-G4-09** Add end-to-end negative publish test: one failed stage leaves the production ref/artifacts unchanged. (Isolated production-like Git remote: corrupt candidate rejected, ref unchanged; actual production never subjected to a failure injection.)
