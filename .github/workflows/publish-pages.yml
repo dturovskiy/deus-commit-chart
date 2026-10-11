@@ -17,8 +17,10 @@ jobs:
     permissions:
       contents: write
     steps:
-      - name: Checkout trusted source
+      - name: Checkout trusted source without persisting write credentials
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          persist-credentials: false
       - name: Setup Node.js
         uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
@@ -43,6 +45,9 @@ jobs:
       - name: Publish with fast-forward history (no force push)
         env:
           TARGET_BRANCH: activity-assets
+          # Only this publish step receives the GitHub write token. Checkout
+          # does not persist it to .git/config or expose it to generation.
+          GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
           temp_dir="$(mktemp -d)"
@@ -76,4 +81,7 @@ jobs:
           fi
           git commit -m "chore: refresh verified activity charts"
           # Conflicting concurrent changes reject the push; previous verified assets remain.
-          git push origin "HEAD:refs/heads/$TARGET_BRANCH"
+          # Use ephemeral gh credential helper; do not persist credentials,
+          # embed a token in the remote URL, or print one in argv/logs.
+          git -c credential.helper= -c credential.helper='!gh auth git-credential' \
+            push origin "HEAD:refs/heads/$TARGET_BRANCH"

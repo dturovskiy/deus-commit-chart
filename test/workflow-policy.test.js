@@ -32,7 +32,12 @@ test('profile publisher has only one six-hour scheduled job and optional manual 
   assert.match(content, /git archive FETCH_HEAD \| tar -xf - -C "\$previous_dir"/);
   assert.match(content, /if \[\[ "\$decision" -eq 0 \]\]; then/);
   assert.match(content, /python3 ci\/validate-svg\.py dist/);
-  assert.match(content, /git push origin "HEAD:refs\/heads\/\$TARGET_BRANCH"/);
+  assert.match(content, /git -c credential\.helper= -c credential\.helper='!gh auth git-credential'/);
+  assert.match(content, /push origin "HEAD:refs\/heads\/\$TARGET_BRANCH"/);
+  assert.match(content, /persist-credentials: false/);
+  assert.match(content, /GH_TOKEN: \$\{\{ github\.token \}\}/);
+  assert.equal((content.match(/GH_TOKEN: \$\{\{ github\.token \}\}/g) || []).length, 1);
+  assert.doesNotMatch(content, /git (?:remote set-url|config credential\.helper)|x-access-token:/);
   assert.doesNotMatch(content, /git push --force/);
   assert.match(content, /group: activity-assets/);
 });
