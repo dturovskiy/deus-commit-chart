@@ -94,3 +94,28 @@ test('external GitHub Actions are pinned to reviewed full release SHAs', () => {
     assert.doesNotMatch(content, /uses:\s+actions\/[\w-]+@v\d+/);
   }
 });
+
+test('tagged Marketplace consumer runs only on explicit dispatch and uses remote v1.5.0', () => {
+  const content = workflow('marketplace-consumer.yml');
+  const header = triggerSection(content);
+  assert.match(header, /\non:\n  workflow_dispatch:\n/);
+  assert.doesNotMatch(header, /\n  (?:push|pull_request|schedule):/);
+  assert.match(header, /\npermissions:\n  contents: read/);
+  assert.equal((content.match(/uses: dturovskiy\/deus-commit-chart@v1\.5\.0/g) || []).length, 2);
+  assert.match(content, /source: local/);
+  assert.match(content, /source: github/);
+  assert.match(content, /node verify-activity-assets\.js/);
+  assert.match(content, /python3 ci\/validate-svg\.py/);
+  assert.doesNotMatch(content, /upload-artifact|download-artifact|contents: write|git push/);
+  assert.match(content, /actions\/checkout@11d5960a326750d5838078e36cf38b85af677262/);
+});
+
+test('the upcoming Marketplace release version is consistent in npm metadata', () => {
+  const pkg = require('../package.json');
+  const lock = require('../package-lock.json');
+  assert.equal(pkg.version, '1.5.0');
+  assert.equal(lock.version, pkg.version);
+  assert.equal(lock.packages[''].version, pkg.version);
+  const changelog = fs.readFileSync(path.join(__dirname, '../CHANGELOG.md'), 'utf8');
+  assert.match(changelog, /^## 1\.5\.0$/m);
+});

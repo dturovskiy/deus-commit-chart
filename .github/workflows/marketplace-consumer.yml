@@ -1,0 +1,93 @@
+name: Verify tagged Marketplace consumer
+
+# Explicit release validation only: never runs on push, pull_request or schedule.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  consumer:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout verifier and offline fixtures
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+
+      - name: Create separate local repository fixture
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/deus-marketplace-consumer
+          git -C /tmp/deus-marketplace-consumer init -b main
+          git -C /tmp/deus-marketplace-consumer config user.name "Consumer Fixture"
+          git -C /tmp/deus-marketplace-consumer config user.email "consumer@example.invalid"
+          echo "first" > /tmp/deus-marketplace-consumer/fixture.txt
+          git -C /tmp/deus-marketplace-consumer add fixture.txt
+          GIT_AUTHOR_DATE="$(date -u -d 'yesterday' +%F)T12:00:00Z" \
+          GIT_COMMITTER_DATE="$(date -u -d 'yesterday' +%F)T12:00:00Z" \
+            git -C /tmp/deus-marketplace-consumer commit -m "fixture: yesterday"
+          echo "second" >> /tmp/deus-marketplace-consumer/fixture.txt
+          git -C /tmp/deus-marketplace-consumer add fixture.txt
+          GIT_AUTHOR_DATE="$(date -u +%F)T12:00:00Z" \
+          GIT_COMMITTER_DATE="$(date -u +%F)T12:00:00Z" \
+            git -C /tmp/deus-marketplace-consumer commit -m "fixture: today"
+
+      - name: Consume exact released Action by remote tag in offline/local mode
+        id: local
+        uses: dturovskiy/deus-commit-chart@v1.5.0
+        with:
+          source: local
+          repo: /tmp/deus-marketplace-consumer
+          branch: main
+          ranges: '30,90,365'
+          output-dir: .tmp/consumer-local
+          title: Tagged offline consumer
+
+      - name: Validate installed release outputs (local)
+        shell: bash
+        env:
+          OUTPUT_DIR: ${{ steps.local.outputs.output-dir }}
+          INDEX_HTML: ${{ steps.local.outputs.index-html }}
+        run: |
+          set -euo pipefail
+          test "$OUTPUT_DIR" = "$GITHUB_WORKSPACE/.tmp/consumer-local"
+          test "$INDEX_HTML" = "$OUTPUT_DIR/index.html"
+          node verify-activity-assets.js "$OUTPUT_DIR"
+          python3 ci/validate-svg.py "$OUTPUT_DIR"
+          grep -q '30 days · 2 commits' "$OUTPUT_DIR/activity-30d.svg"
+          test -s "$OUTPUT_DIR/activity-90d.svg"
+          test -s "$OUTPUT_DIR/activity-365d.svg"
+
+      - name: Consume exact released Action via authenticated GraphQL
+        id: github
+        uses: dturovskiy/deus-commit-chart@v1.5.0
+        with:
+          source: github
+          username: ${{ github.repository_owner }}
+          token: ${{ github.token }}
+          ranges: '30,90,365'
+          output-dir: .tmp/consumer-github
+          title: Tagged GitHub consumer
+
+      - name: Verify installed GitHub release data and public privacy policy
+        shell: bash
+        env:
+          OUTPUT_DIR: ${{ steps.github.outputs.output-dir }}
+        run: |
+          set -euo pipefail
+          node verify-activity-assets.js "$OUTPUT_DIR"
+          python3 ci/validate-svg.py "$OUTPUT_DIR"
+          node - "$OUTPUT_DIR" <<'NODE'
+          const fs = require('node:fs');
+          const path = require('node:path');
+          const assert = require('node:assert/strict');
+          const root = process.argv[2];
+          const manifest = JSON.parse(fs.readFileSync(path.join(root, 'manifest.json'), 'utf8'));
+          assert.equal(manifest.source, 'github');
+          assert.equal(manifest.calendarDays, 365);
+          assert.equal(manifest.publicDataPolicy, 'daily-aggregates-only-v1');
+          const html = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
+          assert.doesNotMatch(html, /restrictedContributionsCount|hasAnyRestrictedContributions|totalCommitContributions/);
+          console.log('Tagged consumer: 365-day verified GitHub snapshot, no private breakdown fields.');
+          NODE

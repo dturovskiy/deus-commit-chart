@@ -1,5 +1,16 @@
 # Changelog
 
+## 1.5.0
+
+- Generate one validated 365-day activity snapshot and reuse it across interactive HTML and all requested 30/90/365-day SVG files, with a verifiable `manifest.json` and SHA-256 file digests.
+- Check complete GitHub GraphQL day coverage, handle boundary weeks in one API request, classify errors, and retry only transient failures. Invalid or missing data fails closed instead of becoming zero activity.
+- Minimize public GitHub metadata: never request or serialize a separate restricted/private contribution breakdown. **Daily aggregate counts still may reflect token-visible private contributions**. Previously published historical charts are not removed by upgrading.
+- Render accurate daily bars and a separate seven-day moving-average trend using matching static-SVG/browser mathematics. Support UTC-normalized local Git data and an offline/local CLI.
+- Preserve all 15 previous composite Action input names and both output names. The Action continues to **generate only**: it never publishes, schedules jobs or grants additional permissions. Node 22 and pinned upstream `actions/setup-node`; no runtime dependency installation.
+- New strict output behavior: refuse to overwrite an existing output directory; malformed GraphQL calendar and invalid local Git inputs fail with a nonzero exit. Migration: choose a fresh `output-dir` for each run or clean it explicitly before invoking the Action.
+- Separate maintainer implementation changes: PR-only CI and secret scanning, six-hour single-job profile publisher, checksummed publication, no-op publishes when snapshot and source SHA match, and manual-only diagnostics. **These internal workflows are not run when someone installs the Marketplace Action.**
+- Release tag: `@v1.5.0`. The historical **signed `@v1` alias remains at v1.4.1** until separately approved and signed; users who want these fixes must opt in to the exact version.
+
 ## 1.4.1
 
 - Add a product-oriented README hero with live 30-day demo, release/CI/license badges, and a minimal `@v1` quick start.

@@ -28,7 +28,7 @@
 ## Why Deus Commit Chart
 
 - **Reliable profile embeds:** README rendering uses pre-generated static SVG instead of a live third-party chart endpoint.
-- **Account-wide GitHub activity:** use GitHub's contribution calendar, with restricted/private visibility diagnostics when GitHub returns them.
+- **Account-wide GitHub activity:** use GitHub's contribution calendar and publish only daily aggregate counts; private/restricted contribution breakdown fields are intentionally omitted.
 - **Local repository mode:** generate charts directly from `git log` without network access.
 - **Interactive report:** switch between 30d, 90d, and 365d instantly in the generated self-contained HTML page.
 - **No charting dependency:** generated output is self-contained and the renderer has no external chart-library dependency.
@@ -39,7 +39,7 @@ Use the versioned GitHub Action in any workflow:
 
 ```yaml
 - name: Generate contribution charts
-  uses: dturovskiy/deus-commit-chart@v1
+  uses: dturovskiy/deus-commit-chart@v1.5.0
   with:
     username: ${{ github.repository_owner }}
     token: ${{ github.token }}
@@ -74,7 +74,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Generate charts
-        uses: dturovskiy/deus-commit-chart@v1
+        uses: dturovskiy/deus-commit-chart@v1.5.0
         with:
           username: ${{ github.repository_owner }}
           token: ${{ secrets.DEUS_COMMIT_CHART_TOKEN || github.token }}
@@ -127,7 +127,7 @@ Then embed the 30-day chart in the profile README:
 
 For public contribution activity, the workflow token is usually sufficient. To request broader private/internal visibility, add a repository secret named `DEUS_COMMIT_CHART_TOKEN` containing a GitHub token with access appropriate to the contributions you want GitHub to return. The generated chart contains aggregate daily counts only and never writes private repository names or commit details.
 
-The action only generates files; publishing them is intentionally explicit in the caller workflow. **Release note:** the public `@v1` major tag currently resolves to the signed September 2026 `v1.4.1` release, not to the newer unreleased `main` implementation. See [Marketplace Release Policy](docs/MARKETPLACE_RELEASE_POLICY.md) before adopting new internal features or updating version tags. Its main inputs are `username`, `token`, `default-days`, `ranges`, `theme`, `layout`, `width`, `height`, `hide-border`, and `output-dir`. It also supports `source: local` for workflows that want to chart a checked-out Git repository instead of a GitHub account.
+The action only generates files; publishing them is intentionally explicit in the caller workflow. **Version pin:** use `@v1.5.0` for the validated snapshot and privacy-safe release. The historical signed `@v1` major tag remains on `v1.4.1` until separately authorized and signed; it **does not** automatically select `v1.5.0`. See [Marketplace Release Policy](docs/MARKETPLACE_RELEASE_POLICY.md). Its main inputs are `username`, `token`, `default-days`, `ranges`, `theme`, `layout`, `width`, `height`, `hide-border`, and `output-dir`. It also supports `source: local` for workflows that want to chart a checked-out Git repository instead of a GitHub account.
 
 ## Interactive HTML
 
@@ -390,7 +390,7 @@ The architecture audit and remediation work are tracked inside this repository:
 - [Calendar, Responsive Chart and README Cache Policy](docs/CALENDAR_AND_CACHE_POLICY.md) — UTC source semantics, independently verified series invariants, mobile scrolling and read-only cache measurements.
 - [Source Adapters and Rendering Contracts](docs/SOURCE_AND_RENDER_ARCHITECTURE.md) — local Git/GraphQL boundaries, error taxonomy, shared SVG/HTML mathematics and compatibility.
 - [CI and GitHub Action Security Review](docs/CI_ACTION_SECURITY_REVIEW.md) — permission boundaries, publication guarantees, compatibility evidence and outstanding supply-chain risks.
-- [Marketplace Release Policy](docs/MARKETPLACE_RELEASE_POLICY.md) — current signed `@v1` target, compatibility guarantees and explicit versioned-release approval steps.
+- [Marketplace Release Policy](docs/MARKETPLACE_RELEASE_POLICY.md) — signed major-tag compatibility, release migration and manual tagged-consumer verification.
 - [Repository Hygiene and Secrets Audit](docs/REPO_HYGIENE_AND_SECRETS_AUDIT.md) — tracked-source credential guard, old public-data history, branch cleanup and verified release baseline.
 
 Initial data-integrity and publishing fixes shipped on 2026-10-10; additional remediation items remain open until supported by test or release evidence.
