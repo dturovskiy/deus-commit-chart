@@ -1,6 +1,6 @@
 # v1.5.2 candidate — NOT A PUBLISHED RELEASE
 
-> Draft release preparation, 2026-10-11; refreshed after security/acceptance PRs #28–#29. This candidate is intentionally **not tagged, merged, announced or published to Marketplace** until the last original acceptance gate (G3-08) and release review complete. The stable public version remains v1.5.1 and legacy signed `@v1` remains v1.4.1.
+> Draft release preparation, 2026-10-11; refreshed after PRs #28–#31. Original remediation checklist **65/65** after a scoped, user-approved zoom-to-read visual acceptance. Candidate still requires updated CI, merge, immutable tag, actual remote-tag consumer and GitHub Release/Marketplace verification. Public stable version remains v1.5.1 until those release actions complete; legacy signed `@v1` remains at v1.4.1.
 
 ## Candidate scope
 
@@ -11,7 +11,7 @@
 
 ## Required steps, in dependency order
 
-- [ ] Complete DC-G3-08 direct visual acceptance in [VISUAL_QA_MATRIX.md](VISUAL_QA_MATRIX.md). **Actual desktop Marketplace and mobile GitHub profile screenshots have now been reviewed** in [VISUAL_QA_SCREENSHOT_FINDINGS.md](VISUAL_QA_SCREENSHOT_FINDINGS.md). Both show the 30-day bars/trend without clipping, but the 1120-wide static SVG scales its metadata, dates and legend to very small text on iPhone. This finding must be remediated or explicitly reviewed as an acceptable zoom-to-read limitation; the screenshots do not establish light theme, interactive HTML or 90/365 human visual coverage. Do not complete G3-08 or promote this release solely from passing Chromium assertions.
+- [x] DC-G3-08 **scoped** visual acceptance after user-provided desktop Marketplace screenshot, normal and enlarged iPhone profile screenshots, and explicit user confirmation that zoom-to-read metadata is acceptable. 30/90/365 dark/light interactive HTML and contrast/accessibility are separately validated in real Chromium CI. [Evidence scope](VISUAL_QA_MATRIX.md), [screenshot review](VISUAL_QA_SCREENSHOT_FINDINGS.md). Other physical browsers/themes lack direct human screenshots and remain **TD-12**, not fabricated manual coverage. No SVG redesign required.
 - [x] Record reviewed operational dispositions for DC-G2-10 publishing rights and DC-G2-12 GitHub-owned image cache in [RELEASE_RISK_DECISIONS.md](RELEASE_RISK_DECISIONS.md), with ongoing risks tracked in [TECH_DEBT_REGISTER.md](TECH_DEBT_REGISTER.md). The real publisher [#38148635625](https://github.com/dturovskiy/deus-commit-chart/actions/runs/38148635625) and cache probe [#38148744110](https://github.com/dturovskiy/deus-commit-chart/actions/runs/38148744110) passed; neither strict job-level write isolation nor a cache TTL is asserted.
 - [ ] Pass full PR-only Smoke after all candidate content changes; verify Node + Python suites, real two-theme Chromium, secrets guard, SVG XML, privacy and rollback.
 - [ ] Merge this release-candidate branch as a reviewed PR only after the above evidence is complete; verify `main` remains clean/synchronized.
@@ -23,4 +23,4 @@
 
 ## Promotion blockers
 
-As verified after PR #29, the original checklist reports **64/65**: G2-10 and G2-12 received evidence-backed operational dispositions, while their actual residuals stay in the debt register. **G3-08 human visual acceptance is still open.** This draft is a staging artifact; passing CI and preparing a version do not close visual acceptance or promote a release.
+As verified after PR #31, the **original remediation checklist is 65/65**, with documented accepted operational scope/risks (G2-10/G2-12 and zoom-to-read G3-08); technical debt remains separately open. **Remaining release gates** are tagged-consumer verification and confirmed GitHub Release/Marketplace distribution. This historical candidate document does not imply that the Marketplace button or legacy signed `@v1` has already been updated.
