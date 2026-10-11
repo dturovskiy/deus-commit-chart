@@ -78,7 +78,7 @@ Then embed the 30-day chart in the profile README:
 
 For public contribution activity, the workflow token is usually sufficient. To request broader private/internal visibility, add a repository secret named `DEUS_COMMIT_CHART_TOKEN` containing a GitHub token with access appropriate to the contributions you want GitHub to return. The generated chart intentionally contains aggregate daily counts only, not repository names or commit details. **Those counts can nevertheless reveal the timing of private activity visible to the token.**
 
-The Action only generates files; publishing them is intentionally explicit in the caller workflow. **Version pin:** the next patch release is `@v1.5.3` (first-party Actions v7). Confirm its immutable tag and tagged-consumer run before installing; until then the last verified stable Marketplace tag is `@v1.5.2`. The historical signed major tag `v1` remains on v1.4.1 and **does not** automatically select v1.5.3. Its main inputs are `username`, `token`, `default-days`, `ranges`, `theme`, `layout`, `width`, `height`, `hide-border`, and `output-dir`. It also supports `source: local` for workflows that want to chart a checked-out Git repository instead of a GitHub account.
+The Action only generates files; publishing them is intentionally explicit in the caller workflow. **Version pin:** use the immutable [v1.5.3 release](https://github.com/dturovskiy/deus-commit-chart/releases/tag/v1.5.3) (first-party Actions v7), confirmed by the [exact remote-tag consumer](https://github.com/dturovskiy/deus-commit-chart/actions/runs/38163826416). The historical signed major tag `v1` remains on v1.4.1 and **does not** automatically select v1.5.3. Its main inputs are `username`, `token`, `default-days`, `ranges`, `theme`, `layout`, `width`, `height`, `hide-border`, and `output-dir`. It also supports `source: local` for workflows that want to chart a checked-out Git repository instead of a GitHub account.
 
 ## Interactive HTML
 
@@ -331,7 +331,7 @@ Choose the output path yourself, including `/mnt/c/Users/.../Downloads/commit-ch
 - [Copy-ready, opt-in GitHub profile workflow](docs/PROFILE_WORKFLOW_EXAMPLE.yml) — generate and publish your own charts.
 - [Security policy](SECURITY.md) and [privacy policy](PRIVACY.md) — disclosure procedures and data visibility.
 - [Contributor guide](CONTRIBUTING.md) — development, testing and pull requests.
-- [Stable release v1.5.2](https://github.com/dturovskiy/deus-commit-chart/releases/tag/v1.5.2) — verified stable install while the next v1.5.3 candidate is tested and tagged.
+- [Stable release v1.5.3](https://github.com/dturovskiy/deus-commit-chart/releases/tag/v1.5.3) — validated exact-version Action on Node24-backed official checkout/setup-node, with local Git and authenticated GraphQL consumers.
 
 The original remediation checklist finished **65/65**. Maintainer-only audit evidence, historical checklists, security investigations and ongoing technical-debt planning are kept outside the public source tree. This does **not** erase historical copies reachable from previous public Git commits or release tags. The signed legacy major tag `v1` still targets v1.4.1; pin `@v1.5.3` for the latest release.
 
