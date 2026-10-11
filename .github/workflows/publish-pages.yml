@@ -23,7 +23,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '22'
-      # No npm install or test suite: the generator has zero runtime dependencies.
+      # Dependency-free source build; no package setup or regression suite.
       - name: Fetch GitHub calendar once and render every range
         env:
           DEUS_COMMIT_CHART_GITHUB_TOKEN: ${{ secrets.DEUS_COMMIT_CHART_TOKEN || github.token }}
