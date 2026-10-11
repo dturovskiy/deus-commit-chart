@@ -52,7 +52,7 @@ The default GitHub policy is three attempts with 15-second per-attempt timeout a
 
 `modern-renderer.js` owns the **same pure functions** used by both output formats: `isoToUtcMs`, `formatDate`, `selectRange`, `smoothPath`, `dailyBarRects`, `chartGeometry`, and `buildTicks`. The HTML embeds the function bodies generated from this same source, avoiding a second browser-only implementation of range selection, bar positions, trend interpolation, or axis ticks. The generator re-exports the renderer's `selectRange` for compatibility.
 
-The browser still owns DOM updates and tooltip controls; static SVG remains script-free. `test/browser.test.js` executes the real generated inline script in a VM and compares its daily-bar markup, blue trend `d` path and tick labels against the static SVG for all 30/90/365 ranges. Independent contract tests verify the underlying series, metadata and source snapshot identity.
+The browser still owns DOM updates and tooltip controls; static SVG remains script-free. `test/browser.test.js` executes the real generated inline script in a VM and compares its daily-bar markup, blue trend `d` path and tick labels against the static SVG for all 30/90/365 ranges. The PR-only Smoke job also runs `ci/browser-smoke.js` against actual headless Chromium (preinstalled on GitHub ubuntu-latest) using Node 22's built-in DevTools WebSocket: real range-button clicks, tooltip, mobile 390px viewport, keyboard activation, accessible chart label, scroll and no HTTP requests, with no Playwright dependency or additional scheduled runners. Independent contract tests verify the underlying series, metadata and source snapshot identity.
 
 ## Operations and compatibility
 

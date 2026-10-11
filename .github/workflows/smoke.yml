@@ -89,6 +89,9 @@ jobs:
             grep -q '^<svg ' ".tmp/action-smoke/activity-${days}d.svg"
           done
 
+      - name: Real headless Chromium browser QA (desktop and mobile)
+        run: node ci/browser-smoke.js .tmp/action-smoke/index.html
+
       - name: Rehearse failed publish and forward-only rollback on a local test remote
         shell: bash
         run: |
