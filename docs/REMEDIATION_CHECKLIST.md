@@ -20,6 +20,14 @@
 - [Public GitHub Release `v1.5.0`](https://github.com/dturovskiy/deus-commit-chart/releases/tag/v1.5.0) published 2026-10-11 with migration notes. The **signed major `v1` alias was not updated** and remains on v1.4.1. No `main` branch protection or new scheduled CI workflow was enabled.
 - The seven newly checked acceptance statements below were already implemented and now have direct test/live-source/release evidence. The *final evidence-audit assertion* remains open; do not claim that every historical checklist checkmark has a matching test or source citation.
 
+## Marketplace-facing README and profile example — 2026-10-11
+
+- [PR #15](https://github.com/dturovskiy/deus-commit-chart/pull/15) merged as `b61509e02f692221c075fe77fa2841968052baba`. [PR-only Smoke #38137972682](https://github.com/dturovskiy/deus-commit-chart/actions/runs/38137972682) **SUCCESS**: 64/64 Node tests, 9/9 Python tests, tracked-file secret guard, real offline Marketplace Action and rollback rehearsal.
+- The README description now matches the deployed daily-bar + 7-day-trend renderer; local timestamps are documented as `git log --format=%aI` bucketed into UTC days. The new [profile workflow example](PROFILE_WORKFLOW_EXAMPLE.yml) is **manual-only by default** with an optional daily cron; the tested worktree publisher does not force-push, does not wipe the source checkout, and prevents byte-identical commits. Timestamp-only changes can still generate a commit in that shorter example.
+- A real test executes the *exact published example script* with a temporary bare Git remote, checks initial publication, identical no-op, changed counts, preserved `main` and all normal output paths. The Action's public input/output contract and maintainer's scheduled publisher remain unchanged.
+- New annotated `v1.5.1` points to `b61509e`; [real tagged consumer #38138078385](https://github.com/dturovskiy/deus-commit-chart/actions/runs/38138078385) **SUCCESS** in both local and live GraphQL modes. [GitHub Release v1.5.1](https://github.com/dturovskiy/deus-commit-chart/releases/tag/v1.5.1) published 2026-10-11 as stable. GitHub's default-branch README reflects the new example; public Marketplace/search caches may take time to refresh.
+- **Checklist status stays 52/65**. No new technical or acceptance box has been closed by copy edits or an offline Git publishing rehearsal: responsive browser QA, measured profile-image caching and security/permission decisions remain separate evidence requirements.
+
 ## Gate 0 — Baseline and prerequisites
 
 - [x] **DC-G0-01** Confirm branch, HEAD, remotes, and existing untracked files before implementation; do not touch unrelated `.tmp-30.svg`. (DEUS MCP git summary and status, 2026-10-10.)

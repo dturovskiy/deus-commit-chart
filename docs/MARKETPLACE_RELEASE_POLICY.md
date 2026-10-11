@@ -5,7 +5,7 @@
 ## Compatibility and actual installed code
 
 - The **signed annotated** major tag `v1` and `v1.4.1` both resolve to `eddf908ead0a83361f4a4e2930405ce30fd3d086` (2026-09-01). They run the original pre-remediation implementation.
-- The **validated previous release** is [v1.5.0](https://github.com/dturovskiy/deus-commit-chart/releases/tag/v1.5.0), published 2026-10-11 after a real tagged-consumer test, at commit `8c3919f6f439821849974dd26fc57c158fae2ca7`. The next **documentation and example reliability patch** is `v1.5.1`: pin `uses: dturovskiy/deus-commit-chart@v1.5.1` once released. Neither version changes the signed legacy `@v1` alias.
+- The **current public release** is [v1.5.1](https://github.com/dturovskiy/deus-commit-chart/releases/tag/v1.5.1), published 2026-10-11 from commit `b61509e02f692221c075fe77fa2841968052baba` after [remote-tag consumer verification #38138078385](https://github.com/dturovskiy/deus-commit-chart/actions/runs/38138078385). Use `dturovskiy/deus-commit-chart@v1.5.1` for the current opt-in documentation and publishing example. The prior [v1.5.0 release](https://github.com/dturovskiy/deus-commit-chart/releases/tag/v1.5.0) remains available; neither release changes the signed legacy `@v1` alias.
 - A successful `main` CI, current `activity-assets` SVG or merged PR **does not update** `@v1` and is not itself a Marketplace release.
 - Inputs and outputs stay stable: all 15 input names and both `output-dir` and `index-html` outputs from v1.4.1 remain supported.
 - Behavior improvements: one strictly validated 365-day snapshot for HTML and SVG, SHA-256 manifest, strict missing-day errors, bounded source retries, local Git timestamps normalized to UTC, 7-day trend and script-free SVG, public-data policy `daily-aggregates-only-v1` without private/restricted breakdown fields.
@@ -14,7 +14,7 @@
 
 ## Controlled versioned release
 
-For each future patch: update package/lockfile/CHANGELOG and default README examples, pass PR-only Smoke, create a new annotated tag at the reviewed commit, manually run the separate real remote-tag consumer workflow, and only then create a GitHub Release. Retain the signed `v1` alias and never force-push it. The profile-publishing example in [PROFILE_WORKFLOW_EXAMPLE.yml](PROFILE_WORKFLOW_EXAMPLE.yml) is manual-only by default; uncommenting a daily schedule is the **consumer's** choice.
+For each future patch: update package/lockfile/CHANGELOG and default README examples, pass PR-only Smoke, create a new annotated tag at the reviewed commit, manually run the separate real remote-tag consumer workflow, and only then create a GitHub Release. **v1.5.1 verification evidence:** [PR #15](https://github.com/dturovskiy/deus-commit-chart/pull/15) passed 64 Node tests and 9 Python tests including an end-to-end execution of the exact documented copy-paste publisher, and the [remote-tag consumer run](https://github.com/dturovskiy/deus-commit-chart/actions/runs/38138078385) passed both local and authenticated GitHub-source modes. The release was subsequently published. Retain the signed `v1` alias and never force-push it. The profile-publishing example in [PROFILE_WORKFLOW_EXAMPLE.yml](PROFILE_WORKFLOW_EXAMPLE.yml) is manual-only by default; uncommenting a daily schedule is the **consumer's** choice.
 
 ### Previously verified v1.5.0 release procedure
 
