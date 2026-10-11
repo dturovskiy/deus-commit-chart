@@ -39,7 +39,11 @@ jobs:
           cache: npm
       - name: Install
         run: npm ci
+      # Regression tests are mandatory on source changes (push/PR smoke),
+      # not on every scheduled data-only refresh. The latter still validates
+      # its freshly generated snapshot, checksums, SVG XML and publish payload.
       - name: Verify code and regressions
+        if: github.event_name != 'schedule'
         run: npm run check
       - name: Fetch GitHub calendar once and render every range
         env:

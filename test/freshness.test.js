@@ -49,15 +49,26 @@ test('malformed, missing and future publication timestamps fail closed', () => {
 });
 
 test('incomplete or inconsistent snapshot range metadata fails closed', () => {
+  // Keep test time frozen. Never compare a historical fixture to wall-clock time:
+  // this broke scheduled publish once the fixture became older than 8 hours.
+  const options = { now: '2026-10-10T21:00:00Z' };
   const v = fixture();
   delete v.ranges['90'];
-  assert.throws(() => checkFreshness(v), /range metadata/);
+  assert.throws(() => checkFreshness(v, options), /range metadata/);
   const w = fixture();
   w.ranges[365].endDate = '2026-10-09';
-  assert.throws(() => checkFreshness(w), /calendar coverage/);
+  assert.throws(() => checkFreshness(w, options), /calendar coverage/);
   const z = fixture();
   z.calendarDays = 364;
-  assert.throws(() => checkFreshness(z), /calendar coverage/);
+  assert.throws(() => checkFreshness(z, options), /calendar coverage/);
+});
+
+test('malformed range metadata is rejected even for an already stale snapshot', () => {
+  const staleClock = { now: '2026-10-12T21:00:00Z' };
+  const malformed = fixture();
+  delete malformed.ranges['90'];
+  assert.throws(() => checkFreshness(malformed, staleClock), /range metadata/);
+  assert.throws(() => checkFreshness(fixture(), staleClock), /stale/);
 });
 
 test('CLI exit code can drive an automated monitoring job', () => {

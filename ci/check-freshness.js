@@ -24,10 +24,8 @@ function checkFreshness(manifest, options = {}) {
   if (deltaMs < -MAX_FUTURE_SKEW_MINUTES * 60000) {
     throw new Error('Published snapshot is in the future; check clock skew');
   }
-  if (deltaMs > maxAgeHours * 3600000) {
-    throw new Error('Published chart is stale: age=' + (deltaMs / 3600000).toFixed(2) +
-      'h, threshold=' + maxAgeHours + 'h');
-  }
+  // Validate structural integrity before checking the snapshot age. This keeps
+  // malformed metadata distinguishable from a genuinely stale valid release.
   const manifestRanges = manifest.ranges || {};
   if (![30, 90, 365].every(days =>
     Number.isSafeInteger(manifestRanges[days]?.total) && manifestRanges[days].total >= 0 &&
@@ -36,6 +34,10 @@ function checkFreshness(manifest, options = {}) {
   }
   if (manifest.calendarDays !== 365 || manifest.rangeEnd !== manifestRanges[365].endDate) {
     throw new Error('Published snapshot has inconsistent calendar coverage');
+  }
+  if (deltaMs > maxAgeHours * 3600000) {
+    throw new Error('Published chart is stale: age=' + (deltaMs / 3600000).toFixed(2) +
+      'h, threshold=' + maxAgeHours + 'h');
   }
   return {
     status: 'healthy', snapshotId: manifest.snapshotId,

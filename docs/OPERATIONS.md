@@ -36,6 +36,12 @@ The audit reports **`profile_raw_matched`** when GitHub emits a direct raw image
 
 [PR #6](https://github.com/dturovskiy/deus-commit-chart/pull/6) prevents a profile raw URL from being reported as an independent camo proxy. After [production publish 38089214515](https://github.com/dturovskiy/deus-commit-chart/actions/runs/38089214515), [probe 38089253244](https://github.com/dturovskiy/deus-commit-chart/actions/runs/38089253244) reported `profile_raw_matched`, `independentImageProxyObserved=false`, snapshot age 36.77s. Production snapshot `c149a3bf...`, totals 227/788/3073. Continue sampling after future publishes; do not treat a raw `max-age=300` response as a camo/browser image-cache SLA.
 
+## 2026-10-11 scheduled CI incident: frozen timestamp regression
+
+At [scheduled publish #38126315444](https://github.com/dturovskiy/deus-commit-chart/actions/runs/38126315444), the build failed in `npm run check`: `test/freshness.test.js` had a fixed `2026-10-10T20:00:00Z` manifest but called `checkFreshness()` **without an injected clock** in three invalid-metadata assertions. The test began failing when that fixture exceeded the 8-hour freshness threshold, even though the code and snapshot were otherwise usable. Publishing was correctly blocked by CI. With no new release, [monitor #38127965027](https://github.com/dturovskiy/deus-commit-chart/actions/runs/38127965027) found the published snapshot 8.32 hours old and opened incident [#8](https://github.com/dturovskiy/deus-commit-chart/issues/8). These represent **one cascading root cause**, not two independent chart defects.
+
+Mitigation: all metadata fixture assertions use a fixed `now`; production validation rejects malformed ranges before testing age. The scheduled **data-only** publisher no longer re-runs the entire source regression suite every two hours. Source changes still run `npm run check` on the push publisher and required PR/main smoke; every scheduled publish retains independent numerical/manifest checks, SVG XML validation, immutable build artifact and revalidation before guarded push. A failed scheduled data fetch or invalid generated artifact remains a real failure and must continue to alert. The monitor's issue is automatically closed after a verified healthy published snapshot.
+
 ## Freshness and recovery monitoring
 
 - `.github/workflows/monitor-freshness.yml` checks the real `activity-assets` branch on a two-hour offset schedule. The configured threshold is **8 hours** from `manifest.generatedAt` (allowing several missed publish windows).
