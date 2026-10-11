@@ -2,7 +2,7 @@
 
 > Scope: `dturovskiy/deus-commit-chart` at `main=cded31577e5eb25d6b4aff8c1dd4fbb8de9caecf`. This is a documented **operational acceptance** of the two residuals under the previously chosen minimal-job, manual-only release policy. It does **not** claim a human signature, strict technical isolation or a measured GitHub image-cache TTL. Review again when the explicit triggers below occur.
 >
-> Existing user-directed constraints: preserve one six-hour publisher job, no additional scheduled CI/monitoring or automatic incident issues, defer `main` protection, avoid force-updating signed `v1`. Both decisions here implement the previously requested lean-operation trade-off and release-readiness plan. The visual review gate **DC-G3-08 is not waived**.
+> Existing user-directed constraints: preserve one six-hour publisher job, no additional scheduled CI/monitoring or automatic incident issues, defer `main` protection, avoid force-updating signed `v1`. Both decisions here implement the previously requested lean-operation trade-off and release-readiness plan. At this document's original drafting, **DC-G3-08 had not been accepted**; a later 2026-10-11 owner-approved zoom-to-read visual acceptance is now documented separately in [VISUAL_QA_MATRIX.md](VISUAL_QA_MATRIX.md), without pretending every device received human review.
 
 ## Decision A: DC-G2-10 — accept residual write scope, evidence verified
 
@@ -37,6 +37,6 @@
 ## Release constraints, ownership and truthfulness
 
 - These accepted residuals remain open in the **living debt register**; marking the **two original acceptance gates** complete records *reviewed disposition*, not elimination of the underlying residual risk.
-- DC-G3-08 **remains open** until the direct [visual QA review sheet](VISUAL_QA_MATRIX.md) contains actual visual inspection evidence. CI-only Chromium and contrast tests do not replace it.
+- DC-G3-08 has since received a **scoped user-approved visual acceptance** based on desktop/normal and enlarged iPhone 30d screenshots plus real Chromium both-theme 30/90/365 coverage. [Visual matrix](VISUAL_QA_MATRIX.md) distinguishes direct human observations from automated evidence. Uninspected physical combinations remain under TD-12, not a claimed human sign-off.
 - Next stable GitHub release, major-tag migration, Marketplace install-button verification and release checkboxes remain separate. This document does not grant force-push authority for signed `v1`, claim an unperformed human visual review or advance a release tag.
 - Reevaluate the risk decisions when any listed trigger occurs, or during the next release where the publisher's architecture/credential boundary changes.

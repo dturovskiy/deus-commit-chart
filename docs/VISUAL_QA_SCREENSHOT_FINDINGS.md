@@ -2,7 +2,7 @@
 
 > **Evidence source:** two screenshot images provided directly in the 2026-10-11 project conversation (not copied into the public repository, because the desktop screenshot contains unrelated browser tabs/windows). This is a **direct visual observation of supplied screenshots**, not a complete manual review of every theme, range or browser. The screenshots do not independently verify count parity with the GraphQL API.
 >
-> **Verdict:** partial pass with a mobile typography finding; **do not mark DC-G3-08 complete**. No data corruption, chart clipping or missing columns visible in the supplied 30-day screenshots.
+> **Updated verdict (2026-10-11): accepted zoom-to-read limitation after a third user-supplied screenshot**. Original unzoomed mobile metadata is small, but the follow-up zoomed iPhone view shows title, range dates, statistics, axis and bars readable when enlarged. The user explicitly stated zooming is available and the miniature text is not a problem. No data corruption, chart clipping or missing columns were visible in the original 30-day screenshots. Human coverage remains 30-day dark embed only; other modes have Chromium test evidence.
 
 ## Observed surfaces
 
@@ -17,7 +17,7 @@ The profile chart is a static `<img>`, not the full interactive HTML viewport; t
 
 - The produced README SVG uses a **1120-wide viewBox** (spacious preset), with source typography typically **12 units for metadata and dates** and a **20-unit title**. When the entire image is downscaled to approximately 460–470 displayed screenshot pixels, the metadata/dates become roughly **5 CSS/screenshot pixels**, and the title roughly **8 px**. These are indicative scale calculations, not device-calibrated accessibility measurements; the physical iPhone/browser zoom level is not recorded.
 - This is a **rendering/legibility issue**, not a contribution-data discrepancy. The original source snapshot validates all 365 daily counts across HTML/SVG/manifest.
-- **Recommendation:** improve the public profile's 30-day static-SVG hierarchy/typography without creating a browser-dependent script, dropping day bars, mislabeling contributions, adding a service, or changing the Action's public contract. Candidate remedies: shorter visible metadata or a readable summary adjacent to the image, a narrower deliberately composed profile-specific SVG layout, or a tested visual override. Any change to SVG output requires review of six SHA-256 golden fixtures and revalidation of totals, title/description, mobile screenshot and Marketplace display. Avoid changing all ranges/layouts to address only the profile embed without testing 365-day legibility.
+- **Decision:** do **not** redesign or change the SVG before this release. The user's enlarged iPhone screenshot demonstrates that metadata/date/axis text becomes readable with zoom, and the user expressly accepts that usage. The unzoomed miniature remains intentionally compact. A future enhancement can consider a profile-specific narrower layout or readable summary **if** user feedback demands it; this would require review of six SHA-256 SVG goldens, totals and new mobile screenshots. Keep this limitation visible in TD-12, not as a fabricated absence of a defect.
 - The screenshot also confirms **Marketplace `v1.5.1` is still Latest** as observed. The separate `v1.5.2` draft is intentionally not published; a Marketplace button selection/version update remains TD-01.
 
 ## Coverage still required for DC-G3-08
@@ -25,7 +25,7 @@ The profile chart is a static `<img>`, not the full interactive HTML viewport; t
 - The supplied desktop image is Marketplace **dark 30d**, not a generated standalone HTML report with range switching.
 - The supplied phone image is GitHub profile **dark 30d**, not a 90d/365d or light-theme screenshot.
 - Real Chromium CI independently tests 30/90/365 in both themes at desktop/390px and keyboard/tooltip interactions; tests passing do not waive observed tiny mobile SVG metadata.
-- Repeat actual visual review after any typography fix and complete the direct human QA matrix with reviewer, browser/device, version/snapshot and outcomes. **Gate remains unchecked until then.**
+- The follow-up user screenshot shows zoomed text readability; the user accepts zoom-to-read instead of a typography change. The [visual acceptance matrix](VISUAL_QA_MATRIX.md) now uses an **explicitly scoped** review: genuine 30d dark mobile/desktop screenshot observations plus real automated 30/90/365 light/dark coverage. Remaining direct Safari/Firefox/mobile-app visual review is deferred to TD-12, not reported as performed.
 
 ## Privacy and release boundary
 

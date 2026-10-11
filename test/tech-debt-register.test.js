@@ -8,7 +8,7 @@ const read = filename => fs.readFileSync(path.join(__dirname,'..',filename),'utf
 
 test('prioritized debt has unique IDs, explicit release gates and separate counts', () => {
   const register = read('docs/TECH_DEBT_REGISTER.md');
-  const matches = [...register.matchAll(/\*\*TD-(\d{2})\b/g)].map(m=>m[1]);
+  const matches = [...register.matchAll(/^- \[[x ]\] \*\*TD-(\d{2})\b/gm)].map(m=>m[1]);
   assert.deepEqual(matches, Array.from({length:13},(_,i)=>String(i+1).padStart(2,'0')));
   assert.match(register,/## P0/);
   assert.match(register,/## P1/);
@@ -41,7 +41,9 @@ test('documentation does not claim old alias or manual cache SLA was fixed', () 
   assert.match(debt,/signed legacy.*v1/);
   assert.match(debt,/zero observed stale-to-fresh transitions/);
   const qa=read('docs/VISUAL_QA_MATRIX.md');
-  assert.match(qa,/final human sign-off pending/);
+  assert.match(qa,/accepted, with explicitly limited real-device scope/);
+  assert.match(qa,/zoom-to-read/);
+  assert.match(read('docs/REMEDIATION_CHECKLIST.md'),/65\/65 checked, 0 open/);
   assert.match(qa,/VISUAL_QA_SCREENSHOT_FINDINGS\.md/);
   assert.match(qa,/Chromium/);
 });
