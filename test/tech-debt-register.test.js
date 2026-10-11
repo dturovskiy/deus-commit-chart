@@ -38,7 +38,8 @@ test('checklist retains actual evidence-backed denominator, not merged debt coun
 
 test('documentation does not claim old alias or manual cache SLA was fixed', () => {
   const debt=read('docs/TECH_DEBT_REGISTER.md');
-  assert.match(debt,/signed legacy.*v1/);
+  assert.match(debt,/historical signed major tag `v1`.*legacy v1\.4\.1/);
+  assert.match(debt,/^- \[x\] \*\*TD-01\b/m);
   assert.match(debt,/zero observed stale-to-fresh transitions/);
   const qa=read('docs/VISUAL_QA_MATRIX.md');
   assert.match(qa,/accepted, with explicitly limited real-device scope/);
