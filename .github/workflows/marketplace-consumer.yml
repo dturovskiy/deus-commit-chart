@@ -91,3 +91,8 @@ jobs:
           assert.doesNotMatch(html, /restrictedContributionsCount|hasAnyRestrictedContributions|totalCommitContributions/);
           console.log('Tagged consumer: 365-day verified GitHub snapshot, no private breakdown fields.');
           NODE
+
+      - name: Independently verify one captured live API response against its candidate build
+        env:
+          DEUS_COMMIT_CHART_GITHUB_TOKEN: ${{ secrets.DEUS_COMMIT_CHART_TOKEN || github.token }}
+        run: node ci/live-api-candidate.js "${{ github.repository_owner }}"

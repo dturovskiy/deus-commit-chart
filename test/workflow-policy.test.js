@@ -105,6 +105,8 @@ test('tagged Marketplace consumer runs only on explicit dispatch and uses remote
   assert.match(content, /source: local/);
   assert.match(content, /source: github/);
   assert.match(content, /node verify-activity-assets\.js/);
+  assert.match(content, /node ci\/live-api-candidate\.js/);
+  assert.match(content, /DEUS_COMMIT_CHART_GITHUB_TOKEN: \$\{\{ secrets\.DEUS_COMMIT_CHART_TOKEN \|\| github\.token \}\}/);
   assert.match(content, /python3 ci\/validate-svg\.py/);
   assert.doesNotMatch(content, /upload-artifact|download-artifact|contents: write|git push/);
   assert.match(content, /actions\/checkout@11d5960a326750d5838078e36cf38b85af677262/);

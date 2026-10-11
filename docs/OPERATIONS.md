@@ -25,6 +25,8 @@
 
 All chart windows are anchored to the build's **UTC day**. GitHub's contribution-day labels are preserved verbatim. Local Git commit instants are normalized to UTC; author-local day grouping is intentionally no longer used. The chart contract is independently checked on build and release (365 contiguous dates, cumulative totals, 7-day mean, snapshot identity). See [CALENDAR_AND_CACHE_POLICY.md](CALENDAR_AND_CACHE_POLICY.md).
 
+To validate a candidate against a **single independently captured live API reply**, manually dispatch `marketplace-consumer.yml` on `main`. The final `ci/live-api-candidate.js` step uses the same secret/fallback token policy as the publisher, keeps the captured reply strictly in memory, checks every UTC day and 30/90/365 sums against the resulting HTML/SVG/manifest, and discards temporary data. Only a success marker with generatedAt, public totals and shortened snapshot ID enters run logs. It performs no publication, scheduled polling, artifact upload or issue creation. Negative fixtures are in `test/live-api-candidate.test.js`.
+
 The [README cache audit workflow](../.github/workflows/audit-readme-cache.yml) is **manual-only**. It compares the published snapshot with the GitHub profile image when possible and writes a job summary without uploading an artifact. It does not consume scheduled jobs or affect publishing.
 
 ## README cache-audit result and interpretation
