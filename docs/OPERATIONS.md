@@ -2,7 +2,7 @@
 
 > Scope: `dturovskiy/deus-commit-chart`. This is an operator runbook.
 > Release and tests are controlled through DEUS MCP Git and GitHub CLI tooling.
-> For open remediation tasks see [REMEDIATION_CHECKLIST.md](REMEDIATION_CHECKLIST.md).
+> For open remediation tasks see [REMEDIATION_CHECKLIST.md](REMEDIATION_CHECKLIST.md); for P0/P1/P2 technical debt, accepted risks and revisit triggers see [TECH_DEBT_REGISTER.md](TECH_DEBT_REGISTER.md); for the outstanding direct visual review use [VISUAL_QA_MATRIX.md](VISUAL_QA_MATRIX.md).
 
 ## Architecture and publication
 

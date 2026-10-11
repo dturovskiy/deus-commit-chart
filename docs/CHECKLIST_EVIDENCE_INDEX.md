@@ -76,7 +76,7 @@
 
 ## Accepted limitations and what this does not certify
 
-- **Publisher permission boundary** (G2-10), **cache invalidation timing** (G2-12), and **narrow-screen visual legibility** (G3-08) remain open and must not be disguised as successful tests.
+- **Publisher permission boundary** (G2-10), **cache invalidation timing** (G2-12), and **narrow-screen visual legibility** (G3-08) remain open and must not be disguised as successful tests. Priority and decisions for these and additional carry-forward risks are tracked in [TECH_DEBT_REGISTER.md](TECH_DEBT_REGISTER.md), separately from the 65-gate total.
 - The default public `@v1` alias still points to the signed September v1.4.1 release. The latest exact version is `@v1.5.1`; updating Marketplace's default installation alias is explicitly **deferred until checklist closure**.
-- A passing PR suite and browser layout test prove defined behavior on the tested runner, not universal compatibility across all user devices. Independent personal-device visual review is pending.
-- The current GitHub Actions screenshot/cache probe uses the profile's actual HTML and image URL. One `profile_raw_matched` snapshot cannot prove a maximum cache TTL.
+- A passing PR suite and browser layout test prove defined behavior on the tested runner, not universal compatibility across all user devices. The extended Smoke suite covers both themes and desktop/mobile 30/90/365, but independent personal-device visual review remains pending in [VISUAL_QA_MATRIX.md](VISUAL_QA_MATRIX.md).
+- The manual GitHub Actions cache probe uses the profile's actual HTML and image URL. Even [three matching snapshots at 24.38/40.21/55.63 seconds](https://github.com/dturovskiy/deus-commit-chart/actions/runs/38146191299) cannot prove a maximum cache TTL or browser/proxy invalidation SLA.

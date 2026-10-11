@@ -89,8 +89,22 @@ jobs:
             grep -q '^<svg ' ".tmp/action-smoke/activity-${days}d.svg"
           done
 
-      - name: Real headless Chromium browser QA (desktop and mobile)
-        run: node ci/browser-smoke.js .tmp/action-smoke/index.html
+      - name: Real headless Chromium QA for both themes and all ranges (same PR-only job)
+        shell: bash
+        run: |
+          set -euo pipefail
+          node ci/browser-smoke.js .tmp/action-smoke/index.html
+          node build-activity-assets.js \
+            --source local \
+            --repo /tmp/deus-commit-chart-fixture \
+            --branch main \
+            --theme github-light \
+            --layout spacious \
+            --out-dir .tmp/browser-light \
+            --title "Light theme Chromium QA"
+          node verify-activity-assets.js .tmp/browser-light
+          python3 ci/validate-svg.py .tmp/browser-light
+          node ci/browser-smoke.js .tmp/browser-light/index.html
 
       - name: Rehearse failed publish and forward-only rollback on a local test remote
         shell: bash

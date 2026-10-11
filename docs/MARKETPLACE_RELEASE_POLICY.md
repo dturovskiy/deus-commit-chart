@@ -1,6 +1,6 @@
 # Marketplace Release Policy
 
-> Release workflow for `dturovskiy/deus-commit-chart`. Current patch update `v1.5.1` retains the previous signed `v1` alias unchanged. Nothing here enables `main` protection or recurring CI.
+> Release workflow for `dturovskiy/deus-commit-chart`. Current stable release `v1.5.1` retains the previous signed `v1` alias unchanged. Next release requirements are tracked in [TECH_DEBT_REGISTER.md](TECH_DEBT_REGISTER.md) and [REMEDIATION_CHECKLIST.md](REMEDIATION_CHECKLIST.md). Nothing here enables `main` protection or recurring CI.
 
 ## Compatibility and actual installed code
 
@@ -14,7 +14,7 @@
 
 ## Controlled versioned release
 
-For each future patch: update package/lockfile/CHANGELOG and default README examples, pass PR-only Smoke, create a new annotated tag at the reviewed commit, manually run the separate real remote-tag consumer workflow, and only then create a GitHub Release. **v1.5.1 verification evidence:** [PR #15](https://github.com/dturovskiy/deus-commit-chart/pull/15) passed 64 Node tests and 9 Python tests including an end-to-end execution of the exact documented copy-paste publisher, and the [remote-tag consumer run](https://github.com/dturovskiy/deus-commit-chart/actions/runs/38138078385) passed both local and authenticated GitHub-source modes. The release was subsequently published. Retain the signed `v1` alias and never force-push it. The profile-publishing example in [PROFILE_WORKFLOW_EXAMPLE.yml](PROFILE_WORKFLOW_EXAMPLE.yml) is manual-only by default; uncommenting a daily schedule is the **consumer's** choice.
+For each future patch: complete documented release acceptance, update package/lockfile/CHANGELOG, the default README/examples and manual consumer workflow **to the same exact new version**; pass PR-only Smoke, create a new immutable annotated tag at the reviewed commit, manually run the actual remote-tag consumer on local and GraphQL modes, and only then create a GitHub Release with the Marketplace publish option reviewed. Check the real Marketplace install snippet separately; a latest versioned Release does not itself advance the signed legacy `@v1` reference. Never force-update, delete/recreate or silently remove the existing `@v1` signature. **v1.5.1 verification evidence:** [PR #15](https://github.com/dturovskiy/deus-commit-chart/pull/15) passed 64 Node tests and 9 Python tests including an end-to-end execution of the exact documented copy-paste publisher, and the [remote-tag consumer run](https://github.com/dturovskiy/deus-commit-chart/actions/runs/38138078385) passed both local and authenticated GitHub-source modes. The release was subsequently published. Retain the signed `v1` alias and never force-push it. The profile-publishing example in [PROFILE_WORKFLOW_EXAMPLE.yml](PROFILE_WORKFLOW_EXAMPLE.yml) is manual-only by default; uncommenting a daily schedule is the **consumer's** choice.
 
 ### Previously verified v1.5.0 release procedure
 

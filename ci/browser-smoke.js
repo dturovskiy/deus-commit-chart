@@ -129,6 +129,16 @@ async function main() {
     assert.equal(mobile.focusable,0);
     assert.ok(mobile.accessible);
     console.log('BROWSER_CHECK: 390px mobile layout and scroll passed');
+    // Exercise all ranges at the real narrow viewport, not only the default.
+    for (const range of [30,90,365]) {
+      await cdp.eval("document.querySelector('button[data-range=\\\""+range+"\\\"]').click()");
+      const narrow = await cdp.eval("(()=>{const s=document.querySelector('#chart-scroll');const svg=document.querySelector('#chart');return {active:document.querySelector('button[aria-pressed=\\\"true\\\"]')?.dataset.range,bodyWidth:document.documentElement.scrollWidth,clientWidth:s.clientWidth,scrollWidth:s.scrollWidth,accessible:svg.getAttribute('aria-label'),barSeries:!!svg.querySelector('[data-chart-series=\\\"daily-bars\\\"]'),trend:!!svg.querySelector('[data-series=\\\"trend\\\"]')}})()");
+      assert.equal(narrow.active,String(range));
+      assert.ok(narrow.bodyWidth<=391,'Narrow layout overflow: '+JSON.stringify(narrow));
+      assert.ok(narrow.scrollWidth>narrow.clientWidth,'Narrow chart unexpectedly compressed: '+JSON.stringify(narrow));
+      assert.ok(narrow.accessible && narrow.barSeries && narrow.trend,'Missing chart semantics: '+JSON.stringify(narrow));
+    }
+    console.log('BROWSER_CHECK: narrow-viewport 30/90/365 range and SVG semantics passed');
     // A real key event activates a focused range button via the browser.
     await cdp.eval("document.querySelector('button[data-range=\"90\"]').focus()");
     assert.equal(await cdp.eval("document.activeElement?.dataset?.range"),'90');

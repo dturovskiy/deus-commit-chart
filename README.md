@@ -345,6 +345,8 @@ The architecture audit and remediation work are tracked inside this repository:
 - [Repository Hygiene and Secrets Audit](docs/REPO_HYGIENE_AND_SECRETS_AUDIT.md) — tracked-source credential guard, old public-data history, branch cleanup and verified release baseline.
 - [Architecture findings disposition](docs/FINDINGS_DISPOSITION.md) — evidence and accepted residual risk for DC-01–DC-15.
 - [Checklist evidence index](docs/CHECKLIST_EVIDENCE_INDEX.md) — implementation, CI and production links for completed remediation criteria.
+- [Prioritized technical-debt register](docs/TECH_DEBT_REGISTER.md) — P0 release blockers, P1 accepted operational risks and P2–P3 maintainability work with explicit revisit triggers; separate from the 65-gate acceptance denominator.
+- [Visual QA acceptance matrix](docs/VISUAL_QA_MATRIX.md) — explicit manual check of native README/HTML, both themes and all three periods, with Chromium CI as supplemental proof.
 
 Release [v1.5.1](https://github.com/dturovskiy/deus-commit-chart/releases/tag/v1.5.1) shipped the validated snapshot and privacy-minimized metadata; remaining remediation items stay open until supported by test or release evidence.
 

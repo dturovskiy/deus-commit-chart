@@ -4,6 +4,7 @@
 > Date: **2026-10-10**
 > Repository: `dturovskiy/deus-commit-chart` (`main`)
 > Companion execution checklist: [REMEDIATION_CHECKLIST.md](REMEDIATION_CHECKLIST.md)
+> Prioritized post-remediation decisions and debt: [TECH_DEBT_REGISTER.md](TECH_DEBT_REGISTER.md) (living 2026-10-11 release handoff; original dated evidence below remains historical).
 > Principle: **one validated snapshot → deterministic renderers → verified publication**.
 
 ## 1. Purpose and boundaries
