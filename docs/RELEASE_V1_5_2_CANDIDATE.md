@@ -1,6 +1,6 @@
 # v1.5.2 candidate — NOT A PUBLISHED RELEASE
 
-> Draft release preparation, 2026-10-11. This candidate is intentionally **not tagged, merged, announced or published to Marketplace** until the original acceptance gates and release review complete. The stable public version remains v1.5.1 and legacy signed `@v1` remains v1.4.1.
+> Draft release preparation, 2026-10-11; refreshed after security/acceptance PRs #28–#29. This candidate is intentionally **not tagged, merged, announced or published to Marketplace** until the last original acceptance gate (G3-08) and release review complete. The stable public version remains v1.5.1 and legacy signed `@v1` remains v1.4.1.
 
 ## Candidate scope
 
@@ -12,7 +12,7 @@
 ## Required steps, in dependency order
 
 - [ ] Complete DC-G3-08 direct visual acceptance in [VISUAL_QA_MATRIX.md](VISUAL_QA_MATRIX.md).
-- [ ] Record explicitly reviewed dispositions for DC-G2-10 publishing rights and DC-G2-12 GitHub-owned image cache in [TECH_DEBT_REGISTER.md](TECH_DEBT_REGISTER.md); do not claim unmeasured cache SLA or strict write isolation.
+- [x] Record reviewed operational dispositions for DC-G2-10 publishing rights and DC-G2-12 GitHub-owned image cache in [RELEASE_RISK_DECISIONS.md](RELEASE_RISK_DECISIONS.md), with ongoing risks tracked in [TECH_DEBT_REGISTER.md](TECH_DEBT_REGISTER.md). The real publisher [#38148635625](https://github.com/dturovskiy/deus-commit-chart/actions/runs/38148635625) and cache probe [#38148744110](https://github.com/dturovskiy/deus-commit-chart/actions/runs/38148744110) passed; neither strict job-level write isolation nor a cache TTL is asserted.
 - [ ] Pass full PR-only Smoke after all candidate content changes; verify Node + Python suites, real two-theme Chromium, secrets guard, SVG XML, privacy and rollback.
 - [ ] Merge this release-candidate branch as a reviewed PR only after the above evidence is complete; verify `main` remains clean/synchronized.
 - [ ] Create a **new** annotated `v1.5.2` tag at the tested source commit; do not move or force-update an existing version or signed `v1`.
@@ -23,4 +23,4 @@
 
 ## Promotion blockers
 
-At creation time the original checklist reports **62/65**, with G3-08, G2-10 and G2-12 unclosed. This draft is a staging artifact; versioned release promotion must not be mistaken for completing those gates.
+As verified after PR #29, the original checklist reports **64/65**: G2-10 and G2-12 received evidence-backed operational dispositions, while their actual residuals stay in the debt register. **G3-08 human visual acceptance is still open.** This draft is a staging artifact; passing CI and preparing a version do not close visual acceptance or promote a release.
