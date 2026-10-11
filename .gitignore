@@ -1,5 +1,20 @@
 node_modules/
 dist/
+# Generated Action output directories (also used by README and default input).
+activity-dist/
+deus-commit-chart-dist/
+# Disposable CI/browser/report outputs. Do not track generated chart bundles.
+.tmp-*
+tmp/
+temp/
+playwright-report/
+test-results/
+.nyc_output/
+.mypy_cache/
+.ruff_cache/
+*.tgz
+*.cpuprofile
+*.heapprofile
 __pycache__/
 *.pyc
 .DS_Store

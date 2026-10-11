@@ -59,3 +59,39 @@ test('local credentials, keys and scratch artifacts are ignored by default', () 
     assert.equal(result.status, 0, 'Expected local-only file to be ignored: ' + f);
   }
 });
+
+test('generated output directories and diagnostic files stay untracked', () => {
+  const generatedPaths = [
+    'activity-dist/index.html',
+    'deus-commit-chart-dist/activity-30d.svg',
+    '.tmp-qa.json',
+    'tmp/chart.json',
+    'temp/debug.txt',
+    'playwright-report/index.html',
+    'test-results/screenshot.png',
+    '.nyc_output/report.json',
+    '.mypy_cache/cache.db',
+    '.ruff_cache/cache.db',
+    'deus-chart.tgz',
+    'cpu.cpuprofile',
+    'memory.heapprofile',
+  ];
+  for (const file of generatedPaths) {
+    const probe = spawnSync('git', ['check-ignore', '--no-index', '-q', '--', file], {
+      cwd: ROOT, encoding: 'utf8', timeout: 5000,
+    });
+    assert.equal(probe.status, 0, 'Expected generated file to be ignored: ' + file);
+  }
+
+  // A clean public source repository should never track generated bundles,
+  // private local files or CI/debug output. The generated activity-assets
+  // branch is intentionally independent from this source-branch guard.
+  const tracked = spawnSync('git', ['ls-files', '-z'], {
+    cwd: ROOT, encoding: 'utf8', timeout: 5000,
+  });
+  assert.equal(tracked.status, 0, 'Could not inspect tracked source');
+  const names = tracked.stdout.split('\0').filter(Boolean);
+  const forbidden = /(?:^|\/)(?:activity-dist|deus-commit-chart-dist|dist|tmp|temp|playwright-report|test-results|__pycache__|node_modules)\/|(?:^|\/)\.tmp-|(?:^|\/)(?:cache-audit\.json|[^/]+\.(?:log|tgz|cpuprofile|heapprofile))$/;
+  assert.deepEqual(names.filter(name => forbidden.test(name)), [],
+    'Generated or temporary artifacts must not be committed on main');
+});
