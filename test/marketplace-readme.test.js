@@ -46,12 +46,12 @@ function exampleShell() {
 
 test('Marketplace README gives users an opt-in/manual profile workflow, not mandatory scheduled CI', () => {
   assert.match(readme, /docs\/PROFILE_WORKFLOW_EXAMPLE\.yml/);
-  assert.match(readme, /manual-only by default/i);
+  assert.match(readme, /manual-only without any cron or polling/i);
   assert.match(readme, /privacy|private activity/i);
   assert.doesNotMatch(readme, /a smooth daily activity line and area|git log --date=short --format=%ad/);
   assert.match(yaml, /^on:\n  workflow_dispatch:/m);
   assert.doesNotMatch(yaml, /^  schedule:/m);
-  assert.match(yaml, /#   - cron: '17 4 \* \* \*'/);
+  assert.doesNotMatch(yaml, /\bcron:|\bschedule:/);
   assert.match(yaml, /uses: dturovskiy\/deus-commit-chart@v1\.5\.3/);
   assert.match(yaml, /actions\/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1/);
   assert.doesNotMatch(yaml, /git push (?:-f|--force)|upload-artifact|download-artifact|npm test/);
