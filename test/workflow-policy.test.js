@@ -122,6 +122,14 @@ test('external GitHub Actions are pinned to reviewed full release SHAs', () => {
   assert.doesNotMatch(publish, /\bcache:\s*npm\b/);
 });
 
+test('published consumer workflow example has no timer or cron configuration', () => {
+  const example = fs.readFileSync(path.join(__dirname, '../docs/PROFILE_WORKFLOW_EXAMPLE.yml'), 'utf8');
+  assert.match(example, /\n  workflow_dispatch:/);
+  assert.doesNotMatch(example, /\bcron:|\bschedule:/);
+  const readme = fs.readFileSync(path.join(__dirname, '../README.md'), 'utf8');
+  assert.doesNotMatch(readme, /uncomment its optional.*schedule/i);
+});
+
 test('tagged Marketplace consumer runs only on explicit dispatch and uses remote v1.5.3', () => {
   const content = workflow('marketplace-consumer.yml');
   const header = triggerSection(content);
