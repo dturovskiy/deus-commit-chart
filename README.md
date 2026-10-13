@@ -55,7 +55,7 @@ The Action generates `index.html` plus static `activity-30d.svg`, `activity-90d.
 
 The Action **generates files only**. Installing it does not schedule jobs, modify a branch, or update your README. If you want a profile embed, copy the **[complete, opt-in profile workflow](docs/PROFILE_WORKFLOW_EXAMPLE.yml)** to `USERNAME/USERNAME/.github/workflows/activity-chart.yml`. That sample calls the pinned `@v1.5.3` release, validates the output, and publishes HTML/SVG to the dedicated `activity-assets` branch without force-pushing.
 
-**The example is manual-only by default.** Run it once using **Actions → Update contribution chart → Run workflow**. To refresh automatically, uncomment its optional **daily UTC** schedule. Standard GitHub-hosted runners are free for public repositories; runs in private repositories can consume your account's included Actions minutes. Use the dedicated `activity-assets` branch only for generated charts—the example replaces its other contents.
+**The example is manual-only without any cron or polling.** Run it using **Actions → Update contribution chart → Run workflow**; automatic refresh needs an explicitly configured event source and authorized trigger. Standard GitHub-hosted runners are free for public repositories; runs in private repositories can consume your account's included Actions minutes. Use the dedicated `activity-assets` branch only for generated charts—the example replaces its other contents.
 
 The standalone Action itself needs only the token it uses to query GitHub; **`contents: write` is required only by your optional publishing workflow**, not by the generator. The example uses a separate Git worktree so publishing never deletes the checked-out source. It avoids empty commits when output bytes are identical, but since build timestamps change, repeated runs with unchanged counts can still create history. The maintainer's own publisher has a stricter verified snapshot no-op check; do not assume the shorter consumer example has that feature.
 
@@ -172,7 +172,7 @@ The token is read from one of these environment variables, in order. Set it usin
 
 Tokens are deliberately not accepted as CLI arguments so they do not appear in the process command line.
 
-The GitHub source requests the trailing 365-day contribution calendar once per batch generation. Generated HTML and SVGs do not contact GitHub afterward. **The profile publisher runs only every six hours (or when manually dispatched), independently of CI.** GitHub Actions scheduling and GitHub's image proxy cache can introduce additional, unbounded delays. The SVG labels its UTC build timestamp and snapshot ID.
+The GitHub source requests the trailing 365-day contribution calendar once per batch generation. Generated HTML and SVGs do not contact GitHub afterward. **The maintained profile publisher is event-driven: it runs on trusted main pushes or after an authenticated dispatch from the signed GitHub webhook relay, with manual dispatch as a fallback. No cron or interval polling.** GitHub can still delay updating GraphQL contributions after receiving an event, and its image proxy cache remains outside our control. The SVG labels its UTC build timestamp and snapshot ID.
 
 ## Automated publishing
 
@@ -195,7 +195,7 @@ https://raw.githubusercontent.com/dturovskiy/deus-commit-chart/activity-assets/a
 https://raw.githubusercontent.com/dturovskiy/deus-commit-chart/activity-assets/activity-365d.svg
 ```
 
-The workflow runs **only on its six-hour schedule or manual dispatch on `main`**. It makes one GraphQL request, generates HTML/SVG with a manifest, checks data integrity and XML, then creates a fast-forward commit on `activity-assets` (no force-push). **There is no regression suite, dependency install, separate build job or uploaded Actions artifact in the scheduled refresh.** The publisher skips creating a commit when the existing deployed assets pass full validation and both the 365-day snapshot and generator source revision are unchanged; it still checks GitHub every six hours. In that case the visible `Updated` timestamp remains the time of the **last published snapshot**, not the most recent no-op check. A new UTC day, changed contribution count, modified generator code or damaged existing assets forces publication. The last published assets stay intact if generation or validation fails.
+The workflow runs **only for a trusted push to `main` or an authenticated/manual `workflow_dispatch` on `main`**, after the external webhook receiver is operational. It has no periodic schedule. It makes one GraphQL request, generates HTML/SVG with a manifest, checks data integrity and XML, then creates a fast-forward commit on `activity-assets` (no force-push). **There is no regression suite, dependency install, separate build job or uploaded Actions artifact in the event-driven refresh.** The publisher skips creating a commit when the existing deployed assets pass full validation and both the 365-day snapshot and generator source revision are unchanged; it queries GitHub only when a corresponding event or explicit manual dispatch occurs. In that case the visible `Updated` timestamp remains the time of the **last published snapshot**, not the most recent no-op check. A new UTC day, changed contribution count, modified generator code or damaged existing assets forces publication. The last published assets stay intact if generation or validation fails.
 
 **CI runs only when a PR targets `main`.** The PR-only Smoke workflow tests source code, offline/local Marketplace Action compatibility, 30/90/365 SVG/HTML behavior and rollback. There are **no automatic freshness or README-cache audit workflows**; maintainer diagnostics can be dispatched manually, without creating issues or running on a schedule. See the workflow files under `.github/workflows/` for their supported inputs.
 
@@ -209,7 +209,7 @@ A profile README can embed the default 30-day range directly from the generated 
 </p>
 ```
 
-The generated `index.html` still contains the interactive 30d / 90d / 365d switcher and can be opened locally from the chosen output directory or a checkout of the published `activity-assets` branch. The maintainer's scheduled publisher does **not** upload Actions artifacts. If GitHub Pages is enabled later for the `activity-assets` branch, the same HTML can be served as an interactive public page without changing the generator.
+The generated `index.html` still contains the interactive 30d / 90d / 365d switcher and can be opened locally from the chosen output directory or a checkout of the published `activity-assets` branch. The maintainer's event-driven publisher does **not** upload Actions artifacts. If GitHub Pages is enabled later for the `activity-assets` branch, the same HTML can be served as an interactive public page without changing the generator.
 
 By default the publishing workflow authenticates with `github.token`. An optional repository secret named `DEUS_COMMIT_CHART_TOKEN` can override it when broader GitHub contribution visibility is required.
 

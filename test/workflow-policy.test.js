@@ -16,12 +16,13 @@ test('CI executes only for PRs targeting main, never push/schedule/dispatch', ()
   assert.match(header, /permissions:\n  contents: read/);
 });
 
-test('profile publisher has only one six-hour scheduled job and optional manual dispatch', () => {
+test('profile publisher has only event triggers (main push or authenticated dispatch)', () => {
   const content = workflow('publish-pages.yml');
   const header = triggerSection(content);
-  assert.match(header, /cron: '17 \*\/6 \* \* \*'/);
+  assert.match(header, /\n  push:\n    branches: \[main\]/);
   assert.match(header, /\n  workflow_dispatch:/);
-  assert.doesNotMatch(header, /(?:\n  push:|\n  pull_request:)/);
+  assert.doesNotMatch(header, /\n  (?:schedule|pull_request|repository_dispatch):/);
+  assert.doesNotMatch(content, /\bcron:|\bsleep\s+\d+|\bsetInterval\s*\(/);
   assert.deepEqual([...content.split('\njobs:\n')[1].matchAll(/^  ([a-z][\w-]+):$/gm)].map(m => m[1]), ['publish']);
   assert.match(content, /if: github.ref == 'refs\/heads\/main'/);
   assert.match(content, /permissions:\n      contents: write/);
@@ -119,6 +120,14 @@ test('external GitHub Actions are pinned to reviewed full release SHAs', () => {
   const publish = workflow('publish-pages.yml');
   assert.match(publish, /persist-credentials: false/);
   assert.doesNotMatch(publish, /\bcache:\s*npm\b/);
+});
+
+test('published consumer workflow example has no timer or cron configuration', () => {
+  const example = fs.readFileSync(path.join(__dirname, '../docs/PROFILE_WORKFLOW_EXAMPLE.yml'), 'utf8');
+  assert.match(example, /\n  workflow_dispatch:/);
+  assert.doesNotMatch(example, /\bcron:|\bschedule:/);
+  const readme = fs.readFileSync(path.join(__dirname, '../README.md'), 'utf8');
+  assert.doesNotMatch(readme, /uncomment its optional.*schedule/i);
 });
 
 test('tagged Marketplace consumer runs only on explicit dispatch and uses remote v1.5.3', () => {

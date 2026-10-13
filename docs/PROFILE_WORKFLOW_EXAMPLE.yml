@@ -1,12 +1,11 @@
 # Copy to USERNAME/USERNAME/.github/workflows/activity-chart.yml.
-# Manual-only by default. To refresh automatically, uncomment schedule.
+# Manual-only, no cron or polling. Trigger explicitly or connect an authenticated
+# event-driven integration appropriate to the repository owner's activity.
 # Standard runners are free in public repositories; private repo jobs may use quota.
 name: Update contribution chart
 
 on:
   workflow_dispatch:
-  # schedule:
-  #   - cron: '17 4 * * *'  # Optional: daily at 04:17 UTC
 
 permissions:
   contents: write # Required only because this example also publishes its SVGs.
