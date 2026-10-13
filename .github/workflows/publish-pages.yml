@@ -1,9 +1,12 @@
 name: Publish activity charts
 
 on:
-  # Publishing is a data refresh, NOT CI. Four times per day, like the original.
-  schedule:
-    - cron: '17 */6 * * *'
+  # Source changes may affect rendering; publish from the current trusted main.
+  push:
+    branches: [main]
+  # Authorized external GitHub webhook relay dispatches this exact workflow
+  # after contribution-relevant events in installed repositories.
+  # A manual run is also available for diagnostics or missed webhook events.
   workflow_dispatch:
 
 concurrency:
