@@ -11,6 +11,33 @@ const { validateContributionSeries } = require('./chart-contract');
 function verifyDirectory(dir) {
   const root = path.resolve(dir);
   const manifest = JSON.parse(fs.readFileSync(path.join(root, 'manifest.json'), 'utf8'));
+  // The public manifest is not part of its own checksummed asset set. Strict
+  // allowlists therefore reject new private fields even if the files are valid.
+  const allowedManifestKeys = new Set([
+    'schemaVersion', 'snapshotId', 'publicDataPolicy', 'generatedAt',
+    'source', 'username', 'sourceCommit', 'workflowRun',
+    'calendarDays', 'rangeStart', 'rangeEnd', 'currentDayPartial',
+    'ranges', 'assets'
+  ]);
+  const allowedRangeKeys = new Set(['total', 'startDate', 'endDate']);
+  const allowedAssetKeys = new Set(['bytes', 'sha256']);
+  if (!manifest || typeof manifest !== 'object' || Array.isArray(manifest) ||
+      Object.keys(manifest).some(key => !allowedManifestKeys.has(key)) ||
+      manifest.publicDataPolicy !== 'daily-aggregates-only-v1' ||
+      !['github', 'local'].includes(manifest.source)) {
+    throw new Error('Unexpected public chart manifest metadata');
+  }
+  if (!manifest.ranges || typeof manifest.ranges !== 'object' || Array.isArray(manifest.ranges) ||
+      Object.entries(manifest.ranges).some(([days, range]) =>
+        !['30', '90', '365'].includes(days) || !range ||
+        typeof range !== 'object' || Array.isArray(range) ||
+        Object.keys(range).some(key => !allowedRangeKeys.has(key))) ||
+      !manifest.assets || typeof manifest.assets !== 'object' || Array.isArray(manifest.assets) ||
+      Object.values(manifest.assets).some(asset => !asset ||
+        typeof asset !== 'object' || Array.isArray(asset) ||
+        Object.keys(asset).some(key => !allowedAssetKeys.has(key)))) {
+    throw new Error('Unexpected public chart manifest metadata');
+  }
   if (manifest.schemaVersion !== 1 || !/^[a-f0-9]{64}$/.test(manifest.snapshotId) ||
       !Number.isFinite(Date.parse(manifest.generatedAt))) throw new Error('Invalid build manifest');
   const expectedNames = Object.keys(manifest.assets || {});

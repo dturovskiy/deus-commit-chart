@@ -84,6 +84,32 @@ test('GitHub HTML, SVG and manifest publish daily counts without private source 
   assert.match(assets['activity-30d.svg'], /30 days · 30 contributions/);
 });
 
+test('public manifest rejects top-level and nested private metadata without needing an asset hash mismatch', () => {
+  const { assets } = createAssetBundle(sourceFixture());
+  const parent = fs.mkdtempSync(path.join(os.tmpdir(), 'chart-manifest-privacy-'));
+  const dir = path.join(parent, 'dist');
+  try {
+    writeBundle(dir, assets);
+    assert.doesNotThrow(() => verifyDirectory(dir));
+    const location = path.join(dir, 'manifest.json');
+    const original = JSON.parse(fs.readFileSync(location, 'utf8'));
+    const attacks = [
+      manifest => { manifest.token = 'NEVER_PUBLISH'; },
+      manifest => { manifest.ranges['30'].restrictedContributionsCount = 99; },
+      manifest => { manifest.assets['index.html'].authorization = 'NEVER_PUBLISH'; },
+      manifest => { manifest.publicDataPolicy = 'private-debug-dump'; }
+    ];
+    for (const attack of attacks) {
+      const changed = JSON.parse(JSON.stringify(original));
+      attack(changed);
+      fs.writeFileSync(location, JSON.stringify(changed), 'utf8');
+      assert.throws(() => verifyDirectory(dir), /Unexpected public chart manifest metadata/);
+    }
+    fs.writeFileSync(location, JSON.stringify(original), 'utf8');
+    assert.doesNotThrow(() => verifyDirectory(dir));
+  } finally { fs.rmSync(parent, { recursive:true, force:true }); }
+});
+
 test('local-mode repo and branch labels remain available for explicitly selected local charts', () => {
   const source = sourceFixture('local');
   const data = buildSeries(source.counts, source.startDate, source.endDate);
