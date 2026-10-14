@@ -47,7 +47,7 @@ function classifyScheduledDelivery(response, options = {}) {
     status: run.status, conclusion: run.conclusion
   });
   return {
-    status, maxGapHours, scheduleGapHours: gapHours === null ? null : Number(gapHours.toFixed(3)),
+    status, maxGapHours, scheduleGapHours: gapHours,
     lastScheduledRun: describe(latestSchedule),
     lastSuccessfulCheck: describe(latestSuccessfulCheck),
     // A successful no-op check still counts as a check, not a publication.
