@@ -21,10 +21,9 @@ function run(exe, args, cwd, env = {}) {
     exe + ' ' + args.slice(0, 2).join(' ') + ' failed: ' + (result.stderr || result.stdout));
   return result.stdout.trim();
 }
-function makeBundle(repo, count) {
+function makeBundle(repo, count, asOf = '2026-10-10T11:00:00.000Z') {
   const destination = path.join(repo, 'activity-dist');
   if (fs.existsSync(destination)) fs.rmSync(destination, { recursive: true, force: true });
-  const asOf = '2026-10-10T11:00:00.000Z';
   const w = utcWindow(asOf);
   const counts = new Map();
   for (let ms = Date.parse(w.startDate + 'T00:00:00Z'); ms <= Date.parse(w.endDate + 'T00:00:00Z'); ms += 86400000) {
@@ -36,6 +35,12 @@ function makeBundle(repo, count) {
     sourceDetails: { type: 'github', username: 'test-user' }
   });
   writeBundle(destination, assets);
+  // A real Actions runner supplies GITHUB_SHA, making safe source-revision
+  // reuse possible. Tests pin it without modifying the overall test process.
+  const manifestPath = path.join(destination, 'manifest.json');
+  const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
+  manifest.sourceCommit = 'a'.repeat(40);
+  fs.writeFileSync(manifestPath, JSON.stringify(manifest, null, 2) + '\n');
 }
 function exampleShell() {
   const head = yaml.indexOf('        run: |\n');
@@ -44,17 +49,21 @@ function exampleShell() {
   return block.split('\n').map(line => line.startsWith('          ') ? line.slice(10) : line).join('\n');
 }
 
-test('Marketplace README gives users an opt-in/manual profile workflow, not mandatory scheduled CI', () => {
+test('Marketplace README ships explicit profile automation with a bounded fallback', () => {
   assert.match(readme, /docs\/PROFILE_WORKFLOW_EXAMPLE\.yml/);
-  assert.match(readme, /manual-only by default/i);
+  assert.match(readme, /every 30 minutes/);
+  assert.match(readme, /may be skipped|run late or be skipped/);
+  assert.match(readme, /other repositories do not trigger/i);
   assert.match(readme, /privacy|private activity/i);
+  assert.doesNotMatch(readme, /manual-only by default/i);
   assert.doesNotMatch(readme, /a smooth daily activity line and area|git log --date=short --format=%ad/);
-  assert.match(yaml, /^on:\n  workflow_dispatch:/m);
-  assert.doesNotMatch(yaml, /^  schedule:/m);
-  assert.match(yaml, /#   - cron: '17 4 \* \* \*'/);
+  assert.match(yaml, /^on:\n  workflow_dispatch:\n  push:\n    branches: \[main\]\n  schedule:\n    - cron: '7,37 \* \* \* \*'/m);
   assert.match(yaml, /uses: dturovskiy\/deus-commit-chart@v1\.5\.3/);
   assert.match(yaml, /actions\/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1/);
-  assert.doesNotMatch(yaml, /git push (?:-f|--force)|upload-artifact|download-artifact|npm test/);
+  assert.match(yaml, /persist-credentials: false/);
+  assert.equal((yaml.match(/GH_TOKEN: \$\{\{ github\.token \}\}/g) || []).length, 1);
+  assert.match(yaml, /git_auth=\(-c credential\.helper=/);
+  assert.doesNotMatch(yaml, /DEUS_COMMIT_CHART_TOKEN:|git push (?:-f|--force)|upload-artifact|download-artifact|npm test/);
 });
 
 test('copy-paste publisher creates branch, keeps source intact, avoids identical commit and advances safely', () => {
@@ -84,11 +93,14 @@ test('copy-paste publisher creates branch, keeps source intact, avoids identical
     assert.equal(run('git', ['rev-parse', 'HEAD'], repo), baseline);
     assert.match(fs.readFileSync(path.join(repo, 'README.md'), 'utf8'), /source stays untouched/);
 
+    // Even when rebuilt metadata changes, unchanged contribution data must not
+    // create another commit on twice-hourly scheduled refreshes.
+    makeBundle(repo, 3, '2026-10-10T17:00:00.000Z');
     run('bash', ['-e', '-c', script], repo, env);
     const second = run('git', ['ls-remote', '--heads', 'origin', 'activity-assets'], repo).split(/\s+/)[0];
-    assert.equal(second, first, 'identical published bytes must not create another commit');
+    assert.equal(second, first, 'same calendar but different build time should not publish');
 
-    makeBundle(repo, 15);
+    makeBundle(repo, 15, '2026-10-10T19:00:00.000Z');
     run('bash', ['-e', '-c', script], repo, env);
     const third = run('git', ['ls-remote', '--heads', 'origin', 'activity-assets'], repo).split(/\s+/)[0];
     assert.notEqual(third, second);
