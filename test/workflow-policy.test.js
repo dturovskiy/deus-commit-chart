@@ -16,12 +16,13 @@ test('CI executes only for PRs targeting main, never push/schedule/dispatch', ()
   assert.match(header, /permissions:\n  contents: read/);
 });
 
-test('maintainer publisher has a 15-minute best-effort schedule and manual dispatch', () => {
+test('maintainer publisher refreshes on main push and best-effort cron plus manual dispatch', () => {
   const content = workflow('publish-pages.yml');
   const header = triggerSection(content);
   assert.match(header, /cron: '11,26,41,56 \* \* \* \*'/);
+  assert.match(header, /\n  push:\n    branches: \[main\]/);
   assert.match(header, /\n  workflow_dispatch:/);
-  assert.doesNotMatch(header, /(?:\n  push:|\n  pull_request:)/);
+  assert.doesNotMatch(header, /\n  pull_request:/);
   assert.deepEqual([...content.split('\njobs:\n')[1].matchAll(/^  ([a-z][\w-]+):$/gm)].map(m => m[1]), ['publish']);
   assert.match(content, /if: github.ref == 'refs\/heads\/main'/);
   assert.match(content, /permissions:\n      contents: write/);
@@ -136,6 +137,17 @@ test('tagged Marketplace consumer runs only on explicit dispatch and uses remote
   assert.match(content, /python3 ci\/validate-svg\.py/);
   assert.doesNotMatch(content, /upload-artifact|download-artifact|contents: write|git push/);
   assert.match(content, /actions\/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1/);
+});
+
+test('Marketplace release version and documented security support stay aligned', () => {
+  const security = fs.readFileSync(path.join(__dirname, '../SECURITY.md'), 'utf8');
+  assert.match(security, /supported released Action, \*\*v1\.5\.3\*\*/);
+  assert.doesNotMatch(security, /@v1\.5\.1|latest supported release, \*\*v1\.5\.1/);
+  const readme = fs.readFileSync(path.join(__dirname, '../README.md'), 'utf8');
+  assert.doesNotMatch(readme, /it still checks GitHub every six hours/);
+  assert.match(readme, /Pushes to other repositories do not invoke this publisher/);
+  const workflowContent = workflow('publish-pages.yml');
+  assert.match(triggerSection(workflowContent), /\n  push:\n    branches: \[main\]/);
 });
 
 test('the upcoming Marketplace release version is consistent in npm metadata', () => {

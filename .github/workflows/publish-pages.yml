@@ -5,6 +5,10 @@ on:
   # (best effort; GitHub may delay or drop scheduled events).
   schedule:
     - cron: '11,26,41,56 * * * *'
+  # Deterministic refresh for commits to this repository. Publishing goes to
+  # activity-assets, so it cannot trigger a recursive main-branch build.
+  push:
+    branches: [main]
   workflow_dispatch:
 
 concurrency:
