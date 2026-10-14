@@ -10,6 +10,12 @@ on:
         default: '24'
         type: choice
         options: ['8', '24', '48', '72']
+      max_schedule_gap_hours:
+        description: 'Maximum time since the last delivered schedule event (hours)'
+        required: false
+        default: '2'
+        type: choice
+        options: ['2', '6', '24']
 
 concurrency:
   group: chart-freshness-monitor
@@ -21,8 +27,10 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
+      actions: read
     env:
       CHART_MAX_AGE_HOURS: ${{ inputs.max_age_hours || '24' }}
+      CHART_MAX_SCHEDULE_GAP_HOURS: ${{ inputs.max_schedule_gap_hours || '2' }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
@@ -47,6 +55,16 @@ jobs:
       - name: Evaluate snapshot freshness
         id: freshness
         run: node ci/check-freshness.js /tmp/chart-published/manifest.json
+      - name: Inspect scheduled delivery independently of publication freshness
+        id: schedule_delivery
+        if: always()
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          gh api "repos/${GITHUB_REPOSITORY}/actions/workflows/publish-pages.yml/runs?per_page=100" > /tmp/chart-schedule-runs.json
+          node ci/check-run-delivery.js /tmp/chart-schedule-runs.json | tee /tmp/chart-schedule-report.log
       - name: Record manual diagnostic outcome
         if: always()
         shell: bash
@@ -54,13 +72,22 @@ jobs:
           FETCH_OUTCOME: ${{ steps.fetch_assets.outcome }}
           INTEGRITY_OUTCOME: ${{ steps.integrity.outcome }}
           FRESHNESS_OUTCOME: ${{ steps.freshness.outcome }}
+          SCHEDULE_OUTCOME: ${{ steps.schedule_delivery.outcome }}
         run: |
           {
             echo '## Chart freshness (manual diagnostic)'
             echo "- Fetch: ${FETCH_OUTCOME:-not-run}"
             echo "- Integrity: ${INTEGRITY_OUTCOME:-not-run}"
-            echo "- Freshness: ${FRESHNESS_OUTCOME:-not-run}"
-            echo "- Configured max age: ${CHART_MAX_AGE_HOURS} hours"
-            echo '- Source: verified published activity-assets manifest'
+            echo "- Published snapshot freshness: ${FRESHNESS_OUTCOME:-not-run}"
+            echo "- Schedule event delivery: ${SCHEDULE_OUTCOME:-not-run}"
+            echo "- Configured max published age: ${CHART_MAX_AGE_HOURS} hours"
+            echo "- Configured max schedule gap: ${CHART_MAX_SCHEDULE_GAP_HOURS} hours"
+            echo '- Artifact source: verified published activity-assets manifest'
+            echo '- Schedule source: GitHub Actions run history (not SVG generatedAt)'
+            if [[ -f /tmp/chart-schedule-report.log ]]; then
+              echo '```json'
+              sed 's/^SCHEDULE_DELIVERY //' /tmp/chart-schedule-report.log
+              echo '```'
+            fi
             echo '- No issue is opened and no scheduled monitor is started'
           } >> "$GITHUB_STEP_SUMMARY"

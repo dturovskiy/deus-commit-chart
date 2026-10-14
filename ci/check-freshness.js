@@ -2,7 +2,9 @@
 'use strict';
 
 // Read-only freshness gate for the *published* branch, not the source checkout.
-// A stale or missing manifest fails CI and activates the issue-notification step.
+// Publication age is distinct from the age of the latest successful Actions
+// run. No-op checks do not produce new assets; ci/check-run-delivery.js reports
+// the schedule and last successful run independently. No issues are created.
 const fs = require('node:fs');
 
 const DEFAULT_MAX_AGE_HOURS = 8;

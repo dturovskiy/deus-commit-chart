@@ -66,6 +66,12 @@ test('freshness check and README cache probe never run automatically or modify i
   assert.match(monitor, /FETCH_OUTCOME/);
   assert.match(monitor, /INTEGRITY_OUTCOME/);
   assert.match(monitor, /FRESHNESS_OUTCOME/);
+  assert.match(monitor, /actions: read/);
+  assert.match(monitor, /CHART_MAX_SCHEDULE_GAP_HOURS/);
+  assert.match(monitor, /gh api "repos\/\$\{GITHUB_REPOSITORY\}\/actions\/workflows\/publish-pages\.yml\/runs\?per_page=100"/);
+  assert.match(monitor, /node ci\/check-run-delivery\.js/);
+  assert.match(monitor, /SCHEDULE_OUTCOME/);
+  assert.match(monitor, /Schedule event delivery/);
 });
 
 test('Marketplace composite Action entry point remains unchanged in the runtime pipeline', () => {
