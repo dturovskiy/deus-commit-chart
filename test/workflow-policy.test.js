@@ -16,10 +16,10 @@ test('CI executes only for PRs targeting main, never push/schedule/dispatch', ()
   assert.match(header, /permissions:\n  contents: read/);
 });
 
-test('profile publisher has only one six-hour scheduled job and optional manual dispatch', () => {
+test('maintainer publisher has a 15-minute best-effort schedule and manual dispatch', () => {
   const content = workflow('publish-pages.yml');
   const header = triggerSection(content);
-  assert.match(header, /cron: '17 \*\/6 \* \* \*'/);
+  assert.match(header, /cron: '11,26,41,56 \* \* \* \*'/);
   assert.match(header, /\n  workflow_dispatch:/);
   assert.doesNotMatch(header, /(?:\n  push:|\n  pull_request:)/);
   assert.deepEqual([...content.split('\njobs:\n')[1].matchAll(/^  ([a-z][\w-]+):$/gm)].map(m => m[1]), ['publish']);

@@ -1,9 +1,10 @@
 name: Publish activity charts
 
 on:
-  # Publishing is a data refresh, NOT CI. Four times per day, like the original.
+  # Publishing is a lightweight data refresh, NOT CI. Every 15 minutes
+  # (best effort; GitHub may delay or drop scheduled events).
   schedule:
-    - cron: '17 */6 * * *'
+    - cron: '11,26,41,56 * * * *'
   workflow_dispatch:
 
 concurrency:
