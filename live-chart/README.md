@@ -1,66 +1,88 @@
-# Live SVG endpoint — isolated experiment
+# DEUS Commit Chart Live — self-hosted experiment
 
-**Status: Draft experiment only. Not deployed; not a user-facing URL.**
+**Draft only. Not deployed. No user-facing endpoint or README change.**
 
-This additive proof of concept uses the existing `loadContributionSource` and
-`createAssetBundle` pipelines. It does **not** change the existing Marketplace
-composite Action, any GitHub Actions trigger, README, release tag or published
-`activity-assets` branch.
+This is part of **DEUS Commit Chart**, not a new product or a separately
+installed client app. The Live HTTP server runs on built-in Node.js
+`node:http` with **no extra npm dependencies**, using the exact existing
+`loadContributionSource` / `createAssetBundle` generation pipeline.
 
-## HTTP contract (once explicitly deployed)
+The program binds **127.0.0.1 only** (default port 8787). A separately
+reviewed `deus-gateway` nginx/Caddy reverse-proxy route can expose it over
+HTTPS in our own infrastructure when a stable always-on host is available.
+GitHub Pages can host static files, not this long-running endpoint.
+
+## Endpoint contract
 
 - `GET /api/chart?username=USERNAME&days=365`
 - `days`: 30 (default), 90, 365
 - `theme`: `github-compact` (default), `github-light`
-- 200: validated standalone `image/svg+xml`, ETag, `Cache-Control:
-  public, max-age=0, s-maxage=300, stale-while-revalidate=600`
-- 304: conditional ETag hit; 400/405: rejected input; 503: missing service
-  credential or saturated backend; 502: upstream errors.
-- Query parameters other than the three supported inputs are rejected to
-  prevent cache-key amplification.
-- Existing verified SVG may be served up to 30 minutes stale during upstream
-  failures; a stale response is marked `X-Deus-Chart-Cache: STALE`.
-- A bounded in-memory per-instance cache and in-flight coalescing are included,
-  but **they are not a global distributed cache**.
-- No timer, background poll, automatic commit or filesystem write.
+- `GET /healthz`: local health only; does not reveal credentials
+- 200: verified standalone `image/svg+xml`, ETag and
+  `Cache-Control: public, max-age=0, s-maxage=300, stale-while-revalidate=600`
+- 304: conditional ETag hit
+- 400/405: invalid input/method; 503: missing service credential or busy;
+  502: upstream GitHub errors
+- Unknown or duplicated query parameters are rejected. No user-supplied
+  API hostname, upstream URL, code execution or filesystem path is accepted.
+- Fresh in-memory cache is 5 minutes (up to 64 variants), with bounded
+  in-flight calls and a validated 30-minute stale-on-upstream-failure fallback.
+- No background cron, worker timer, automatic git commit or write to disk.
+  The cache is per process; it is **not a global distributed cache**.
 
-## Prerequisites before any production hosting
+## Local/offline development
 
-1. Explicitly choose and configure a serverless provider with durable, shared
-   cache/rate limits for a public endpoint; this experiment intentionally does
-   **not** create or deploy a hosting account.
-2. Supply the **server-side only** `DEUS_CHART_LIVE_TOKEN` with the least
-   privileges needed for public contribution-calendar reads. The token is
-   required by GitHub GraphQL; never expose it to browsers, README URLs,
-   Action inputs, logs, or any client-facing error. No user token is required
-   for the default public-only Live mode.
-3. Confirm dedicated read credentials cannot expose non-public contribution
-   activity, including accounts with private collaborations.
-4. Introduce provider-side abuse controls, rate limiting and observability
-   before broad public release. Memory caching does not provide cross-instance
-   throttling. GitHub API limits and external costs need a measured budget.
-5. Verify end-to-end UTC boundary accuracy, HTTP content type, ETag behavior,
-   Camo image proxy/cache lag, multiple user accounts and privacy policy.
-6. Deploy to a preview URL first, independently verify, then consider a
-   documented opt-in Live option for the Marketplace. The offline Action
-   remains supported and is not switched over automatically.
-
-## Local verification
+Run the full Node test suite (which mocks GitHub):
 
 ```bash
-node --test test/live-chart-endpoint.test.js
-npm test
+node --test test/live-chart-endpoint.test.js test/live-chart-server.test.js
 npm run check
+npm test
 ```
 
-The default export of `api/chart.js` follows the Vercel Node.js HTTP
-function convention and is inert without a separate deployment. It needs
-Node.js 22 or later at the hosting provider.
+The server process **will not start** unless `DEUS_CHART_LIVE_TOKEN` is
+provided through its private environment. It never prints the value.
+An authorized maintainer can run `node live-chart/server.js` with that
+environment variable already configured; `DEUS_CHART_PORT` optionally
+sets a strictly validated listening port (default 8787).
 
-**Freshness**: a request-driven cache expiry is not a timer-based job. Neither
-GitHub GraphQL recomputation nor GitHub's Camo image caching offers an
-instantaneous freshness SLA. Do not market as live-to-the-second.
+Example health probe on the same host:
 
-**Rollback**: close the Draft PR to discard the experiment. No stable branch,
-published SVG, secret, Marketplace listing or existing workflow needs to be
-rolled back; none of these are modified by the experiment.
+```bash
+curl --fail --silent http://127.0.0.1:8787/healthz
+```
+
+Do not copy credentials to shell history, git, README, public client URLs,
+or remote `gh` Actions secrets. Do not forward GitHub CLI's OAuth token.
+A carefully restricted **single service-side** GitHub GraphQL credential
+is needed for public calendar queries, but visitors require no credential,
+GitHub App or PAT. Before enabling public access, prove that the service
+account cannot see private/internal contribution data.
+
+## Release gates (all pending)
+
+1. Identify an **existing, reliably online** DEUS host/VM; a local WSL
+   session is not an uptime solution for a public README chart.
+2. Install Node.js 22 runtime with this repository code in an isolated
+   unprivileged service account and protect the environment file.
+3. Configure and review HTTPS reverse proxy through `deus-gateway`:
+   only `GET /api/chart` is exposed; apply per-IP rate limits, body-size,
+   connection and timeout limits, egress control and monitoring. Do not
+   expose port 8787 directly to the internet.
+4. Verify GitHub rate-limit budget, public-only GraphQL authentication,
+   denial-of-service behavior, caching behavior, audit trails and isolation.
+5. Test a **preview HTTPS URL** with real GitHub GraphQL and multiple
+   accounts. Compare against static SVG, validate 30/90/365 day totals.
+6. Confirm actual GitHub Camo behavior in a separate profile README
+   Draft PR. The existing static image remains in place.
+7. Only after demonstrated stable operation, consider a public release
+   or Marketplace documentation. Do not remove current cron/publisher.
+
+**Limitations:** request-driven generation cannot guarantee a fresh image
+the moment an upstream contribution occurs; GitHub may recompute the
+calendar later and its README Camo proxy can serve cached images. This
+service cannot guarantee a five-minute user-visible update SLA.
+
+**Rollback:** close Draft PR #44 and optionally delete its experimental
+branch. No release tag, default branch, hosting, current README, Actions
+consumer or existing SVG assets are changed by this experiment.
