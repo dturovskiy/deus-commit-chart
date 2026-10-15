@@ -35,10 +35,14 @@ function classifyScheduledDelivery(response, options = {}) {
     : null;
   const deliveryOverdue = gapHours === null || gapHours > maxGapHours;
   let status = 'healthy';
-  if (deliveryOverdue) status = 'schedule_delivery_gap';
-  else if (latestSchedule.status === 'completed' && latestSchedule.conclusion !== 'success') {
+  // A delivered scheduled run that failed is an execution problem even when
+  // the delivery gap has also exceeded the threshold. Never downgrade it to
+  // a mere best-effort schedule-delay advisory.
+  if (latestSchedule?.status === 'completed' && latestSchedule.conclusion !== 'success') {
     status = 'schedule_failed';
-  } else if (latestSchedule.status !== 'completed') {
+  } else if (deliveryOverdue) {
+    status = 'schedule_delivery_gap';
+  } else if (latestSchedule?.status !== 'completed') {
     status = 'schedule_in_progress';
   }
 
@@ -64,7 +68,16 @@ function main(argv = process.argv) {
     maxGapHours: process.env.CHART_MAX_SCHEDULE_GAP_HOURS
   });
   console.log('SCHEDULE_DELIVERY ' + JSON.stringify(result));
-  if (!['healthy', 'schedule_in_progress'].includes(result.status)) {
+  if (result.status === 'schedule_delivery_gap' &&
+      process.env.CHART_SCHEDULE_GAP_ADVISORY === 'true') {
+    // This manual audit executes successfully even if GitHub's best-effort
+    // scheduler has not delivered events. Preserve an explicit Actions warning.
+    console.log('::warning title=DEUS schedule delivery gap::' +
+      'No scheduled publisher event within ' + result.maxGapHours +
+      ' hours. Last event: ' + (result.lastScheduledRun?.createdAt || 'none') +
+      '. Publisher health and scheduler delivery must be assessed separately.');
+  } else if (!['healthy', 'schedule_in_progress'].includes(result.status)) {
+    // Failed scheduled execution and any unexpected diagnostics remain red.
     process.exitCode = 1;
   }
   return result;

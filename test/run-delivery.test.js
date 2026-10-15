@@ -51,6 +51,12 @@ test('recent scheduled failures and in-progress runs have distinct classificatio
     'schedule_in_progress');
 });
 
+test('delivered schedule failure never gets downgraded to a delivery-gap warning', () => {
+  const r = classify([run(8, 'schedule', '2026-10-14T17:00:00Z', 'failure')]);
+  assert.equal(r.status, 'schedule_failed');
+  assert.ok(r.scheduleGapHours > 2);
+});
+
 test('malformed API data, invalid thresholds and future timestamps fail closed', () => {
   assert.throws(() => classifyScheduledDelivery({}, { now }), /workflow-run response/);
   assert.throws(() => classify([run(1, 'schedule', 'not-a-time')]), /timestamp/);
@@ -75,5 +81,34 @@ test('CLI makes stale schedule delivery actionable without reporting an asset fa
     // The archived fixture is old relative to wall clock; classification is a gap.
     assert.equal(result.status, 1);
     assert.match(result.stdout, /SCHEDULE_DELIVERY .*schedule_delivery_gap/);
+    const advisory = spawnSync(process.execPath,
+      [path.join(__dirname, '../ci/check-run-delivery.js'), file], {
+        encoding: 'utf8',
+        env: { ...process.env, CHART_MAX_SCHEDULE_GAP_HOURS: '2',
+          CHART_SCHEDULE_GAP_ADVISORY: 'true' }
+      });
+    assert.equal(advisory.status, 0);
+    assert.match(advisory.stdout, /SCHEDULE_DELIVERY .*schedule_delivery_gap/);
+    assert.match(advisory.stdout, /::warning title=DEUS schedule delivery gap::/);
+    // Advisory delivery mode may not conceal actual scheduled execution failure.
+    fs.writeFileSync(file, JSON.stringify({ workflow_runs: [run(9, 'schedule',
+      new Date(Date.now() - 60000).toISOString(), 'failure')] }));
+    const failure = spawnSync(process.execPath,
+      [path.join(__dirname, '../ci/check-run-delivery.js'), file], {
+        encoding: 'utf8',
+        env: { ...process.env, CHART_MAX_SCHEDULE_GAP_HOURS: '2',
+          CHART_SCHEDULE_GAP_ADVISORY: 'true' }
+      });
+    assert.equal(failure.status, 1);
+    assert.match(failure.stdout, /SCHEDULE_DELIVERY .*schedule_failed/);
+    assert.doesNotMatch(failure.stdout, /::warning title=DEUS schedule delivery gap::/);
+    fs.writeFileSync(file, '{"workflow_runs":"corrupt"}');
+    const invalid = spawnSync(process.execPath,
+      [path.join(__dirname, '../ci/check-run-delivery.js'), file], {
+        encoding: 'utf8',
+        env: { ...process.env, CHART_SCHEDULE_GAP_ADVISORY: 'true' }
+      });
+    assert.equal(invalid.status, 2);
+    assert.match(invalid.stderr, /SCHEDULE_DIAGNOSTIC_ERROR/);
   } finally { fs.rmSync(root, { recursive: true, force: true }); }
 });

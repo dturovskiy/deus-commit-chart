@@ -61,6 +61,10 @@ jobs:
         shell: bash
         env:
           GH_TOKEN: ${{ github.token }}
+          # A missing GitHub schedule event is an external delivery warning,
+          # not a failure to execute this read-only diagnostic. Actual scheduled
+          # run failures, API errors, and invalid responses must still fail.
+          CHART_SCHEDULE_GAP_ADVISORY: 'true'
         run: |
           set -euo pipefail
           gh api "repos/${GITHUB_REPOSITORY}/actions/workflows/publish-pages.yml/runs?per_page=100" > /tmp/chart-schedule-runs.json
@@ -79,7 +83,14 @@ jobs:
             echo "- Fetch: ${FETCH_OUTCOME:-not-run}"
             echo "- Integrity: ${INTEGRITY_OUTCOME:-not-run}"
             echo "- Published snapshot freshness: ${FRESHNESS_OUTCOME:-not-run}"
-            echo "- Schedule event delivery: ${SCHEDULE_OUTCOME:-not-run}"
+            echo "- Schedule diagnostic execution: ${SCHEDULE_OUTCOME:-not-run}"
+            if [[ -f /tmp/chart-schedule-report.log ]] && grep -q '"status":"schedule_delivery_gap"' /tmp/chart-schedule-report.log; then
+              echo '- **Schedule health: WARN — GitHub schedule delivery gap (not a successful delivery)**'
+            elif [[ "${SCHEDULE_OUTCOME:-not-run}" == 'failure' ]]; then
+              echo '- **Schedule health: FAIL — inspect the failed diagnostic step**'
+            else
+              echo '- Schedule health: see structured result below'
+            fi
             echo "- Configured max published age: ${CHART_MAX_AGE_HOURS} hours"
             echo "- Configured max schedule gap: ${CHART_MAX_SCHEDULE_GAP_HOURS} hours"
             echo '- Artifact source: verified published activity-assets manifest'
